@@ -34,7 +34,7 @@ import re
 
 
 # Where do we get up-to-date seeds from?
-WIKI = "http://people.ubuntu.com/~cjwatson/seeds/"
+SEEDS = "http://people.ubuntu.com/~cjwatson/seeds/"
 RELEASE = "hoary"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
@@ -239,7 +239,7 @@ class Germinator:
         seedpkgs = []
 
         print "Downloading", seedname, "list ..."
-        url = WIKI + RELEASE + "/" + seedname
+        url = SEEDS + RELEASE + "/" + seedname
         f = urllib.urlopen(url)
         for line in f:
             if not line.startswith(" * "):
