@@ -1,3 +1,6 @@
 # We want to avoid shipping GNOME 1.x components if possible
 gconf
 libxml
+libcapplet
+gnome-bin
+gnome-libs
