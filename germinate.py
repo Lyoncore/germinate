@@ -744,6 +744,9 @@ def main():
         elif option == "--no-rdepends":
             want_rdepends = False
 
+    apt_pkg.InitConfig()
+    apt_pkg.Config.Set("APT::Architecture", ARCH)
+
     g.parsePackages(open_tag_file("Packages", "binary-"+ARCH+"/Packages.gz"),
                     "deb")
     g.parseSources(open_tag_file("Sources", "source/Sources.gz"))
