@@ -565,6 +565,18 @@ class Germinator:
                     if len(deplist) > 1:
                         print "? Nothing to choose to satisfy", pkg
 
+    def rememberWhy(self, seedname, pkg, why, build_tree=False):
+        """Remember why this package was added to the output for this seed."""
+        if pkg in self.why[seedname]:
+            (old_why, old_build_tree) = self.why[seedname][pkg];
+            # Reasons from the dependency tree beat reasons from the
+            # build-dependency tree; but pick the first of either type that
+            # we see.
+            if not old_build_tree:
+                return
+
+        self.why[seedname][pkg] = (why, build_tree)
+
     def addPackage(self, seedname, pkg, why,
                    second_class=False,
                    build_tree=False):
@@ -589,8 +601,8 @@ class Germinator:
         # Remember why the package was added to the output for this seed.
         # Also remember a reason for "all" too, so that an aggregated list
         # of all selected packages can be constructed easily.
-        self.why[seedname][pkg] = why
-        self.why["all"][pkg] = why
+        self.rememberWhy(seedname, pkg, why, build_tree)
+        self.rememberWhy("all", pkg, why, build_tree)
 
         for prov in self.packages[pkg]["Provides"]:
             if prov[0][0] not in self.pkgprovides:
@@ -714,7 +726,7 @@ def write_list(whyname, filename, g, pkglist):
         _src_len = len(g.packages[pkg]["Source"])
         if _src_len > src_len: src_len = _src_len
 
-        _why_len = len(g.why[whyname][pkg])
+        _why_len = len(g.why[whyname][pkg][0])
         if _why_len > why_len: why_len = _why_len
 
         _mnt_len = len(g.packages[pkg]["Maintainer"])
@@ -741,7 +753,7 @@ def write_list(whyname, filename, g, pkglist):
         print >>f, "%-*s | %-*s | %-*s | %-*s | %15d | %15d" % \
               (pkg_len, pkg,
                src_len, g.packages[pkg]["Source"],
-               why_len, g.why[whyname][pkg],
+               why_len, g.why[whyname][pkg][0],
                mnt_len, g.packages[pkg]["Maintainer"],
                g.packages[pkg]["Size"],
                g.packages[pkg]["Installed-Size"])
