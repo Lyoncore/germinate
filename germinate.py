@@ -275,7 +275,7 @@ class Germinator:
 
         return False
 
-    def plantSeed(self, seedurl, release, seedname, seedinherit):
+    def plantSeed(self, seedurl, release, arch, seedname, seedinherit):
         """Add a seed."""
         if seedname in self.seeds:
             return
@@ -320,7 +320,7 @@ class Germinator:
                 else:
                     archspec = pkg[startarchspec + 1:endarchspec].split()
                     pkg = pkg[:startarchspec - 1]
-                    if ARCH not in archspec:
+                    if arch not in archspec:
                         continue
 
             pkg = pkg.split()[0]
@@ -993,7 +993,7 @@ def main():
             seedinherit = SEEDINHERIT[seedname]
         else:
             seedinherit = []
-        g.plantSeed(SEEDS, RELEASE, seedname, seedinherit)
+        g.plantSeed(SEEDS, RELEASE, ARCH, seedname, seedinherit)
     g.prune()
     g.grow()
     g.addExtras()
