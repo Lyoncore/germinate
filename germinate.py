@@ -590,6 +590,7 @@ def open_tag_file(filename, dist, component, ftppath):
 
     print "Downloading", filename, "file ..."
     url = MIRROR + "dists/" + dist + "/" + component + "/" + ftppath
+    gzip_fn = None
     try:
         gzip_fn = urllib.urlretrieve(url, filename + ".gz")[0]
 
@@ -602,7 +603,8 @@ def open_tag_file(filename, dist, component, ftppath):
         f.close()
         gzip_f.close()
     finally:
-        os.unlink(gzip_fn)
+        if gzip_fn is not None:
+            os.unlink(gzip_fn)
 
     return open(filename, "r")
 
@@ -613,6 +615,7 @@ def open_ipv6_tag_file(filename):
 
     print "Downloading", filename, "file ..."
     url = IPV6DB + filename + ".gz"
+    gzip_fn = None
     try:
         gzip_fn = urllib.urlretrieve(url, filename + ".gz")[0]
         print "Decompressing", filename, "file ..."
@@ -623,7 +626,8 @@ def open_ipv6_tag_file(filename):
         f.close()
         gzip_f.close()
     finally:
-        os.unlink(gzip_fn)
+        if gzip_fn is not None:
+            os.unlink(gzip_fn)
 
     return open(filename, "r")
 
