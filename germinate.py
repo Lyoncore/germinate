@@ -30,6 +30,7 @@ import urllib
 import glob
 import string
 import getopt
+import re
 
 
 # Where do we get up-to-date seeds from?
@@ -55,6 +56,7 @@ class Germinator:
 
         self.seeds = []
         self.seed = {}
+        self.substvars = {}
         self.depends = {}
         self.build_depends = {}
 
@@ -187,12 +189,52 @@ class Germinator:
         self.sourcepkgs[seedname] = []
         self.build_sourcepkgs[seedname] = []
 
+    def substituteSeedVars(self, pkg):
+        """Process substitution variables. These look like ${name} (e.g.
+        "kernel-image-${Kernel-Version}"). The name is case-insensitive.
+        Substitution variables are set with a line that looks like
+        " * name: value [value ...]", values being whitespace-separated.
+        
+        A package containing substitution variables will be expanded into
+        one package for each possible combination of values of those
+        variables."""
+
+        pieces = re.split(r'(\${.*?})', pkg)
+        substituted = [[]]
+
+        for piece in pieces:
+            if pkg.find("${") != -1:
+                print "! piece:", piece
+            if piece.startswith("${") and piece.endswith("}"):
+                name = piece[2:-1].lower()
+                if name in self.substvars:
+                    # Duplicate substituted once for each available substvar
+                    # expansion.
+                    newsubst = []
+                    for value in self.substvars[name]:
+                        for substpieces in substituted:
+                            newsubstpieces = list(substpieces)
+                            newsubstpieces.append(value)
+                            newsubst.append(newsubstpieces)
+                    substituted = newsubst
+                else:
+                    print "? Undefined seed substvar:", name
+            else:
+                for substpieces in substituted:
+                    substpieces.append(piece)
+
+        substpkgs = []
+        for substpieces in substituted:
+            substpkgs.append(string.join(substpieces, ""))
+        return substpkgs
+
     def plantSeed(self, seedname):
         """Add a seed."""
         if seedname in self.seeds:
             return
 
         self.newSeed(seedname)
+        seedpkgs = []
 
         print "Downloading", seedname, "list ..."
         url = WIKI + RELEASE + "/" + seedname
@@ -211,18 +253,20 @@ class Germinator:
                 name = pkg[:colon]
                 name = name.lower()
                 value = pkg[colon + 1:]
-                value = value.strip(" ")
+                values = value.strip(" ").split()
                 if name == "kernel-version":
                     # Allows us to pick the right modules later
-                    print "! Allowing d-i kernel version:", value
-                    self.di_kernel_versions.append(value)
-                else:
-                    print "? Unknown seed header:", pkg
+                    print "! Allowing d-i kernel versions:", values
+                    self.di_kernel_versions.extend(values)
+                self.substvars[name] = values
                 continue
 
             if pkg.find(" ") != -1:
                 pkg = pkg[:pkg.find(" ")]
 
+            seedpkgs.extend(self.substituteSeedVars(pkg))
+
+        for pkg in seedpkgs:
             if pkg in self.hints and self.hints[pkg] != seedname:
                 print "! Taking the hint:", pkg
                 continue
