@@ -433,15 +433,28 @@ def main():
                           g, g.build_sourcepkgs[seedname])
 
     all = []
+    sup = []
     all_srcs = []
+    sup_srcs = []
     for seedname in ("base", "desktop", "supported"):
         all += g.seed[seedname]
         all += g.depends[seedname]
         all += g.build_depends[seedname]
         all_srcs += g.sourcepkgs[seedname]
         all_srcs += g.build_sourcepkgs[seedname]
+
+        if seedname == "supported":
+            sup += g.seed[seedname]
+            sup += g.depends[seedname]
+            sup_srcs += g.sourcepkgs[seedname]
+        sup += g.build_depends[seedname]
+        sup_srcs += g.build_sourcepkgs[seedname]
+
     write_list("all", g, all)
     write_source_list("all.sources", g, all_srcs)
+
+    write_list("supported+build-depends", g, sup)
+    write_source_list("supported+build-depends.sources", g, sup_srcs)
 
     write_list("all+extra", g, g.all)
     write_source_list("all+extra.sources", g, g.all_srcs)
