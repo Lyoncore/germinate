@@ -48,6 +48,16 @@ CHECK_IPV6 = False
 # If we need to download a new IPv6 dump, where do we get it from?
 IPV6DB = "http://debdev.fabbione.net/stat/"
 
+SEEDNAMES = ['base', 'desktop', 'ship', 'installer', 'supported']
+
+SEEDINHERIT = {
+    'base':             [],
+    'desktop':          ['base'],
+    'ship':             ['base', 'desktop'],
+    'installer':        [],
+    'supported':        ['base', 'desktop', 'ship'],
+}
+
 class Germinator:
     def __init__(self):
         self.packages = {}
@@ -453,10 +463,15 @@ class Germinator:
 
         # Last ditch effort to satisfy this by promoting lesser seeds to
         # higher dependencies
+        global SEEDNAMES, SEEDINHERIT
+        lesserseeds = []
+        for seed in SEEDNAMES:
+            if seedname in SEEDINHERIT[seed]:
+                lesserseeds.append(seed)
+
         found = False
         for trydep in trylist:
-            seedidx = self.seeds.index(seedname) + 1
-            for lesserseed in self.seeds[seedidx:len(self.seeds)]:
+            for lesserseed in lesserseeds:
                 if trydep in self.seed[lesserseed]:
                     if second_class:
                         # I'll get you next time, Gadget!
@@ -831,7 +846,7 @@ Options:
 
 
 def main():
-    global RELEASE, MIRROR, DIST, ARCH, COMPONENTS, CHECK_IPV6
+    global RELEASE, MIRROR, DIST, ARCH, COMPONENTS, CHECK_IPV6, SEEDNAMES
     want_rdepends = True
 
     g = Germinator()
@@ -906,7 +921,7 @@ def main():
     if blacklist is not None:
         g.parseBlacklist(blacklist)
 
-    for seedname in ("base", "desktop", "ship", "installer", "supported"):
+    for seedname in SEEDNAMES:
         g.plantSeed(seedname)
     g.prune()
     g.grow()
@@ -914,7 +929,9 @@ def main():
     if want_rdepends:
         g.reverseDepends()
 
-    for seedname in ("base", "desktop", "ship", "installer", "supported", "extra"):
+    seednames_extra = list(SEEDNAMES)
+    seednames_extra.append('extra')
+    for seedname in seednames_extra:
         write_list(seedname, g, g.seed[seedname] + g.depends[seedname])
         write_list(seedname + ".seed", g, g.seed[seedname])
         write_list(seedname + ".depends", g, g.depends[seedname])
@@ -930,7 +947,7 @@ def main():
     sup = []
     all_srcs = []
     sup_srcs = []
-    for seedname in ("base", "desktop", "ship", "installer", "supported"):
+    for seedname in SEEDNAMES:
         all += g.seed[seedname]
         all += g.depends[seedname]
         all += g.build_depends[seedname]
