@@ -833,6 +833,8 @@ def main():
             RELEASE = value
         elif option in ("-m", "--mirror"):
             MIRROR = value
+            if not MIRROR.endswith("/"):
+                MIRROR += "/"
         elif option in ("-d", "--dist"):
             DIST = value
         elif option in ("-c", "--components"):
