@@ -79,10 +79,12 @@ class Germinator:
         self.pkgprovides = {}
 
         self.all = []
+        self.build = {}
         self.not_build = {}
 
         self.all_srcs = []
-        self.not_build_srcs = []
+        self.build_srcs = {}
+        self.not_build_srcs = {}
 
         self.why = {}
         self.why["all"] = {}
@@ -205,7 +207,10 @@ class Germinator:
         self.build_depends[seedname] = []
         self.sourcepkgs[seedname] = []
         self.build_sourcepkgs[seedname] = []
+        self.build[seedname] = []
         self.not_build[seedname] = []
+        self.build_srcs[seedname] = []
+        self.not_build_srcs[seedname] = []
         self.why[seedname] = {}
 
     def substituteSeedVars(self, pkg):
@@ -460,8 +465,9 @@ class Germinator:
 
         for trydep in trylist:
             if with_build:
-                if trydep in self.all:
-                    return True
+                for seed in self.innerSeeds(seedname):
+                    if trydep in self.build[seed]:
+                        return True
             else:
                 for seed in self.innerSeeds(seedname):
                     if trydep in self.not_build[seed]:
@@ -582,12 +588,20 @@ class Germinator:
             print "! Pruned seed package:", pkg
             return
         if build_tree: second_class=True
+
         if pkg not in self.all:
             self.all.append(pkg)
         elif not build_tree:
-            for buildseed in self.seeds:
+            for buildseed in self.innerSeeds(seedname):
                 if pkg in self.build_depends[buildseed]:
                     self.build_depends[buildseed].remove(pkg)
+
+        for seed in self.innerSeeds(seedname):
+            if pkg in self.build[seed]:
+                break
+        else:
+            self.build[seedname].append(pkg)
+
         if not build_tree:
             for seed in self.innerSeeds(seedname):
                 if pkg in self.not_build[seed]:
@@ -621,14 +635,16 @@ class Germinator:
             print "? Missing source package:", src, "(for", pkg + ")"
             return
 
-        if second_class and src in self.all_srcs:
-            return
-        elif src in self.not_build_srcs:
-            return
+        if second_class:
+            for seed in self.innerSeeds(seedname):
+                if src in self.build_srcs[seed]:
+                    return
+        else:
+            for seed in self.innerSeeds(seedname):
+                if src in self.not_build_srcs[seed]:
+                    return
 
         if build_tree:
-            if src not in self.all_srcs:
-                self.all_srcs.append(src)
             self.build_sourcepkgs[seedname].append(src)
             if src in self.blacklist and src not in self.blacklisted:
                 self.blacklisted.append(src)
@@ -638,11 +654,13 @@ class Germinator:
                 for buildseed in self.seeds:
                     if src in self.build_sourcepkgs[buildseed]:
                         self.build_sourcepkgs[buildseed].remove(src)
-            else:
-                self.all_srcs.append(src)
 
-            self.not_build_srcs.append(src)
+            self.not_build_srcs[seedname].append(src)
             self.sourcepkgs[seedname].append(src)
+
+        if src not in self.all_srcs:
+            self.all_srcs.append(src)
+        self.build_srcs[seedname].append(src)
 
         self.addDependencyTree(seedname, pkg,
                                self.sources[src]["Build-Depends"],
@@ -1014,13 +1032,26 @@ def main():
             sup += g.seed[seedname]
             sup += g.depends[seedname]
             sup_srcs += g.sourcepkgs[seedname]
-        sup += g.build_depends[seedname]
-        sup_srcs += g.build_sourcepkgs[seedname]
+
+        # Only include those build-dependencies that aren't already in the
+        # dependency outputs for inner seeds of supported. This allows
+        # supported+build-depends to be usable as an "everything else"
+        # output.
+        build_depends = dict.fromkeys(g.build_depends[seedname], True)
+        build_sourcepkgs = dict.fromkeys(g.build_sourcepkgs[seedname], True)
+        for seed in g.innerSeeds("supported"):
+            build_depends.update(dict.fromkeys(g.seed[seed], False))
+            build_depends.update(dict.fromkeys(g.depends[seed], False))
+            build_sourcepkgs.update(dict.fromkeys(g.sourcepkgs[seed], False))
+        sup += [k for (k, v) in build_depends.iteritems() if v]
+        sup_srcs += [k for (k, v) in build_sourcepkgs.iteritems() if v]
 
     # TODO: use sets from Python 2.4 once Ubuntu datacentre is upgraded to
     # Hoary
     all = dict.fromkeys(all).keys()
     all_srcs = dict.fromkeys(all_srcs).keys()
+    sup = dict.fromkeys(sup).keys()
+    sup_srcs = dict.fromkeys(sup_srcs).keys()
 
     write_list("all", "all", g, all)
     write_source_list("all.sources", g, all_srcs)
