@@ -36,6 +36,8 @@ class Germinator:
         self.sourcepkgs = {}
         self.build_sourcepkgs = {}
 
+        self.pkgprovides = {}
+
         self.all = []
         self.not_build = []
 
@@ -74,6 +76,7 @@ class Germinator:
                 if prov[0][0] not in self.provides:
                     self.provides[prov[0][0]] = []
                 self.provides[prov[0][0]].append(pkg)
+            self.packages[pkg]["Provides"] = provides
         f.close()
 
     def parseSources(self, f):
@@ -279,6 +282,12 @@ class Germinator:
             self.not_build.append(pkg)
 
         self.why[pkg] = why
+
+        for prov in self.packages[pkg]["Provides"]:
+            if prov[0][0] not in self.pkgprovides:
+                self.pkgprovides[prov[0][0]] = []
+            self.pkgprovides[prov[0][0]].append(pkg)
+
         self.addDependencyTree(seedname, pkg, self.packages[pkg]["Depends"],
                                second_class=second_class,
                                build_tree=build_tree)
@@ -409,6 +418,21 @@ def write_source_list(filename, g, list):
 
     f.close()
 
+def write_prov_list(filename, g, dict):
+    provides = dict.keys()
+    provides.sort()
+
+    f = open(filename, "w")
+    for prov in provides:
+        print >>f, prov
+
+        list = dict[prov]
+        list.sort()
+        for pkg in list:
+            print >>f, "\t%s" % (pkg,)
+        print >>f
+    f.close()
+
 def main():
     g = Germinator()
 
@@ -458,6 +482,8 @@ def main():
 
     write_list("all+extra", g, g.all)
     write_source_list("all+extra.sources", g, g.all_srcs)
+
+    write_prov_list("provides", g, g.pkgprovides)
 
 if __name__ == "__main__":
     main()
