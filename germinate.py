@@ -48,6 +48,7 @@ CHECK_IPV6 = False
 # If we need to download a new IPv6 dump, where do we get it from?
 IPV6DB = "http://debdev.fabbione.net/stat/"
 
+# Keep this list topologically sorted with respect to SEEDINHERIT.
 SEEDNAMES = ['base', 'desktop', 'ship', 'installer', 'supported']
 
 SEEDINHERIT = {
@@ -77,13 +78,13 @@ class Germinator:
         self.pkgprovides = {}
 
         self.all = []
-        self.not_build = []
+        self.not_build = {}
 
         self.all_srcs = []
         self.not_build_srcs = []
 
         self.why = {}
-        self.seeded = []
+        self.why["all"] = {}
 
         self.hints = {}
 
@@ -203,6 +204,8 @@ class Germinator:
         self.build_depends[seedname] = []
         self.sourcepkgs[seedname] = []
         self.build_sourcepkgs[seedname] = []
+        self.not_build[seedname] = []
+        self.why[seedname] = {}
 
     def substituteSeedVars(self, pkg):
         """Process substitution variables. These look like ${name} (e.g.
@@ -240,6 +243,31 @@ class Germinator:
         for substpieces in substituted:
             substpkgs.append(string.join(substpieces, ""))
         return substpkgs
+
+    def innerSeeds(self, seedname):
+        """Return the seeds from which this seed inherits."""
+        return self.seedinherit[seedname]
+
+    def outerSeeds(self, seedname):
+        """Return the seeds that inherit from this seed."""
+        outerseeds = []
+        for seed in self.seeds:
+            if seedname in self.seedinherit[seed]:
+                outerseeds.append(seed)
+        return outerseeds
+
+    def alreadySeeded(self, seedname, pkg):
+        """Has pkg already been seeded in this seed or in one from
+        which we inherit?"""
+
+        if pkg in self.seed[seedname]:
+            return True
+
+        for seed in self.innerSeeds(seedname):
+            if pkg in self.seed[seed]:
+                return True
+
+        return False
 
     def plantSeed(self, seedname, seedinherit):
         """Add a seed."""
@@ -300,20 +328,18 @@ class Germinator:
 
             if pkg in self.packages:
                 # Ordinary package
-                if pkg not in self.seeded:
-                    self.seed[seedname].append(pkg)
-                    self.seeded.append(pkg)
-                else:
+                if self.alreadySeeded(seedname, pkg):
                     print "! Duplicated seed:", pkg
+                else:
+                    self.seed[seedname].append(pkg)
 
             elif pkg in self.provides:
                 # Virtual package, include everything
                 print "* Virtual", seedname, "package:", pkg
                 for vpkg in self.provides[pkg]:
-                    if vpkg not in self.seeded:
+                    if not self.alreadySeeded(seedname, vpkg):
                         print "  - " + vpkg
                         self.seed[seedname].append(vpkg)
-                        self.seeded.append(vpkg)
 
             else:
                 # No idea
@@ -321,10 +347,9 @@ class Germinator:
         f.close()
 
         for pkg in self.hints:
-            if self.hints[pkg] == seedname and pkg not in self.seeded:
+            if self.hints[pkg] == seedname and not self.alreadySeeded(seedname, pkg):
                 if pkg in self.packages:
                     self.seed[seedname].append(pkg)
-                    self.seeded.append(pkg)
                 else:
                     print "? Unknown hinted package:", pkg
 
@@ -438,7 +463,10 @@ class Germinator:
                 if trydep in self.all:
                     return True
             else:
-                if trydep in self.not_build:
+                for seed in self.innerSeeds(seedname):
+                    if trydep in self.not_build[seed]:
+                        return True
+                if trydep in self.not_build[seedname]:
                     return True
             if trydep in self.seed[seedname]:
                 return True
@@ -463,14 +491,9 @@ class Germinator:
 
         # Last ditch effort to satisfy this by promoting lesser seeds to
         # higher dependencies
-        lesserseeds = []
-        for seed in self.seeds:
-            if seedname in self.seedinherit[seed]:
-                lesserseeds.append(seed)
-
         found = False
         for trydep in trylist:
-            for lesserseed in lesserseeds:
+            for lesserseed in self.outerSeeds(seedname):
                 if trydep in self.seed[lesserseed]:
                     if second_class:
                         # I'll get you next time, Gadget!
@@ -555,10 +578,18 @@ class Germinator:
             for buildseed in self.seeds:
                 if pkg in self.build_depends[buildseed]:
                     self.build_depends[buildseed].remove(pkg)
-        if pkg not in self.not_build and not build_tree:
-            self.not_build.append(pkg)
+        if not build_tree:
+            for seed in self.innerSeeds(seedname):
+                if pkg in self.not_build[seed]:
+                    break
+            else:
+                self.not_build[seedname].append(pkg)
 
-        self.why[pkg] = why
+        # Remember why the package was added to the output for this seed.
+        # Also remember a reason for "all" too, so that an aggregated list
+        # of all selected packages can be constructed easily.
+        self.why[seedname][pkg] = why
+        self.why["all"][pkg] = why
 
         for prov in self.packages[pkg]["Provides"]:
             if prov[0][0] not in self.pkgprovides:
@@ -669,7 +700,7 @@ def open_blacklist(filename):
     except IOError:
         return None
 
-def write_list(filename, g, pkglist):
+def write_list(whyname, filename, g, pkglist):
     pkg_len = len("Package")
     src_len = len("Source")
     why_len = len("Why")
@@ -682,7 +713,7 @@ def write_list(filename, g, pkglist):
         _src_len = len(g.packages[pkg]["Source"])
         if _src_len > src_len: src_len = _src_len
 
-        _why_len = len(g.why[pkg])
+        _why_len = len(g.why[whyname][pkg])
         if _why_len > why_len: why_len = _why_len
 
         _mnt_len = len(g.packages[pkg]["Maintainer"])
@@ -709,7 +740,7 @@ def write_list(filename, g, pkglist):
         print >>f, "%-*s | %-*s | %-*s | %-*s | %15d | %15d" % \
               (pkg_len, pkg,
                src_len, g.packages[pkg]["Source"],
-               why_len, g.why[pkg],
+               why_len, g.why[whyname][pkg],
                mnt_len, g.packages[pkg]["Maintainer"],
                g.packages[pkg]["Size"],
                g.packages[pkg]["Installed-Size"])
@@ -935,10 +966,14 @@ def main():
     seednames_extra = list(SEEDNAMES)
     seednames_extra.append('extra')
     for seedname in seednames_extra:
-        write_list(seedname, g, g.seed[seedname] + g.depends[seedname])
-        write_list(seedname + ".seed", g, g.seed[seedname])
-        write_list(seedname + ".depends", g, g.depends[seedname])
-        write_list(seedname + ".build-depends", g, g.build_depends[seedname])
+        write_list(seedname, seedname,
+                   g, g.seed[seedname] + g.depends[seedname])
+        write_list(seedname, seedname + ".seed",
+                   g, g.seed[seedname])
+        write_list(seedname, seedname + ".depends",
+                   g, g.depends[seedname])
+        write_list(seedname, seedname + ".build-depends",
+                   g, g.build_depends[seedname])
 
         if seedname != "extra":
             write_source_list(seedname + ".sources",
@@ -964,13 +999,18 @@ def main():
         sup += g.build_depends[seedname]
         sup_srcs += g.build_sourcepkgs[seedname]
 
-    write_list("all", g, all)
+    # TODO: use sets from Python 2.4 once Ubuntu datacentre is upgraded to
+    # Hoary
+    all = dict.fromkeys(all).keys()
+    all_srcs = dict.fromkeys(all_srcs).keys()
+
+    write_list("all", "all", g, all)
     write_source_list("all.sources", g, all_srcs)
 
-    write_list("supported+build-depends", g, sup)
+    write_list("all", "supported+build-depends", g, sup)
     write_source_list("supported+build-depends.sources", g, sup_srcs)
 
-    write_list("all+extra", g, g.all)
+    write_list("all", "all+extra", g, g.all)
     write_source_list("all+extra.sources", g, g.all_srcs)
 
     write_prov_list("provides", g.pkgprovides)
