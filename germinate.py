@@ -30,6 +30,7 @@ IPV6DB = "http://debdev.fabbione.net/stat/"
 class Germinator:
     def __init__(self):
         self.packages = {}
+        self.packagetype = {}
         self.provides = {}
         self.sources = {}
         self.pruned = {}
@@ -72,12 +73,13 @@ class Germinator:
             self.hints[words[1]] = words[0]
         f.close()
 
-    def parsePackages(self, f):
+    def parsePackages(self, f, pkgtype):
         """Parse a Packages file and get the information we need."""
         p = apt_pkg.ParseTagFile(f)
         while p.Step() == 1:
             pkg = p.Section["Package"]
             self.packages[pkg] = {}
+            self.packagetype[pkg] = pkgtype
             self.pruned[pkg] = False
 
             self.packages[pkg]["Maintainer"] = p.Section.get("Maintainer", "")
@@ -680,11 +682,13 @@ def write_prov_list(filename, g, dict):
 def main():
     g = Germinator()
 
-    g.parsePackages(open_tag_file("Packages", "binary-"+ARCH+"/Packages.gz"))
+    g.parsePackages(open_tag_file("Packages", "binary-"+ARCH+"/Packages.gz"),
+                    "deb")
     g.parseSources(open_tag_file("Sources", "source/Sources.gz"))
     g.parsePackages(open_tag_file("InstallerPackages",
                                   "debian-installer/binary-"+ARCH+
-                                  "/Packages.gz"))
+                                  "/Packages.gz"),
+                    "udeb")
     g.parseIPv6(open_ipv6_tag_file("dailydump"))
 
     if os.path.isfile("hints"):
