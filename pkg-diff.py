@@ -22,6 +22,7 @@
 # 02111-1307, USA.
 
 import os, sys, getopt
+import logging
 import apt_pkg
 from Germinate import Germinator
 import Germinate.Archive
@@ -90,6 +91,9 @@ class Globals:
 
     def setSeeds(self, seeds):
         self.seeds = seeds
+
+        # Suppress most log information
+        logging.getLogger().setLevel(logging.CRITICAL)
 
         global MIRROR, DIST, COMPONENTS, ARCH
         print "Germinating"

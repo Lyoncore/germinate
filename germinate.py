@@ -28,6 +28,7 @@ import shutil
 import sys
 import urllib
 import getopt
+import logging
 from Germinate import Germinator
 import Germinate.Archive
 
@@ -275,6 +276,12 @@ def main():
     global SEEDS, RELEASE, MIRROR, DIST, ARCH, COMPONENTS, CHECK_IPV6
     global SEEDNAMES
     want_rdepends = True
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter('%(levelname)s%(message)s'))
+    logger.addHandler(handler)
 
     g = Germinator()
 
