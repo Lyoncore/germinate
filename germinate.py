@@ -726,23 +726,28 @@ def usage(f):
 Options:
 
   -h, --help            Print this help message.
+  -s, --seed-dist=DIST  Fetch seeds for distribution DIST (default: %s).
   -m, --mirror=MIRROR   Get package lists from MIRROR
                         (default: %s).
   -d, --dist=DIST       Operate on distribution DIST (default: %s).
   -a, --arch=ARCH       Operate on architecture ARCH (default: %s).
   --no-rdepends         Disable reverse-dependency calculations.
-""" % (MIRROR, DIST, ARCH)
+""" % (RELEASE, MIRROR, DIST, ARCH)
 
 
 def main():
-    global MIRROR, DIST, ARCH
+    global RELEASE, MIRROR, DIST, ARCH
     want_rdepends = True
 
     g = Germinator()
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hm:d:a:",
-                                   ["help", "mirror=", "dist=", "arch=",
+        opts, args = getopt.getopt(sys.argv[1:], "hs:m:d:a:",
+                                   ["help",
+                                    "seed-dist=",
+                                    "mirror=",
+                                    "dist=",
+                                    "arch=",
                                     "no-rdepends"])
     except getopt.GetoptError:
         usage(sys.stderr)
@@ -752,6 +757,8 @@ def main():
         if option in ("-h", "--help"):
             usage(sys.stdout)
             sys.exit()
+        elif option in ("-s", "--seed-dist"):
+            RELEASE = value
         elif option in ("-m", "--mirror"):
             MIRROR = value
         elif option in ("-d", "--dist"):
