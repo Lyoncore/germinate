@@ -246,10 +246,12 @@ class Germinator:
         return substpkgs
 
     def innerSeeds(self, seedname):
-        """Return the seeds from which this seed inherits."""
-        return self.seedinherit[seedname]
+        """Return this seed and the seeds from which it inherits."""
+        innerseeds = list(self.seedinherit[seedname])
+        innerseeds.append(seedname)
+        return innerseeds
 
-    def outerSeeds(self, seedname):
+    def strictlyOuterSeeds(self, seedname):
         """Return the seeds that inherit from this seed."""
         outerseeds = []
         for seed in self.seeds:
@@ -260,9 +262,6 @@ class Germinator:
     def alreadySeeded(self, seedname, pkg):
         """Has pkg already been seeded in this seed or in one from
         which we inherit?"""
-
-        if pkg in self.seed[seedname]:
-            return True
 
         for seed in self.innerSeeds(seedname):
             if pkg in self.seed[seed]:
@@ -467,8 +466,6 @@ class Germinator:
                 for seed in self.innerSeeds(seedname):
                     if trydep in self.not_build[seed]:
                         return True
-                if trydep in self.not_build[seedname]:
-                    return True
             if trydep in self.seed[seedname]:
                 return True
         else:
@@ -494,7 +491,7 @@ class Germinator:
         # higher dependencies
         found = False
         for trydep in trylist:
-            for lesserseed in self.outerSeeds(seedname):
+            for lesserseed in self.strictlyOuterSeeds(seedname):
                 if trydep in self.seed[lesserseed]:
                     if second_class:
                         # I'll get you next time, Gadget!
