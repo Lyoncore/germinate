@@ -30,6 +30,7 @@ import urllib
 import string
 import getopt
 from Germinate import Germinator
+import Germinate.Archive
 
 
 # Where do we get up-to-date seeds from?
@@ -59,31 +60,6 @@ SEEDINHERIT = {
     'supported':        ['base', 'desktop', 'ship', 'live'],
 }
 
-
-def open_tag_file(filename, dist, component, ftppath):
-    """Download an apt tag file if needed, then open it."""
-    if os.path.exists(filename):
-        return open(filename, "r")
-
-    print "Downloading", filename, "file ..."
-    url = MIRROR + "dists/" + dist + "/" + component + "/" + ftppath
-    gzip_fn = None
-    try:
-        gzip_fn = urllib.urlretrieve(url, filename + ".gz")[0]
-
-        # apt_pkg is weird and won't accept GzipFile
-        print "Decompressing", filename, "file ..."
-        gzip_f = gzip.GzipFile(filename=gzip_fn)
-        f = open(filename, "w")
-        for line in gzip_f:
-            print >>f, line,
-        f.close()
-        gzip_f.close()
-    finally:
-        if gzip_fn is not None:
-            os.unlink(gzip_fn)
-
-    return open(filename, "r")
 
 def open_ipv6_tag_file(filename):
     """Download the daily IPv6 db dump if needed, and open it."""
@@ -345,27 +321,7 @@ def main():
     apt_pkg.InitConfig()
     apt_pkg.Config.Set("APT::Architecture", ARCH)
 
-    for dist in DIST:
-        for component in COMPONENTS:
-            g.parsePackages(open_tag_file("%s_%s_Packages" % (dist, component),
-                                          dist, component,
-                                          "binary-" + ARCH + "/Packages.gz"),
-                            "deb")
-            g.parseSources(open_tag_file("%s_%s_Sources" % (dist, component),
-                                         dist, component,
-                                         "source/Sources.gz"))
-            instpackages = ""
-            try:
-                instpackages = open_tag_file("%s_%s_InstallerPackages" % (dist, component),
-                                             dist, component,
-                                             "debian-installer/binary-" + ARCH +
-                                                "/Packages.gz")
-            except IOError:
-                # can live without these
-                print "Missing installer Packages file for", component, \
-                      "(ignoring)"
-            else:
-                g.parsePackages(instpackages, "udeb")
+    Germinate.Archive.TagFile(MIRROR).feed(g, DIST, COMPONENTS, ARCH)
 
     if CHECK_IPV6:
         g.parseIPv6(open_ipv6_tag_file("dailydump"))
