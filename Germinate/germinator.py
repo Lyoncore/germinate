@@ -84,6 +84,36 @@ class Germinator:
     def error(self, msg, *args, **kwargs):
         logging.error(msg, *args, **kwargs)
 
+    def parseStructure(self, f):
+        """Parse a seed structure file. This is an ordered sequence of lines
+        as follows:
+
+        SEED:[ INHERITED]
+
+        INHERITED is a space-separated list of seeds from which SEED
+        inherits. For example, "ship: base desktop" indicates that packages
+        in the "ship" seed may depend on packages in the "base" or "desktop"
+        seeds without requiring those packages to appear in the "ship"
+        output. INHERITED may be empty.
+
+        The lines should be topologically sorted with respect to
+        inheritance, with inherited-from seeds at the start.
+
+        Returns (ordered list of seed names, dict of SEED -> INHERITED)."""
+        seednames = []
+        seedinherit = {}
+
+        for line in f:
+            words = line.split()
+            if words[0].endswith(':'):
+                seed = words[0][:-1]
+                seednames.append(seed)
+                seedinherit[seed] = list(words[1:])
+            else:
+                self.error("Unparseable seed structure entry: %s", line)
+
+        return (seednames, seedinherit)
+
     def parseHints(self, f):
         """Parse a hints file."""
         for line in f:

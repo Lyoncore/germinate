@@ -24,6 +24,7 @@
 import os, sys, getopt
 import logging
 import apt_pkg
+import urllib
 from Germinate import Germinator
 import Germinate.Archive
 
@@ -34,12 +35,18 @@ MIRROR = "http://archive.ubuntu.com/ubuntu/"
 DIST = ["hoary"]
 COMPONENTS = ["main"]
 ARCH = "i386"
-SEEDINHERIT = {
-    'desktop':          ['base'],
-    'ship':             ['base', 'desktop'],
-    'live':             ['base', 'desktop'],
-    'supported':        ['base', 'desktop', 'ship', 'live'],
-}
+
+# TODO: cloned from germinate.py; should be common
+def open_metafile(filename):
+    try:
+        url = SEEDS + RELEASE + "/" + filename
+        print "Downloading", url, "..."
+        urlopener = urllib.FancyURLopener()
+        urlopener.addheader('Cache-Control', 'no-cache')
+        urlopener.addheader('Pragma', 'no-cache')
+        return urlopener.open(url)
+    except IOError:
+        return None
 
 class Package:
     def __init__(self, name):
@@ -103,13 +110,11 @@ class Globals:
 
         Germinate.Archive.TagFile(MIRROR).feed(g, DIST, COMPONENTS, ARCH)
 
+        (seednames, seedinherit) = g.parseStructure(open_metafile("STRUCTURE"))
         for seedname in self.seeds:
-            global SEEDS, RELEASE, SEEDINHERIT
-            if seedname in SEEDINHERIT:
-                seedinherit = SEEDINHERIT[seedname]
-            else:
-                seedinherit = []
-            g.plantSeed(SEEDS, RELEASE, ARCH, seedname, seedinherit)
+            global SEEDS, RELEASE
+            g.plantSeed(SEEDS, RELEASE, ARCH, seedname,
+                        list(seedinherit[seedname]))
         g.prune()
         g.grow()
 

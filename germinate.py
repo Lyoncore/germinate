@@ -49,17 +49,6 @@ CHECK_IPV6 = False
 # If we need to download a new IPv6 dump, where do we get it from?
 IPV6DB = "http://debdev.fabbione.net/stat/"
 
-# Keep this list topologically sorted with respect to SEEDINHERIT.
-SEEDNAMES = ['base', 'desktop', 'ship', 'live',
-             'installer', 'casper', 'supported']
-
-SEEDINHERIT = {
-    'desktop':          ['base'],
-    'ship':             ['base', 'desktop'],
-    'live':             ['base', 'desktop'],
-    'supported':        ['base', 'desktop', 'ship', 'live'],
-}
-
 
 def open_ipv6_tag_file(filename):
     """Download the daily IPv6 db dump if needed, and open it."""
@@ -84,7 +73,7 @@ def open_ipv6_tag_file(filename):
 
     return open(filename, "r")
 
-def open_blacklist(filename):
+def open_metafile(filename):
     try:
         url = SEEDS + RELEASE + "/" + filename
         print "Downloading", url, "..."
@@ -274,7 +263,6 @@ Options:
 
 def main():
     global SEEDS, RELEASE, MIRROR, DIST, ARCH, COMPONENTS, CHECK_IPV6
-    global SEEDNAMES
     want_rdepends = True
 
     logger = logging.getLogger()
@@ -334,23 +322,21 @@ def main():
     if os.path.isfile("hints"):
         g.parseHints(open("hints"))
 
-    blacklist = open_blacklist("blacklist")
+    blacklist = open_metafile("blacklist")
     if blacklist is not None:
         g.parseBlacklist(blacklist)
 
-    for seedname in SEEDNAMES:
-        if seedname in SEEDINHERIT:
-            seedinherit = SEEDINHERIT[seedname]
-        else:
-            seedinherit = []
-        g.plantSeed(SEEDS, RELEASE, ARCH, seedname, seedinherit)
+    (seednames, seedinherit) = g.parseStructure(open_metafile("STRUCTURE"))
+    for seedname in seednames:
+        g.plantSeed(SEEDS, RELEASE, ARCH, seedname,
+                    list(seedinherit[seedname]))
     g.prune()
     g.grow()
     g.addExtras()
     if want_rdepends:
         g.reverseDepends()
 
-    seednames_extra = list(SEEDNAMES)
+    seednames_extra = list(seednames)
     seednames_extra.append('extra')
     for seedname in seednames_extra:
         write_list(seedname, seedname,
@@ -372,7 +358,7 @@ def main():
     sup = []
     all_srcs = []
     sup_srcs = []
-    for seedname in SEEDNAMES:
+    for seedname in seednames:
         all += g.seed[seedname]
         all += g.depends[seedname]
         all += g.build_depends[seedname]
