@@ -10,6 +10,7 @@ import os
 import shutil
 import sys
 import urllib
+import glob
 
 
 # Where do we get up-to-date seeds from?
@@ -51,6 +52,9 @@ class Germinator:
         self.seeded = []
 
         self.hints = {}
+
+        self.blacklist = {}
+        self.blacklisted = []
 
     def parseHints(self, f):
         """Parse a hints file."""
@@ -126,6 +130,27 @@ class Germinator:
             if src in self.sources:
                 self.sources[src]["IPv6"] = info.strip()
         f.close()
+
+    def parseBlacklist(self, filename):
+        """Parse a blacklist file, used to indicate unwanted packages"""
+
+        fh = open(filename)
+        for line in fh:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            
+            self.blacklist[line] = filename
+        fh.close()
+
+    def writeBlacklisted(self, filename):
+        """Write out the list of blacklisted packages we encountered"""
+
+        fh = open(filename, 'w')
+        for pkg in self.blacklisted:
+            blacklist = self.blacklist[pkg]
+            fh.write('%s\t%s\n' % (pkg, blacklist))
+        fh.close()
 
     def newSeed(self, seedname):
         self.seeds.append(seedname)
@@ -394,6 +419,9 @@ class Germinator:
         if build_tree:
             self.all_srcs.append(src)
             self.build_sourcepkgs[seedname].append(src)
+            if src in self.blacklist and src not in self.blacklisted:
+                self.blacklisted.append(src)
+
         else:
             if src in self.all_srcs:
                 for buildseed in self.seeds:
@@ -608,6 +636,9 @@ def main():
     if os.path.isfile("hints"):
         g.parseHints(open("hints"))
 
+    for blacklist in glob.glob('blacklist.*[a-z0-9]'):
+        g.parseBlacklist(blacklist)
+
     for seedname in ("base", "desktop", "supported"):
         g.plantSeed(seedname)
     g.grow()
@@ -667,6 +698,8 @@ def main():
         write_rdepend_list(os.path.join(dirname, pkg), g, pkg)
         os.symlink(os.path.join("..", g.packages[pkg]["Source"], pkg),
                    os.path.join("rdepends", "ALL", pkg))
+
+    g.writeBlacklisted("blacklisted")
 
 if __name__ == "__main__":
     main()
