@@ -205,8 +205,6 @@ class Germinator:
         substituted = [[]]
 
         for piece in pieces:
-            if pkg.find("${") != -1:
-                print "! piece:", piece
             if piece.startswith("${") and piece.endswith("}"):
                 name = piece[2:-1].lower()
                 if name in self.substvars:
