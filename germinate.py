@@ -15,7 +15,7 @@ import string
 
 
 # Where do we get up-to-date seeds from?
-WIKI = "https://warthogs:talentlesstramps@www.warthogs.hbd.com/"
+WIKI = "http://sounders:oink@wiki.no-name-yet.com/"
 RELEASE = "WartyWarthog"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
