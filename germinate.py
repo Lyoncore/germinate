@@ -157,7 +157,15 @@ class Germinator:
                 print "! Taking the hint:", pkg
                 continue
 
-            if pkg in self.provides:
+            if pkg in self.packages:
+                # Ordinary package
+                if pkg not in self.seeded:
+                    self.seed[seedname].append(pkg)
+                    self.seeded.append(pkg)
+                else:
+                    print "! Duplicated seed:", pkg
+
+            elif pkg in self.provides:
                 # Virtual package, include everything
                 print "* Virtual", seedname, "package:", pkg
                 for vpkg in self.provides[pkg]:
@@ -165,14 +173,6 @@ class Germinator:
                         print "  - " + vpkg
                         self.seed[seedname].append(vpkg)
                         self.seeded.append(vpkg)
-
-            elif pkg in self.packages:
-                # Ordinary package
-                if pkg not in self.seeded:
-                    self.seed[seedname].append(pkg)
-                    self.seeded.append(pkg)
-                else:
-                    print "! Duplicated seed:", pkg
 
             else:
                 # No idea
@@ -274,12 +274,12 @@ class Germinator:
     def addDependency(self, seedname, pkg, depend, build_depend,
                       second_class, build_tree):
         """Add a single dependency."""
-        if depend in self.provides:
-            virtual = depend
-            trylist = self.provides[depend]
-        elif depend in self.packages:
+        if depend in self.packages:
             virtual = None
             trylist = [ depend ]
+        elif depend in self.provides:
+            virtual = depend
+            trylist = self.provides[depend]
         else:
             print "? Unknown dependency", depend, "by", pkg
             return
