@@ -40,7 +40,7 @@ RELEASE = "hoary"
 # If we need to download Packages.gz and/or Sources.gz, where do we get
 # them from?
 MIRROR = "http://archive.ubuntu.com/ubuntu/"
-DIST = "hoary"
+DIST = ["hoary"]
 COMPONENTS = ["main"]
 ARCH = "i386"
 
@@ -583,13 +583,13 @@ class Germinator:
                                build_depend=True)
 
 
-def open_tag_file(filename, component, ftppath):
+def open_tag_file(filename, dist, component, ftppath):
     """Download an apt tag file if needed, then open it."""
     if os.path.exists(filename):
         return open(filename, "r")
 
     print "Downloading", filename, "file ..."
-    url = MIRROR + "dists/" + DIST + "/" + component + "/" + ftppath
+    url = MIRROR + "dists/" + dist + "/" + component + "/" + ftppath
     gzip_fn = urllib.urlretrieve(url)[0]
 
     # apt_pkg is weird and won't accept GzipFile
@@ -802,7 +802,8 @@ Options:
                         Operate on components COMPS (default: %s).
   -i, --ipv6            Check IPv6 status of source packages.
   --no-rdepends         Disable reverse-dependency calculations.
-""" % (RELEASE, MIRROR, DIST, ARCH, string.join(COMPONENTS, ","))
+""" % (RELEASE, MIRROR, string.join(DIST, ","), ARCH,
+       string.join(COMPONENTS, ","))
 
 
 def main():
@@ -836,7 +837,7 @@ def main():
             if not MIRROR.endswith("/"):
                 MIRROR += "/"
         elif option in ("-d", "--dist"):
-            DIST = value
+            DIST = value.split(",")
         elif option in ("-c", "--components"):
             COMPONENTS = value.split(",")
         elif option in ("-a", "--arch"):
@@ -849,24 +850,27 @@ def main():
     apt_pkg.InitConfig()
     apt_pkg.Config.Set("APT::Architecture", ARCH)
 
-    for component in COMPONENTS:
-        g.parsePackages(open_tag_file(component + "_Packages", component,
-                                      "binary-" + ARCH + "/Packages.gz"),
-                        "deb")
-        g.parseSources(open_tag_file(component + "_Sources", component,
-                                     "source/Sources.gz"))
-        instpackages = ""
-        try:
-            instpackages = open_tag_file(component + "_InstallerPackages",
-                                         component,
-                                         "debian-installer/binary-" + ARCH +
-                                            "/Packages.gz")
-        except IOError:
-            # can live without these
-            print "Missing installer Packages file for", component, \
-                  "(ignoring)"
-        else:
-            g.parsePackages(instpackages, "udeb")
+    for dist in DIST:
+        for component in COMPONENTS:
+            g.parsePackages(open_tag_file("%s_%s_Packages" % (dist, component),
+                                          dist, component,
+                                          "binary-" + ARCH + "/Packages.gz"),
+                            "deb")
+            g.parseSources(open_tag_file("%s_%s_Sources" % (dist, component),
+                                         dist, component,
+                                         "source/Sources.gz"))
+            instpackages = ""
+            try:
+                instpackages = open_tag_file("%s_%s_InstallerPackages" % (dist, component),
+                                             dist, component,
+                                             "debian-installer/binary-" + ARCH +
+                                                "/Packages.gz")
+            except IOError:
+                # can live without these
+                print "Missing installer Packages file for", component, \
+                      "(ignoring)"
+            else:
+                g.parsePackages(instpackages, "udeb")
 
     if CHECK_IPV6:
         g.parseIPv6(open_ipv6_tag_file("dailydump"))
