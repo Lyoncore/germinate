@@ -590,18 +590,20 @@ def open_tag_file(filename, dist, component, ftppath):
 
     print "Downloading", filename, "file ..."
     url = MIRROR + "dists/" + dist + "/" + component + "/" + ftppath
-    gzip_fn = urllib.urlretrieve(url)[0]
+    try:
+        gzip_fn = urllib.urlretrieve(url, filename + ".gz")[0]
 
-    # apt_pkg is weird and won't accept GzipFile
-    print "Decompressing", filename, "file ..."
-    gzip_f = gzip.GzipFile(filename=gzip_fn)
-    f = open(filename, "w")
-    for line in gzip_f:
-        print >>f, line,
-    f.close()
-    gzip_f.close()
+        # apt_pkg is weird and won't accept GzipFile
+        print "Decompressing", filename, "file ..."
+        gzip_f = gzip.GzipFile(filename=gzip_fn)
+        f = open(filename, "w")
+        for line in gzip_f:
+            print >>f, line,
+        f.close()
+        gzip_f.close()
+    finally:
+        os.unlink(gzip_fn)
 
-    os.unlink(gzip_fn)
     return open(filename, "r")
 
 def open_ipv6_tag_file(filename):
@@ -611,16 +613,18 @@ def open_ipv6_tag_file(filename):
 
     print "Downloading", filename, "file ..."
     url = IPV6DB + filename + ".gz"
-    gzip_fn = urllib.urlretrieve(url)[0]
-    print "Decompressing", filename, "file ..."
-    gzip_f = gzip.GzipFile(filename=gzip_fn)
-    f = open(filename, "w")
-    for line in gzip_f:
-        print >>f, line,
-    f.close()
-    gzip_f.close()
+    try:
+        gzip_fn = urllib.urlretrieve(url, filename + ".gz")[0]
+        print "Decompressing", filename, "file ..."
+        gzip_f = gzip.GzipFile(filename=gzip_fn)
+        f = open(filename, "w")
+        for line in gzip_f:
+            print >>f, line,
+        f.close()
+        gzip_f.close()
+    finally:
+        os.unlink(gzip_fn)
 
-    os.unlink(gzip_fn)
     return open(filename, "r")
 
 def open_blacklist(filename):
