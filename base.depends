@@ -1,0 +1,76 @@
+Package                | Source                 | Why                   | Maintainer                                                            | Deb Size (B)    | Inst Size (KB) 
+-----------------------+------------------------+-----------------------+-----------------------------------------------------------------------+-----------------+-----------------
+binutils               | binutils               | ksymoops              | James Troup <james@nocrew.org>                                        |         2469172 |            6124
+bsdmainutils           | bsdmainutils           | man-db                | Graham Wilson <graham@debian.org>                                     |          168678 |             612
+console-common         | console-common         | console-tools         | Alastair McKinstry <mckinstry@debian.org>                             |           73828 |             448
+console-data           | console-data           | console-common        | Alastair McKinstry <mckinstry@debian.org>                             |         1099454 |            3856
+debconf-i18n           | debconf                | debconf               | Joey Hess <joeyh@debian.org>                                          |           65360 |             396
+dhcp3-common           | dhcp3                  | dhcp3-client          | Eloy A. Paris <peloy@debian.org>                                      |          174174 |             472
+gcc-3.3-base           | gcc-3.3                | libstdc++5            | Debian GCC maintainers <debian-gcc@lists.debian.org>                  |          145040 |             168
+groff-base             | groff                  | man-db                | Colin Watson <cjwatson@debian.org>                                    |          826360 |            2480
+ifupdown               | ifupdown               | netbase               | Anthony Towns <ajt@debian.org>                                        |           42338 |             220
+iputils-ping           | iputils                | netbase               | Noah Meyerhans <noahm@debian.org>                                     |           40918 |             124
+klogd                  | sysklogd               | sysklogd              | Martin Schulze <joey@debian.org>                                      |           38010 |             132
+libatm1                | linux-atm              | iproute               | Peter De Schrijver (p2) <p2@mind.be>                                  |           68940 |             132
+libbz2-1.0             | bzip2                  | bzip2                 | Philippe Troin <phil@fifi.org>                                        |           35366 |              79
+libc6                  | glibc                  | base-passwd           | GNU Libc Maintainers <debian-glibc@lists.debian.org>                  |         4877886 |           15480
+libcap1                | libcap                 | libpam-modules        | Michael Vogt <mvo@debian.org>                                         |            9082 |              60
+libconsole             | console-tools          | console-tools         | Alastair McKinstry <mckinstry@debian.org>                             |          112402 |             412
+libdb1-compat          | db1-compat             | libc6                 | Colin Watson <cjwatson@debian.org>                                    |           30762 |             108
+libdb3                 | db3                    | libpam-modules        | Matthew Wilcox <willy@debian.org>                                     |          230400 |             680
+libdb4.1               | db4.1                  | postfix               | Debian Berkeley DB Maintainers <pkg-db-devel@lists.alioth.debian.org> |          356132 |             820
+libdb4.2               | db4.2                  | python2.3             | Debian Berkeley DB Maintainers <pkg-db-devel@lists.alioth.debian.org> |          387418 |             908
+libdns11               | bind9                  | bind9-host            | LaMont Jones <lamont@debian.org>                                      |          449938 |            1116
+libexpat1              | expat                  | dbus-1                | Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org>  |           57046 |             180
+libgcc1                | gcc-3.3                | apt                   | Debian GCC maintainers <debian-gcc@lists.debian.org>                  |           74630 |             112
+libgcrypt7             | libgcrypt7             | libgnutls10           | Ivo Timmermans <ivo@debian.org>                                       |          480792 |             961
+libgdbm3               | gdbm                   | man-db                | James Troup <james@nocrew.org>                                        |           21316 |              72
+libgnutls10            | gnutls10               | libldap2              | Ivo Timmermans <ivo@debian.org>                                       |          285704 |             604
+libgpg-error0          | libgpg-error           | libgcrypt7            | Jose Carlos Garcia Sogo <jsogo@debian.org>                            |           16970 |              96
+libgpmg1               | gpm                    | vim                   | Zephaniah E. Hull <warp@debian.org>                                   |           45262 |             100
+libidn11               | libidn                 | mutt                  | Ryan M. Golbeck <rmgolbeck@debian.org>                                |           90236 |             252
+libisc7                | bind9                  | libdns11              | LaMont Jones <lamont@debian.org>                                      |          150014 |             328
+libiw27                | wireless-tools         | wireless-tools        | Guus Sliepen <guus@debian.org>                                        |           23120 |              48
+libldap2               | openldap2              | gnupg                 | Torsten Landschoff <torsten@debian.org>                               |          288582 |             688
+liblocale-gettext-perl | liblocale-gettext-perl | debconf-i18n          | Raphael Hertzog <hertzog@debian.org>                                  |           16792 |             104
+liblockfile1           | liblockfile            | mailx                 | Miquel van Smoorenburg <miquels@cistron.nl>                           |           13878 |              92
+liblwres1              | bind9                  | dnsutils              | LaMont Jones <lamont@debian.org>                                      |           86330 |             168
+liblzo1                | lzo                    | libgnutls10           | Paolo Molaro <lupus@debian.org>                                       |           42726 |             160
+libmagic1              | file                   | file                  | Michael Piefel <piefel@debian.org>                                    |          213084 |            1201
+libncurses5            | ncurses                | info                  | Daniel Jacobowitz <ncurses-maint@debian.org>                          |          274722 |             512
+libncursesw5           | ncurses                | mutt                  | Daniel Jacobowitz <ncurses-maint@debian.org>                          |          286736 |             532
+libnewt0.51            | newt                   | udev                  | Alastair McKinstry <mckinstry@debian.org>                             |           51862 |             404
+libopencdk8            | opencdk8               | libgnutls10           | Ivo Timmermans <ivo@debian.org>                                       |           74844 |             184
+libpam-modules         | pam                    | login                 | Sam Hartman <hartmans@debian.org>                                     |          151464 |             476
+libpam-runtime         | pam                    | libpam0g              | Sam Hartman <hartmans@debian.org>                                     |           55206 |             168
+libpam0g               | pam                    | libpam-modules        | Sam Hartman <hartmans@debian.org>                                     |           73824 |             168
+libpcap0.7             | libpcap                | ppp                   | Torsten Landschoff <torsten@debian.org>                               |           66320 |             184
+libpci1                | libpci1                | pciutils              | Remco van de Meent <remco@debian.org>                                 |           15386 |              68
+libpci2                | pciutils               | pciutils              | Remco van de Meent <remco@debian.org>                                 |           25628 |              80
+libpopt0               | popt                   | logrotate             | Paul Martin <pm@debian.org>                                           |           30040 |             436
+libreadline4           | readline4              | ftp                   | Matthias Klose <doko@debian.org>                                      |          139430 |             280
+libsasl2               | cyrus-sasl2            | libldap2              | Dima Barsky <dima@debian.org>                                         |          254906 |             552
+libselinux1            | libselinux             | udev                  | Colin Walters <walters@debian.org>                                    |           26182 |             172
+libssl0.9.7            | openssl                | libdns11              | Christoph Martin <christoph.martin@uni-mainz.de>                      |         2172886 |            4852
+libstdc++5             | gcc-3.3                | apt                   | Debian GCC maintainers <debian-gcc@lists.debian.org>                  |          288904 |             804
+libtasn1-2             | libtasn1-2             | libgnutls10           | Ivo Timmermans <ivo@debian.org>                                       |           41544 |             124
+libtext-charwidth-perl | libtext-charwidth-perl | libtext-wrapi18n-perl | Tomohiro KUBOTA <kubota@debian.org>                                   |           10972 |              96
+libtext-iconv-perl     | libtext-iconv-perl     | debconf-i18n          | Steve Haslam <araqnid@debian.org>                                     |           12196 |              44
+libtext-wrapi18n-perl  | libtext-wrapi18n-perl  | debconf-i18n          | Tomohiro KUBOTA <kubota@debian.org>                                   |            8442 |              76
+libusb-0.1-4           | libusb                 | usbutils              | Aurelien Jarno <aurel32@debian.org>                                   |           17338 |              72
+libwrap0               | tcp-wrappers           | tcpd                  | Anthony Towns <ajt@debian.org>                                        |           25306 |              84
+makedev                | makedev                | ppp                   | Bdale Garbee <bdale@gag.com>                                          |           38816 |             160
+net-tools              | net-tools              | ifupdown              | Bernd Eckenfels <ecki@debian.org>                                     |          246966 |             652
+netkit-inetd           | netkit-base            | netbase               | Anthony Towns <ajt@debian.org>                                        |           28264 |             136
+portmap                | portmap                | nfs-common            | Herbert Xu <herbert@debian.org>                                       |           21848 |             116
+ppp                    | ppp                    | pppconfig             | Marco d'Itri <md@linux.it>                                            |          283170 |             876
+pppoe                  | rp-pppoe               | pppoeconf             | Christian Hudon <chrish@debian.org>                                   |           65380 |             166
+psmisc                 | psmisc                 | pcmcia-cs             | Craig Small <csmall@debian.org>                                       |           45038 |             152
+python2.3              | python2.3              | python                | Matthias Klose <doko@debian.org>                                      |         2745934 |            8740
+slang1a-utf8           | slang                  | libnewt0.51           | Jim Mintha <jmintha@debian.org>                                       |          297948 |             564
+tcpd                   | tcp-wrappers           | netbase               | Anthony Towns <ajt@debian.org>                                        |           67400 |             180
+vim-common             | vim                    | vim                   | Norbert Tretkowski <nobse@debian.org>                                 |         3135692 |            9328
+whiptail               | newt                   | pppconfig             | Alastair McKinstry <mckinstry@debian.org>                             |           29672 |              92
+zlib1g                 | zlib                   | libmagic1             | Mark Brown <broonie@debian.org>                                       |           61290 |             152
+------------------------------------------------------------------------------------------------------------------------------------------------+-----------------+-----------------
+                                                                                                                                                |        24779696 |           71675

@@ -1,0 +1,54 @@
+Package                   | Source                    | Why       | Maintainer                                                  | Deb Size (B)    | Inst Size (KB) 
+--------------------------+---------------------------+-----------+-------------------------------------------------------------+-----------------+-----------------
+autoconf                  | autoconf                  | Supported | Ben Pfaff <pfaffben@debian.org>                             |          742108 |            2416
+autoconf2.13              | autoconf2.13              | Supported | Ben Pfaff <pfaffben@debian.org>                             |          365000 |             896
+automake1.4               | automake                  | Supported | Eric Dorland <eric@debian.org>                              |          270860 |             964
+automake1.7               | automake1.7               | Supported | Eric Dorland <eric@debian.org>                              |          389542 |            1292
+automake1.8               | automake1.8               | Supported | Eric Dorland <eric@debian.org>                              |          449056 |            1480
+autotools-dev             | autotools-dev             | Supported | Henrique de Moraes Holschuh <hmh@debian.org>                |           53228 |             132
+bison                     | bison                     | Supported | Vincent Renardias <vincent@debian.org>                      |          626712 |            1300
+build-essential           | build-essential           | Supported | Scott James Remnant <scott@netsplit.com>                    |            6450 |              48
+courier-imap-ssl          | courier                   | Supported | Stefan Hornburg (Racke) <racke@linuxia.de>                  |           18514 |             124
+courier-pop-ssl           | courier                   | Supported | Stefan Hornburg (Racke) <racke@linuxia.de>                  |           18320 |             124
+cvs                       | cvs                       | Supported | Steve McIntyre <93sam@debian.org>                           |         1364208 |            2788
+cyrus21-admin             | cyrus21-imapd             | Supported | Henrique de Moraes Holschuh <hmh@debian.org>                |           87330 |             144
+cyrus21-clients           | cyrus21-imapd             | Supported | Henrique de Moraes Holschuh <hmh@debian.org>                |          104292 |             148
+cyrus21-imapd             | cyrus21-imapd             | Supported | Henrique de Moraes Holschuh <hmh@debian.org>                |          570646 |            1592
+cyrus21-murder            | cyrus21-imapd             | Supported | Henrique de Moraes Holschuh <hmh@debian.org>                |          504558 |            1300
+cyrus21-pop3d             | cyrus21-imapd             | Supported | Henrique de Moraes Holschuh <hmh@debian.org>                |           88098 |             192
+debhelper                 | debhelper                 | Supported | Joey Hess <joeyh@debian.org>                                |          352694 |             952
+dh-make                   | dh-make                   | Supported | Craig Small <csmall@debian.org>                             |           33014 |             284
+dovecot                   | dovecot                   | Supported | Jaldhar H. Vyas <jaldhar@debian.org>                        |            5382 |              36
+dupload                   | dupload                   | Supported | Josip Rodin <joy-packages@debian.org>                       |           27462 |             116
+fakeroot                  | fakeroot                  | Supported | Clint Adams <schizo@debian.org>                             |           54950 |             188
+flex                      | flex                      | Supported | Manoj Srivastava <srivasta@debian.org>                      |          264550 |             780
+gnome-blog                | gnome-blog                | Supported | Frederic Peters <fpeters@debian.org>                        |           30878 |             320
+gossip                    | gossip                    | Supported | Ross Burton <ross@debian.org>                               |          547306 |            1624
+ldap-utils                | openldap2                 | Supported | Torsten Landschoff <torsten@debian.org>                     |          113698 |             288
+libtool                   | libtool                   | Supported | Scott James Remnant <scott@netsplit.com>                    |          605430 |            2312
+libtool1.4                | libtool1.4                | Supported | Scott James Remnant <scott@netsplit.com>                    |          237280 |             656
+lintian                   | lintian                   | Supported | Debian Lintian Maintainers <lintian-maint@debian.org>       |          191748 |             916
+mysql-client              | mysql-dfsg                | Supported | Christian Hammers <ch@debian.org>                           |          255790 |             708
+mysql-server              | mysql-dfsg                | Supported | Christian Hammers <ch@debian.org>                           |         3636186 |            8564
+openoffice.org-help-de    | openoffice.org-help-de    | Supported | Debian OpenOffice Team <debian-openoffice@lists.debian.org> |        13609370 |           22952
+openoffice.org-help-el    | openoffice.org-help-el    | Supported | Debian OpenOffice Team <debian-openoffice@lists.debian.org> |        15283212 |           27592
+openoffice.org-help-es    | openoffice.org-help-es    | Supported | Debian OpenOffice Team <debian-openoffice@lists.debian.org> |        12513132 |           21284
+openoffice.org-help-fr    | openoffice.org-help-fr    | Supported | Debian OpenOffice Team <debian-openoffice@lists.debian.org> |        12532384 |           21604
+openoffice.org-help-it    | openoffice.org-help-it    | Supported | Debian OpenOffice Team <debian-openoffice@lists.debian.org> |        12444028 |           21184
+openoffice.org-help-ja    | openoffice.org-help-ja    | Supported | Debian OpenOffice Team <debian-openoffice@lists.debian.org> |        12859630 |           22708
+openoffice.org-help-ko    | openoffice.org-help-ko    | Supported | Debian OpenOffice Team <debian-openoffice@lists.debian.org> |        12324858 |           21440
+openoffice.org-help-sv    | openoffice.org-help-sv    | Supported | Debian OpenOffice Team <debian-openoffice@lists.debian.org> |        12035382 |           20468
+openoffice.org-help-zh-cn | openoffice.org-help-zh-cn | Supported | Debian OpenOffice Team <debian-openoffice@lists.debian.org> |        12707168 |           24064
+openoffice.org-help-zh-tw | openoffice.org-help-zh-tw | Supported | Debian OpenOffice Team <debian-openoffice@lists.debian.org> |        12894282 |           24288
+pbuilder                  | pbuilder                  | Supported | Junichi Uekawa <dancer@debian.org>                          |           59394 |             376
+postgresql                | postgresql                | Supported | Oliver Elphick <Oliver.Elphick@lfix.co.uk>                  |         3655120 |            9160
+postgresql-client         | postgresql                | Supported | Oliver Elphick <Oliver.Elphick@lfix.co.uk>                  |          501164 |            1407
+shorewall                 | shorewall                 | Supported | Lorenzo Martignoni <lorenzo.martignoni@poste.it>            |           99152 |             492
+slapd                     | openldap2                 | Supported | Torsten Landschoff <torsten@debian.org>                     |          930652 |            2356
+squid                     | squid                     | Supported | Luigi Gangitano <luigi@debian.org>                          |          745958 |            2076
+straw                     | straw                     | Supported | Ross Burton <ross@debian.org>                               |          129246 |             824
+subversion                | subversion                | Supported | David Kimdon <dwhedon@debian.org>                           |          496340 |            1552
+tla                       | tla                       | Supported | Andrew Suffield <asuffield@debian.org>                      |          288798 |             744
+xnest                     | xfree86                   | Supported | Debian X Strike Force <debian-x@lists.debian.org>           |         1425328 |            3600
+--------------------------------------------------------------------------------------------------------------------------------+-----------------+-----------------
+                                                                                                                                |       149549888 |          282855

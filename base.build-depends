@@ -1,0 +1,331 @@
+Package                   | Source                    | Why                           | Maintainer                                                               | Deb Size (B)    | Inst Size (KB) 
+--------------------------+---------------------------+-------------------------------+--------------------------------------------------------------------------+-----------------+-----------------
+alsa-headers              | alsa-driver               | alsa-lib (B)                  | Debian ALSA Maintainers <pkg-alsa-devel@lists.alioth.debian.org>         |           55248 |             148
+atm-dev                   | linux-atm                 | iproute (B)                   | Peter De Schrijver (p2) <p2@mind.be>                                     |           51194 |              80
+attr                      | attr                      | attr (B)                      | Nathan Scott <nathans@debian.org>                                        |           30160 |              96
+automake1.6               | automake1.6               | fam (B)                       | Eric Dorland <eric@debian.org>                                           |          310570 |            1120
+bc                        | bc                        | netpbm-free (B)               | Dirk Eddelbuettel <edd@debian.org>                                       |           64674 |             184
+binutils-dev              | binutils                  | ksymoops (B)                  | James Troup <james@nocrew.org>                                           |         2858402 |            6864
+bison-1.35                | bison-1.35                | gcc-2.95 (B)                  | Vincent Renardias <vincent@debian.org>                                   |          397340 |             508
+blt                       | blt                       | blt (B)                       | Chris Waters <xtifr@debian.org>                                          |         1413470 |            3124
+blt-common                | blt                       | blt (B)                       | Chris Waters <xtifr@debian.org>                                          |           30686 |             196
+blt-dev                   | blt                       | python2.3 (B)                 | Chris Waters <xtifr@debian.org>                                          |         1103872 |            2820
+byacc                     | byacc                     | krb5 (B)                      | Jason Henry Parker <henry@debian.org>                                    |           30952 |             104
+cdbs                      | cdbs                      | linux-kernel-headers (B)      | CDBS Hackers <build-common-hackers@lists.alioth.debian.org>              |           42766 |             134
+chrpath                   | chrpath                   | libqt-perl (B)                | Tollef Fog Heen <tfheen@debian.org>                                      |           12106 |              84
+comerr-dev                | e2fsprogs                 | krb5 (B)                      | Theodore Y. Ts'o <tytso@mit.edu>                                         |           38482 |             216
+cpp-2.95                  | gcc-2.95                  | gcc-2.95 (B)                  | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |          114288 |             224
+cracklib2                 | cracklib2                 | cracklib2 (B)                 | Martin Pitt <mpitt@debian.org>                                           |           27098 |              94
+cracklib2-dev             | cracklib2                 | pam (B)                       | Martin Pitt <mpitt@debian.org>                                           |           25154 |              87
+d-shlibs                  | d-shlibs                  | libgd2 (B)                    | Junichi Uekawa <dancer@debian.org>                                       |           10384 |              80
+dbs                       | dbs                       | zlib (B)                      | Warren Turkal <wt@midsouth.rr.com>                                       |           22372 |             164
+dbus-1-dev                | dbus                      | udev (B)                      | Daniel Stone <daniels@debian.org>                                        |          195754 |             584
+dc                        | bc                        | e2fsprogs (B)                 | Dirk Eddelbuettel <edd@debian.org>                                       |           56800 |             196
+debiandoc-sgml            | debiandoc-sgml            | java-common (B)               | Ardo van Rangelrooij <ardo@debian.org>                                   |           72210 |            1108
+debmake                   | debmake                   | attr (B)                      | Raul Miller <moth@debian.org>                                            |           44592 |             296
+dejagnu                   | dejagnu                   | gcc-3.3 (B)                   | Daniel Jacobowitz <dan@debian.org>                                       |          744510 |            3328
+devscripts                | devscripts                | libusb (B)                    | Julian Gilbey <jdg@debian.org>                                           |          179648 |             489
+dh-buildinfo              | dh-buildinfo              | openjade1.3 (B)               | Yann Dirson <dirson@debian.org>                                          |           14978 |              96
+dh-consoledata            | console-common            | console-data (B)              | Alastair McKinstry <mckinstry@debian.org>                                |           52150 |             172
+docbook-to-man            | docbook-to-man            | libgcrypt (B)                 | Luk Claes <luk.claes@ugent.be>                                           |           69624 |             236
+docbook-utils             | docbook-utils             | fontconfig (B)                | Ardo van Rangelrooij <ardo@debian.org>                                   |           72376 |             444
+doxygen                   | doxygen                   | gcc-3.3 (B)                   | Luca Filipozzi <lfilipoz@debian.org>                                     |         1271086 |            3596
+dpatch                    | dpatch                    | gawk (B)                      | Joerg Jaspert <joerg@debian.org>                                         |           72752 |             200
+dpsyco-devel              | dpsyco                    | java-common (B)               | Ola Lundqvist <opal@debian.org>                                          |           44206 |             210
+dpsyco-lib                | dpsyco                    | dpsyco (B)                    | Ola Lundqvist <opal@debian.org>                                          |           19506 |              78
+expect                    | expect                    | dejagnu (B)                   | Mike Markley <mike@markley.org>                                          |          271388 |             628
+fastjar                   | gcc-3.3                   | db4.2 (B)                     | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |          114606 |             192
+flex-old                  | flex-old                  | gcc-3.3 (B)                   | Manoj Srivastava <srivasta@debian.org>                                   |          188960 |             512
+foomatic-db               | foomatic-db               | foomatic-db-engine (B)        | Chris Lawrence <lawrencc@debian.org>                                     |          478030 |            9740
+foomatic-db-engine        | foomatic-db-engine        | gimp-print (B)                | Chris Lawrence <lawrencc@debian.org>                                     |          252212 |             704
+foomatic-filters          | foomatic-filters          | foomatic-db (B)               | Chris Lawrence <lawrencc@debian.org>                                     |          116406 |             304
+g++-2.95                  | gcc-2.95                  | gcc-2.95 (B)                  | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |         1015866 |            2268
+g77                       | gcc-defaults              | libtool (B)                   | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |            1260 |               8
+g77-3.3                   | gcc-3.3                   | gcc-defaults (B)              | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |         1614082 |            3892
+gcc-2.95                  | gcc-2.95                  | gcc-2.95 (B)                  | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |          937092 |            2224
+gcj                       | gcc-defaults              | db4.2 (B)                     | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |            1222 |               0
+gcj-3.3                   | gcc-3.3                   | gcc-defaults (B)              | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |         1693740 |            3596
+gdk-imlib1-dev            | imlib+png2                | gnome-libs (B)                | Steve M. Robbins <smr@debian.org>                                        |           68862 |             248
+gengetopt                 | gengetopt                 | libidn (B)                    | Luca Filipozzi <lfilipoz@debian.org>                                     |          109806 |             376
+gnat-3.3                  | gcc-3.3                   | gcc-3.3 (B)                   | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |         6308216 |           22428
+gnome-common              | gnome-common              | gtk-doc (B)                   | Jordi Mallach <jordi@debian.org>                                         |           43382 |             228
+gnome-pkg-tools           | gnome-pkg-tools           | pango1.0 (B)                  | Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org> |           11892 |              52
+gperf                     | gperf                     | gcc-3.3 (B)                   | J.H.M. Dassen (Ray) <jdassen@debian.org>                                 |          129484 |             278
+groff                     | groff                     | xfree86 (B)                   | Colin Watson <cjwatson@debian.org>                                       |         1854318 |            5428
+gtk-doc-tools             | gtk-doc                   | gtk+2.0 (B)                   | Sebastian Rittau <srittau@debian.org>                                    |          110336 |             459
+heimdal-dev               | heimdal                   | cyrus-sasl2 (B)               | Brian May <bam@debian.org>                                               |          406294 |            1504
+help2man                  | help2man                  | gcc-2.95 (B)                  | Brendan O'Dea <bod@debian.org>                                           |           32730 |             172
+iconc                     | icon                      | noweb (B)                     | Christian Hudon <chrish@debian.org>                                      |        16117778 |           34604
+icont                     | icon                      | noweb (B)                     | Christian Hudon <chrish@debian.org>                                      |           45948 |             140
+iconx                     | icon                      | noweb (B)                     | Christian Hudon <chrish@debian.org>                                      |          160354 |             384
+imagemagick               | imagemagick               | dejagnu (B)                   | Ryuichi Arafune <arafune@debian.org>                                     |         1083602 |            4088
+indent                    | indent                    | orbit (B)                     | Santiago Vila <sanvila@debian.org>                                       |           99160 |             500
+intltool                  | intltool                  | gnome-common (B)              | Takuo KITAME <kitame@debian.org>                                         |           93486 |             316
+jackd                     | jack-audio-connection-kit | jack-audio-connection-kit (B) | Junichi Uekawa <dancer@debian.org>                                       |           86834 |             295
+jadetex                   | jadetex                   | docbook-utils (B)             | Adam Di Carlo <aph@debian.org>                                           |          169680 |             542
+java-common               | java-common               | gcc-3.3 (B)                   | Debian Java Mailing List <debian-java@lists.debian.org>                  |           68190 |             296
+jikes                     | jikes                     | sablevm-classlib (B)          | Adam Majer <adamm@galacticasoftware.com>                                 |          618674 |            1608
+kdelibs-bin               | kdelibs                   | kdelibs (B)                   | Debian Qt/KDE Maintainers <debian-qt-kde@lists.debian.org>               |          840128 |            2388
+kdelibs-data              | kdelibs                   | kdelibs (B)                   | Debian Qt/KDE Maintainers <debian-qt-kde@lists.debian.org>               |         6381052 |           21400
+kdelibs4                  | kdelibs                   | kdelibs (B)                   | Debian Qt/KDE Maintainers <debian-qt-kde@lists.debian.org>               |         7503052 |           21264
+kdelibs4-dev              | kdelibs                   | vim (B)                       | Debian Qt/KDE Maintainers <debian-qt-kde@lists.debian.org>               |         1130822 |            6308
+kerberos4kth-dev          | krb4                      | heimdal (B)                   | Mikael Sennerholm <mikan@debian.org>                                     |          276798 |             892
+lesstif2                  | lesstif1-1                | lesstif1-1 (B)                | Herbert Xu <herbert@debian.org>                                          |          684662 |            1652
+lesstif2-dev              | lesstif1-1                | vim (B)                       | Herbert Xu <herbert@debian.org>                                          |          955924 |            3316
+libacl1-dev               | acl                       | coreutils (B)                 | Nathan Scott <nathans@debian.org>                                        |           74234 |             248
+libart-2.0-dev            | libart-lgpl               | sablevm-classlib (B)          | Ondřej Surý <ondrej@debian.org>                                        |           78252 |             412
+libart-dev                | gnome-libs                | gnome-libs (B)                | Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org> |           46526 |             264
+libarts1                  | arts                      | kdelibs (B)                   | Debian Qt/KDE Maintainers <debian-qt-kde@lists.debian.org>               |         1142826 |            4384
+libarts1-dev              | arts                      | kdelibs (B)                   | Debian Qt/KDE Maintainers <debian-qt-kde@lists.debian.org>               |          174222 |            1076
+libartsc0                 | arts                      | arts (B)                      | Debian Qt/KDE Maintainers <debian-qt-kde@lists.debian.org>               |           12570 |              44
+libartsc0-dev             | arts                      | arts (B)                      | Debian Qt/KDE Maintainers <debian-qt-kde@lists.debian.org>               |            8226 |              28
+libasound2-dev            | alsa-lib                  | arts (B)                      | Debian ALSA Maintainers <pkg-alsa-devel@lists.alioth.debian.org>         |          423598 |            1548
+libatk1.0-dev             | atk1.0                    | gtk+2.0 (B)                   | Akira TAGOH <tagoh@debian.org>                                           |           64838 |             384
+libatm1-dev               | linux-atm                 | linux-atm (B)                 | Peter De Schrijver (p2) <p2@mind.be>                                     |           90500 |             180
+libattr1-dev              | attr                      | coreutils (B)                 | Nathan Scott <nathans@debian.org>                                        |           25908 |              84
+libaudio-dev              | nas                       | qt-x11-free (B)               | Steve McIntyre <93sam@debian.org>                                        |         1184126 |            2996
+libaudiofile-dev          | audiofile                 | esound (B)                    | Daniel Kobras <kobras@debian.org>                                        |          117242 |             464
+libbonobo2-dev            | libbonobo                 | gnome-vfs2 (B)                | Takuo KITAME <kitame@debian.org>                                         |          224652 |            1348
+libbonoboui2-dev          | libbonoboui               | libgnomeui (B)                | Takuo KITAME <kitame@debian.org>                                         |          257260 |             824
+libbz2-dev                | bzip2                     | lynx (B)                      | Philippe Troin <phil@fifi.org>                                           |           28276 |              77
+libcap-dev                | libcap                    | pam (B)                       | Michael Vogt <mvo@debian.org>                                            |           20354 |             112
+libcupsimage2-dev         | cupsys                    | gimp-print (B)                | Kenshi Muto <kmuto@debian.org>                                           |           59890 |             188
+libcupsys2-dev            | cupsys                    | qt-x11-free (B)               | Kenshi Muto <kmuto@debian.org>                                           |           97222 |             304
+libdb2                    | db2                       | db2 (B)                       | Matthew Wilcox <willy@debian.org>                                        |          297530 |             600
+libdb2-dev                | db2                       | apt (B)                       | Matthew Wilcox <willy@debian.org>                                        |          207740 |             512
+libdb2-util               | db2                       | db2 (B)                       | Matthew Wilcox <willy@debian.org>                                        |          109902 |             208
+libdb3-dev                | db3                       | pam (B)                       | Matthew Wilcox <willy@debian.org>                                        |          289110 |             988
+libdb4.0-dev              | db4.0                     | perl (B)                      | Matthew Wilcox <willy@debian.org>                                        |          363494 |            1044
+libdb4.1-dev              | db4.1                     | krb4 (B)                      | Debian Berkeley DB Maintainers <pkg-db-devel@lists.alioth.debian.org>    |          426016 |            1200
+libdb4.2-dev              | db4.2                     | python2.3 (B)                 | Debian Berkeley DB Maintainers <pkg-db-devel@lists.alioth.debian.org>    |          464506 |            1324
+libedit-dev               | libedit                   | heimdal (B)                   | Pawel Wiecek <coven@debian.org>                                          |           61122 |             196
+libedit2                  | libedit                   | libedit (B)                   | Pawel Wiecek <coven@debian.org>                                          |           48758 |             152
+libesd0-dev               | esound                    | gnome-libs (B)                | Ryan Murray <rmurray@debian.org>                                         |           24780 |             136
+libexpat1-dev             | expat                     | gettext (B)                   | Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org>     |          111118 |             388
+libfam-dev                | fam                       | gnome-vfs2 (B)                | Joerg Wendland <joergland@debian.org>                                    |           36668 |             144
+libffi2                   | gcc-3.3                   | sablevm (B)                   | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |           69648 |              88
+libffi2-dev               | gcc-3.3                   | sablevm (B)                   | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |           11068 |              40
+libfontconfig1-dev        | fontconfig                | xfree86 (B)                   | Josselin Mouette <joss@debian.org>                                       |          231240 |            1330
+libfreetype6-dev          | freetype                  | qt-x11-free (B)               | Anthony Fok <foka@debian.org>                                            |          696966 |            3271
+libg2c0                   | gcc-3.3                   | gcc-3.3 (B)                   | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |           50466 |             116
+libgc-dev                 | libgc                     | gcc-3.3 (B)                   | Ryan Murray <rmurray@debian.org>                                         |          153126 |             528
+libgc1                    | libgc                     | libgc (B)                     | Ryan Murray <rmurray@debian.org>                                         |          109102 |             232
+libgcj-common             | gcc-3.3                   | gcc-3.3 (B)                   | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |            1170 |               8
+libgcj4                   | gcc-3.3                   | gcc-3.3 (B)                   | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |         3982668 |           12516
+libgcj4-dev               | gcc-3.3                   | db4.2 (B)                     | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |         4750214 |           25976
+libgconf2-dev             | gconf2                    | gnome-vfs2 (B)                | Takuo KITAME <kitame@debian.org>                                         |           83772 |             303
+libgcrypt-dev             | libgcrypt                 | gnutls7 (B)                   | Ivo Timmermans <ivo@debian.org>                                          |          169476 |             440
+libgcrypt7-dev            | libgcrypt7                | opencdk8 (B)                  | Ivo Timmermans <ivo@debian.org>                                          |          614672 |            1500
+libgd-gd2-noxpm-perl      | libgd-gd2-noxpm-perl      | springgraph (B)               | Jonas Smedegaard <dr@jones.dk>                                           |          167436 |             532
+libgd2-noxpm              | libgd2                    | libgd-gd2-noxpm-perl (B)      | Jonas Smedegaard <dr@jones.dk>                                           |          165276 |             512
+libgd2-noxpm-dev          | libgd2                    | libgd-gd2-noxpm-perl (B)      | Jonas Smedegaard <dr@jones.dk>                                           |          298960 |             743
+libgdbm-dev               | gdbm                      | perl (B)                      | James Troup <james@nocrew.org>                                           |           47470 |             172
+libgdk-pixbuf-dev         | gdk-pixbuf                | w3m (B)                       | Ryan Murray <rmurray@debian.org>                                         |          150180 |             728
+libglade2-dev             | libglade2                 | libgnomecanvas (B)            | Andreas Rottmann <rotty@debian.org>                                      |          115546 |             504
+libglib1.2-dev            | glib1.2                   | gtk+1.2 (B)                   | Akira TAGOH <tagoh@debian.org>                                           |          151566 |             468
+libglib2.0-dev            | glib2.0                   | pkgconfig (B)                 | Akira TAGOH <tagoh@debian.org>                                           |          392722 |            1480
+libgmp3                   | gmp                       | gmp (B)                       | Steve M. Robbins <smr@debian.org>                                        |          310466 |             500
+libgmp3-dev               | gmp                       | gcc-3.3 (B)                   | Steve M. Robbins <smr@debian.org>                                        |          441186 |            1380
+libgnome-dev              | gnome-libs                | gdk-pixbuf (B)                | Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org> |          591242 |            2104
+libgnome2-dev             | libgnome                  | libbonoboui (B)               | Ondřej Surý <ondrej@debian.org>                                        |           90812 |             252
+libgnomecanvas2-dev       | libgnomecanvas            | libbonoboui (B)               | Ondřej Surý <ondrej@debian.org>                                        |          123362 |             376
+libgnomeui-dev            | libgnomeui                | vim (B)                       | Ondřej Surý <ondrej@debian.org>                                        |          368434 |            1308
+libgnomevfs2-dev          | gnome-vfs2                | libgnome (B)                  | Takuo KITAME <kitame@debian.org>                                         |          233062 |            1488
+libgnorba-dev             | gnome-libs                | gnome-libs (B)                | Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org> |           36698 |             144
+libgnutls10-dev           | gnutls10                  | openldap2 (B)                 | Ivo Timmermans <ivo@debian.org>                                          |          342732 |             912
+libgnutls7-dev            | gnutls7                   | lynx (B)                      | Ivo Timmermans <ivo@debian.org>                                          |          208310 |             532
+libgpg-error-dev          | libgpg-error              | libgcrypt7 (B)                | Jose Carlos Garcia Sogo <jsogo@debian.org>                               |           27684 |             140
+libgpmg1-dev              | gpm                       | w3m (B)                       | Zephaniah E. Hull <warp@debian.org>                                      |           47412 |             104
+libgtk1.2-dev             | gtk+1.2                   | libiodbc2 (B)                 | Akira TAGOH <tagoh@debian.org>                                           |         1115826 |            3520
+libgtk2.0-dev             | gtk+2.0                   | sablevm-classlib (B)          | Akira TAGOH <tagoh@debian.org>                                           |         2306994 |            7224
+libhdb7-heimdal           | heimdal                   | heimdal (B)                   | Brian May <bam@debian.org>                                               |           42960 |             124
+libhesiod-dev             | hesiod                    | krb4 (B)                      | Steve Langasek <vorlon@debian.org>                                       |           14404 |              76
+libice-dev                | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          165750 |             392
+libidl-dev                | libidl                    | orbit2 (B)                    | Sebastian Rittau <srittau@debian.org>                                    |           97770 |             268
+libidn11-dev              | libidn                    | mutt (B)                      | Ryan M. Golbeck <rmgolbeck@debian.org>                                   |          175966 |             500
+libijs-0.35               | ijs                       | ijs (B)                       | Roger Leigh <rleigh@debian.org>                                          |           13542 |              40
+libijs-dev                | ijs                       | gimp-print (B)                | Roger Leigh <rleigh@debian.org>                                          |           51312 |             100
+libiodbc2-dev             | libiodbc2                 | qt-x11-free (B)               | Christian Hammers <ch@debian.org>                                        |          298982 |            1148
+libjack0.80.0-0           | jack-audio-connection-kit | jack-audio-connection-kit (B) | Junichi Uekawa <dancer@debian.org>                                       |           63958 |             197
+libjack0.80.0-dev         | jack-audio-connection-kit | alsa-lib (B)                  | Junichi Uekawa <dancer@debian.org>                                       |           77082 |             556
+libjpeg62-dev             | libjpeg6b                 | tiff (B)                      | Bill Allombert <ballombe@debian.org>                                     |          182656 |             412
+libkadm1-kerberos4kth     | krb4                      | krb4 (B)                      | Mikael Sennerholm <mikan@debian.org>                                     |           71694 |             108
+libkadm55                 | krb5                      | krb5 (B)                      | Sam Hartman <hartmans@debian.org>                                        |          163300 |             412
+libkadm5clnt4-heimdal     | heimdal                   | heimdal (B)                   | Brian May <bam@debian.org>                                               |           34938 |             100
+libkadm5srv7-heimdal      | heimdal                   | heimdal (B)                   | Brian May <bam@debian.org>                                               |           44340 |             124
+libkafs0-heimdal          | heimdal                   | heimdal (B)                   | Brian May <bam@debian.org>                                               |           34122 |              96
+libkafs0-kerberos4kth     | krb4                      | krb4 (B)                      | Mikael Sennerholm <mikan@debian.org>                                     |           71978 |             108
+libkdb-1-kerberos4kth     | krb4                      | krb4 (B)                      | Mikael Sennerholm <mikan@debian.org>                                     |           72118 |             108
+libkpathsea3              | tetex-bin                 | tetex-bin (B)                 | teTeX maintainers <debian-tetex-maint@lists.debian.org>                  |           53716 |             136
+libkrb5-dev               | krb5                      | postgresql (B)                | Sam Hartman <hartmans@debian.org>                                        |          571620 |            1956
+libkthacl1-kerberos4kth   | krb4                      | krb4 (B)                      | Mikael Sennerholm <mikan@debian.org>                                     |           68310 |             100
+liblcms1-dev              | lcms                      | libmng (B)                    | Shiju p. Nair <shiju@infovillage.net>                                    |          115324 |             384
+libldap2-dev              | openldap2                 | kdelibs (B)                   | Torsten Landschoff <torsten@debian.org>                                  |          324370 |             900
+liblockfile-dev           | liblockfile               | mailx (B)                     | Miquel van Smoorenburg <miquels@cistron.nl>                              |           29700 |             116
+libltdl3-dev              | libtool                   | postgresql (B)                | Scott James Remnant <scott@netsplit.com>                                 |           17494 |              76
+liblzo-dev                | lzo                       | gnutls7 (B)                   | Paolo Molaro <lupus@debian.org>                                          |           68432 |             328
+libmad0-dev               | libmad                    | arts (B)                      | Kyle McMartin <kyle@debian.org>                                          |           68058 |             164
+libmagick5.5.7            | imagemagick               | imagemagick (B)               | Ryuichi Arafune <arafune@debian.org>                                     |          955672 |            2744
+libmng-dev                | libmng                    | qt-x11-free (B)               | Shiju p. Nair <shiju@infovillage.net>                                    |          233178 |             764
+libmysqlclient10          | libmysqlclient-lgpl       | libmysqlclient-lgpl (B)       | Steve Langasek <vorlon@debian.org>                                       |          229788 |             448
+libmysqlclient10-dev      | libmysqlclient-lgpl       | qt-x11-free (B)               | Steve Langasek <vorlon@debian.org>                                       |          302266 |             868
+libncurses5-dev           | ncurses                   | texinfo (B)                   | Daniel Jacobowitz <ncurses-maint@debian.org>                             |         1038566 |            5168
+libncursesw5-dev          | ncurses                   | lynx (B)                      | Daniel Jacobowitz <ncurses-maint@debian.org>                             |          396580 |            1168
+libnetpbm10               | netpbm-free               | netpbm-free (B)               | Andreas Barth <aba@not.so.argh.org>                                      |           64162 |             149
+libnewt-dev               | newt                      | udev (B)                      | Alastair McKinstry <mckinstry@debian.org>                                |           74688 |             272
+libogg-dev                | libogg                    | libvorbis (B)                 | Christopher L Cheney <ccheney@debian.org>                                |           62046 |             380
+libopencdk-dev            | opencdk                   | gnutls7 (B)                   | Ivo Timmermans <ivo@debian.org>                                          |           85348 |             256
+libopencdk4               | opencdk                   | opencdk (B)                   | Ivo Timmermans <ivo@debian.org>                                          |           62268 |             144
+libopencdk8-dev           | opencdk8                  | gnutls10 (B)                  | Ivo Timmermans <ivo@debian.org>                                          |           99906 |             324
+libopie-dev               | opie                      | cyrus-sasl2 (B)               | Michael Stone <mstone@debian.org>                                        |           25818 |              84
+liborbit-dev              | orbit                     | gnome-libs (B)                | Sebastian Rittau <srittau@debian.org>                                    |          383614 |            1611
+liborbit2-dev             | orbit2                    | libbonobo (B)                 | Sebastian Rittau <srittau@debian.org>                                    |          481618 |            2064
+libosp-dev                | opensp                    | openjade1.3 (B)               | Neil Roeth <neil@debian.org>                                             |         1245760 |            5016
+libotp0-kerberos4kth      | krb4                      | krb4 (B)                      | Mikael Sennerholm <mikan@debian.org>                                     |           97612 |             176
+libpam0g-dev              | pam                       | xfree86 (B)                   | Sam Hartman <hartmans@debian.org>                                        |          113138 |             356
+libpango1.0-dev           | pango1.0                  | gtk+2.0 (B)                   | Akira TAGOH <tagoh@debian.org>                                           |          426566 |            1367
+libpaper-dev              | libpaper                  | cupsys (B)                    | Stephen Zander <gibreel@debian.org>                                      |           14540 |              96
+libpaper-utils            | libpaper                  | libpaper (B)                  | Stephen Zander <gibreel@debian.org>                                      |           15218 |              36
+libpaperg                 | libpaper                  | xfree86 (B)                   | Stephen Zander <gibreel@debian.org>                                      |             770 |               0
+libpcap-dev               | libpcap                   | ppp (B)                       | Torsten Landschoff <torsten@debian.org>                                  |           87400 |             256
+libpcre3-dev              | pcre3                     | kdelibs (B)                   | Mark Baker <mbaker@iee.org>                                              |          105734 |             292
+libperl-dev               | perl                      | postgresql (B)                | Brendan O'Dea <bod@debian.org>                                           |          625650 |            1448
+libpng10-dev              | libpng                    | libpng (B)                    | Josselin Mouette <joss@debian.org>                                       |          183596 |             449
+libpng12-dev              | libpng3                   | tetex-bin (B)                 | Josselin Mouette <joss@debian.org>                                       |          238708 |             518
+libpng2-dev               | libpng                    | gdk-pixbuf (B)                | Josselin Mouette <joss@debian.org>                                       |            1174 |              14
+libpopt-dev               | popt                      | opencdk (B)                   | Paul Martin <pm@debian.org>                                              |           36874 |             120
+libpth-dev                | pth                       | libgcrypt (B)                 | Luis Bustamante <luferbu@fluidsignal.com>                                |          110466 |             284
+libpth2                   | pth                       | pth (B)                       | Luis Bustamante <luferbu@fluidsignal.com>                                |           72606 |             180
+libqt-perl                | libqt-perl                | debconf (B)                   | Peter Hawkins <peterh@debian.org>                                        |         1628066 |            5932
+libqt3-compat-headers     | qt-x11-free               | doxygen (B)                   | Martin Loschwitz <madkiss@debian.org>                                    |           70198 |             320
+libqt3-headers            | qt-x11-free               | qt-x11-free (B)               | Martin Loschwitz <madkiss@debian.org>                                    |          332058 |            2384
+libqt3-mt-dev             | qt-x11-free               | doxygen (B)                   | Martin Loschwitz <madkiss@debian.org>                                    |           38940 |             152
+libqt3c102-mt             | qt-x11-free               | qt-x11-free (B)               | Martin Loschwitz <madkiss@debian.org>                                    |         2942434 |            7228
+libraw1394-5              | libraw1394                | jack-audio-connection-kit (B) | Ben Collins <bcollins@debian.org>                                        |           11536 |              76
+libraw1394-dev            | libraw1394                | jack-audio-connection-kit (B) | Ben Collins <bcollins@debian.org>                                        |          101736 |             248
+libreadline4-dev          | readline4                 | mysql-dfsg (B)                | Matthias Klose <doko@debian.org>                                         |          195882 |             476
+libroman-perl             | libroman-perl             | debiandoc-sgml (B)            | Ardo van Rangelrooij <ardo@debian.org>                                   |            6514 |              56
+libruby1.8                | ruby1.8                   | ruby1.8 (B)                   | akira yamada <akira@debian.org>                                          |          734834 |            2420
+libsablevm-classlib1-java | sablevm-classlib          | sablevm (B)                   | Grzegorz Prokopski (Debian Developer) <gadek@debian.org>                 |         2130154 |           12698
+libsablevm-native1        | sablevm-classlib          | sablevm (B)                   | Grzegorz Prokopski (Debian Developer) <gadek@debian.org>                 |          360456 |             620
+libsablevm1               | sablevm                   | sablevm (B)                   | Grzegorz Prokopski (Debian Developer) <gadek@debian.org>                 |          146992 |             532
+libsasl2-dev              | cyrus-sasl2               | openldap2 (B)                 | Dima Barsky <dima@debian.org>                                            |          240850 |             636
+libselinux1-dev           | libselinux                | udev (B)                      | Colin Walters <walters@debian.org>                                       |           51924 |             524
+libsgmls-perl             | libsgmls-perl             | libsgmls-perl (B)             | Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org>     |           29242 |             128
+libsl0-kerberos4kth       | krb4                      | krb4 (B)                      | Mikael Sennerholm <mikan@debian.org>                                     |           69626 |             100
+libslp-dev                | openslp                   | cupsys (B)                    | Ganesan Rajagopal <rganesan@debian.org>                                  |           62932 |             232
+libsm-dev                 | xfree86                   | nas (B)                       | Debian X Strike Force <debian-x@lists.debian.org>                        |          137112 |             300
+libsndfile1               | libsndfile                | jack-audio-connection-kit (B) | Anand Kumria <wildfire@progsoc.org>                                      |          159374 |             400
+libsndfile1-dev           | libsndfile                | jack-audio-connection-kit (B) | Anand Kumria <wildfire@progsoc.org>                                      |          267334 |             800
+libss0-kerberos4kth       | krb4                      | krb4 (B)                      | Mikael Sennerholm <mikan@debian.org>                                     |           71046 |             104
+libss2                    | e2fsprogs                 | e2fsprogs (B)                 | Theodore Y. Ts'o <tytso@mit.edu>                                         |           28692 |              84
+libssl-dev                | openssl                   | mysql-dfsg (B)                | Christoph Martin <christoph.martin@uni-mainz.de>                         |         1822886 |            4800
+libstdc++2.10-dev         | gcc-2.95                  | gmp (B)                       | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |          295174 |            1912
+libstdc++2.10-glibc2.2    | gcc-2.95                  | gcc-2.95 (B)                  | Debian GCC maintainers <debian-gcc@lists.debian.org>                     |          127334 |             340
+libt1-5                   | t1lib                     | t1lib (B)                     | Artur R. Czechowski <arturcz@hell.pl>                                    |          143554 |             352
+libt1-dev                 | t1lib                     | tetex-bin (B)                 | Artur R. Czechowski <arturcz@hell.pl>                                    |          170000 |             464
+libtasn1-2-dev            | libtasn1-2                | gnutls10 (B)                  | Ivo Timmermans <ivo@debian.org>                                          |          177758 |             268
+libtasn1-dev              | libtasn1                  | gnutls7 (B)                   | Ivo Timmermans <ivo@debian.org>                                          |          135946 |             216
+libtext-format-perl       | libtext-format-perl       | debiandoc-sgml (B)            | Ardo van Rangelrooij <ardo@debian.org>                                   |           19018 |              96
+libtiff3g-dev             | tiff                      | lcms (B)                      | Josip Rodin <joy-packages@debian.org>                                    |          434810 |            1344
+libungif4-dev             | libungif4                 | imlib+png2 (B)                | Michael Fedrowitz <michaelf@debian.org>                                  |           34372 |             128
+libusb-dev                | libusb                    | usbutils (B)                  | Aurelien Jarno <aurel32@debian.org>                                      |           32544 |             264
+libvorbis-dev             | libvorbis                 | arts (B)                      | Christopher L Cheney <ccheney@debian.org>                                |          460388 |            1952
+libwmf-dev                | libwmf                    | imagemagick (B)               | Matej Vela <vela@debian.org>                                             |          193790 |             740
+libwrap0-dev              | tcp-wrappers              | mysql-dfsg (B)                | Anthony Towns <ajt@debian.org>                                           |           31242 |             116
+libwww-dev                | w3c-libwww                | tetex-bin (B)                 | Richard Atterer <atterer@debian.org>                                     |          617950 |            2620
+libwww-ssl0               | w3c-libwww                | w3c-libwww (B)                | Richard Atterer <atterer@debian.org>                                     |          462166 |            1448
+libwww0                   | w3c-libwww                | tetex-bin (B)                 | Richard Atterer <atterer@debian.org>                                     |          454860 |            1428
+libx11-dev                | xfree86                   | xrender (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |         1322874 |            4360
+libxaw7-dev               | xfree86                   | tetex-bin (B)                 | Debian X Strike Force <debian-x@lists.debian.org>                        |          374408 |            1160
+libxcursor-dev            | xcursor                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |           29492 |             136
+libxext-dev               | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          207192 |             728
+libxft-dev                | xft                       | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |           60162 |             220
+libxi-dev                 | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          191906 |             532
+libxml-parser-perl        | libxml-parser-perl        | intltool (B)                  | Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org>     |          292104 |             708
+libxml2-dev               | libxml2                   | postgresql (B)                | Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org>     |          760084 |            1948
+libxml2-python2.3         | libxml2                   | libxslt (B)                   | Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org>     |          450554 |            1320
+libxml2-utils             | libxml2                   | xmlto (B)                     | Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org>     |          246198 |             328
+libxmu-dev                | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          178712 |             476
+libxmuu-dev               | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          123402 |             232
+libxp-dev                 | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          139370 |             312
+libxpm-dev                | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          152430 |             336
+libxrandr-dev             | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          131128 |             272
+libxrender-dev            | xrender                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |           28208 |             128
+libxslt1-dev              | libxslt                   | libgnome (B)                  | Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org>     |          444074 |            2036
+libxt-dev                 | xfree86                   | nas (B)                       | Debian X Strike Force <debian-x@lists.debian.org>                        |          576790 |            1972
+libxtrap-dev              | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          145232 |             340
+libxtst-dev               | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          130884 |             284
+libxv-dev                 | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          151074 |             368
+linuxdoc-tools            | linuxdoc-tools            | pam (B)                       | Taketoshi Sano <sano@debian.org>                                         |          383820 |            1292
+linuxdoc-tools-latex      | linuxdoc-tools            | pam (B)                       | Taketoshi Sano <sano@debian.org>                                         |           12458 |              48
+linuxdoc-tools-text       | linuxdoc-tools            | gtk+2.0 (B)                   | Taketoshi Sano <sano@debian.org>                                         |           12440 |              48
+lynx                      | lynx                      | docbook-utils (B)             | James Troup <james@nocrew.org>                                           |         1855448 |            4584
+mpack                     | mpack                     | w3c-libwww (B)                | Richard Braakman <dark@xs4all.nl>                                        |           32014 |             108
+netpbm                    | netpbm-free               | groff (B)                     | Andreas Barth <aba@not.so.argh.org>                                      |         1196462 |            2977
+nowebm                    | noweb                     | ifupdown (B)                  | Federico Di Gregorio <fog@debian.org>                                    |          518448 |            1400
+ocaml                     | ocaml                     | ocaml (B)                     | Sven Luther <luther@debian.org>                                          |         7712968 |           32084
+ocaml-base                | ocaml                     | ocaml (B)                     | Sven Luther <luther@debian.org>                                          |          149942 |             404
+ocaml-native-compilers    | ocaml                     | cdbs (B)                      | Sven Luther <luther@debian.org>                                          |         2435026 |            6840
+openjade1.3               | openjade1.3               | jadetex (B)                   | Yann Dirson <dirson@debian.org>                                          |          683562 |            2192
+opensp                    | opensp                    | opensp (B)                    | Neil Roeth <neil@debian.org>                                             |          243966 |             792
+orbit                     | orbit                     | gnome-libs (B)                | Sebastian Rittau <srittau@debian.org>                                    |          146900 |             405
+perl-doc                  | perl                      | dpsyco (B)                    | Brendan O'Dea <bod@debian.org>                                           |         7003020 |           11848
+perl-tk                   | perl-tk                   | tetex-base (B)                | Stephen Zander <gibreel@debian.org>                                      |         2445974 |            8432
+pm-dev                    | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          119804 |             236
+pmake                     | pmake                     | libedit (B)                   | Sam Hocevar (Debian packages) <sam+deb@zoy.org>                          |          243056 |             452
+postgresql-dev            | postgresql                | qt-x11-free (B)               | Oliver Elphick <Oliver.Elphick@lfix.co.uk>                               |          505314 |            2699
+psutils                   | psutils                   | groff (B)                     | Rob Browning <rlb@defaultvalue.org>                                      |           86780 |             331
+publib-dev                | publib                    | dwww (B)                      | Lars Wirzenius <liw@iki.fi>                                              |          120382 |             668
+python-dev                | python-defaults           | newt (B)                      | Matthias Klose <doko@debian.org>                                         |            5958 |              24
+python2.2                 | python2.2                 | python2.2 (B)                 | Matthias Klose <doko@debian.org>                                         |         2144586 |            6860
+python2.2-dev             | python2.2                 | pyrex (B)                     | Matthias Klose <doko@debian.org>                                         |         1299254 |            3940
+python2.3-dev             | python2.3                 | python-defaults (B)           | Matthias Klose <doko@debian.org>                                         |         1610240 |            5080
+python2.3-pyrex           | pyrex                     | dbus (B)                      | Paul Brossier <piem@altern.org>                                          |          176780 |             984
+qt3-dev-tools             | qt-x11-free               | qt-x11-free (B)               | Martin Loschwitz <madkiss@debian.org>                                    |         1076126 |            3684
+qt3-doc                   | qt-x11-free               | kdelibs (B)                   | Martin Loschwitz <madkiss@debian.org>                                    |         5328722 |           25624
+realpath                  | dwww                      | cdbs (B)                      | Robert Luberda <robert@debian.org>                                       |           20712 |              64
+render-dev                | render                    | xrender (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |           25122 |             112
+ruby                      | ruby-defaults             | vim (B)                       | Fumitoshi UKAI <ukai@debian.or.jp>                                       |           18778 |              96
+ruby1.8                   | ruby1.8                   | ruby-defaults (B)             | akira yamada <akira@debian.org>                                          |           84682 |             164
+ruby1.8-dev               | ruby1.8                   | vim (B)                       | akira yamada <akira@debian.org>                                          |          547154 |            1428
+sablevm                   | sablevm                   | db4.2 (B)                     | Grzegorz Prokopski (Debian Developer) <gadek@debian.org>                 |           33218 |             113
+sgmlspl                   | libsgmls-perl             | docbook-utils (B)             | Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org>     |           11164 |              80
+sgmltools-lite            | sgmltools-lite            | dpkg (B)                      | Oohara Yuuma <oohara@debian.org>                                         |           34742 |             200
+sharutils                 | sharutils                 | tetex-base (B)                | Santiago Vila <sanvila@debian.org>                                       |          108916 |             279
+slang1-utf8-dev           | slang                     | newt (B)                      | Jim Mintha <jmintha@debian.org>                                          |          332202 |             848
+sp                        | jade                      | linuxdoc-tools (B)            | Neil Roeth <neil@debian.org>                                             |          173426 |             608
+springgraph               | springgraph               | cdbs (B)                      | Kevin M. Rosenberg <kmr@debian.org>                                      |           11090 |              80
+ss-dev                    | e2fsprogs                 | krb5 (B)                      | Theodore Y. Ts'o <tytso@mit.edu>                                         |           15826 |             112
+tcl8.0                    | tcl8.0                    | tk8.0 (B)                     | Chris Waters <xtifr@debian.org>                                          |          330372 |             804
+tcl8.0-dev                | tcl8.0                    | tk8.0 (B)                     | Chris Waters <xtifr@debian.org>                                          |          410306 |            1140
+tcl8.3                    | tcl8.3                    | tcl8.3 (B)                    | Chris Waters <xtifr@debian.org>                                          |          858920 |            2660
+tcl8.3-dev                | tcl8.3                    | db4.0 (B)                     | Chris Waters <xtifr@debian.org>                                          |          573346 |            1764
+tcl8.4-dev                | tcl8.4                    | db4.2 (B)                     | Chris Waters <xtifr@debian.org>                                          |          707176 |            2160
+tetex-base                | tetex-base                | tetex-base (B)                | teTeX maintainers <debian-tetex-maint@lists.debian.org>                  |        14003078 |           53872
+tetex-bin                 | tetex-bin                 | make (B)                      | teTeX maintainers <debian-tetex-maint@lists.debian.org>                  |         3902172 |            8620
+tetex-extra               | tetex-base                | linuxdoc-tools (B)            | teTeX maintainers <debian-tetex-maint@lists.debian.org>                  |        10516520 |           39476
+texi2html                 | texi2html                 | m4 (B)                        | Ivo Timmermans <ivo@debian.org>                                          |           93808 |             452
+texinfo                   | texinfo                   | binutils (B)                  | Josip Rodin <joy-packages@debian.org>                                    |          857266 |            2088
+tix8.1                    | tix8.1                    | tix8.1 (B)                    | Matthias Klose <doko@debian.org>                                         |          536056 |            2580
+tix8.1-dev                | tix8.1                    | python2.3 (B)                 | Matthias Klose <doko@debian.org>                                         |          645484 |            2088
+tk8.0                     | tk8.0                     | blt (B)                       | Chris Waters <xtifr@debian.org>                                          |          541786 |            1276
+tk8.3                     | tk8.3                     | blt (B)                       | Chris Waters <xtifr@debian.org>                                          |          774200 |            2120
+tk8.3-dev                 | tk8.3                     | expect (B)                    | Chris Waters <xtifr@debian.org>                                          |          636202 |            1860
+tk8.4                     | tk8.4                     | tk8.4 (B)                     | Chris Waters <xtifr@debian.org>                                          |          942258 |            2552
+tk8.4-dev                 | tk8.4                     | postgresql (B)                | Chris Waters <xtifr@debian.org>                                          |          783544 |            2256
+transfig                  | transfig                  | dejagnu (B)                   | Roland Rosenfeld <roland@debian.org>                                     |          332168 |             940
+unzip                     | unzip                     | sablevm (B)                   | Santiago Vila <sanvila@debian.org>                                       |          122330 |             284
+w3m                       | w3m                       | base-passwd (B)               | Fumitoshi UKAI <ukai@debian.or.jp>                                       |         1090260 |            1824
+x-dev                     | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          176804 |             536
+xlibmesa-gl-dev           | xfree86                   | qt-x11-free (B)               | Debian X Strike Force <debian-x@lists.debian.org>                        |          665572 |            3372
+xlibmesa-glu-dev          | xfree86                   | qt-x11-free (B)               | Debian X Strike Force <debian-x@lists.debian.org>                        |          394852 |            1128
+xlibs-dev                 | xfree86                   | tk8.3 (B)                     | Debian X Strike Force <debian-x@lists.debian.org>                        |          118988 |             212
+xlibs-pic                 | xfree86                   | qt-x11-free (B)               | Debian X Strike Force <debian-x@lists.debian.org>                        |          118894 |             212
+xlibs-static-dev          | xfree86                   | nas (B)                       | Debian X Strike Force <debian-x@lists.debian.org>                        |          813628 |            2520
+xlibs-static-pic          | xfree86                   | xfree86 (B)                   | Debian X Strike Force <debian-x@lists.debian.org>                        |          345682 |             960
+xmlto                     | xmlto                     | dbs (B)                       | Graham Wilson <graham@debian.org>                                        |           30016 |             180
+xsltproc                  | libxslt                   | gtk-doc (B)                   | Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org>     |           83192 |             160
+zlib1g-dev                | zlib                      | gcc-3.3 (B)                   | Mark Brown <broonie@debian.org>                                          |          406944 |             572
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------+-----------------
+                                                                                                                                                                 |       200065702 |          654025

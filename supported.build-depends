@@ -1,0 +1,57 @@
+Package                | Source                  | Why                   | Maintainer                                                           | Deb Size (B)    | Inst Size (KB) 
+-----------------------+-------------------------+-----------------------+----------------------------------------------------------------------+-----------------+-----------------
+apache-dev             | apache                  | php4 (B)              | Debian Apache Maintainers <debian-apache@lists.debian.org>           |          317226 |             776
+apache2-common         | apache2                 | apache2 (B)           | Debian Apache Maintainers <debian-apache@lists.debian.org>           |          820306 |            3160
+apache2-prefork-dev    | apache2                 | php4 (B)              | Debian Apache Maintainers <debian-apache@lists.debian.org>           |          156482 |             744
+apache2-threaded-dev   | apache2                 | subversion (B)        | Debian Apache Maintainers <debian-apache@lists.debian.org>           |          157100 |             752
+caudium-dev            | caudium                 | php4 (B)              | Marek Habersack <grendel@debian.org>                                 |           19736 |              24
+chicken-dev            | chicken                 | swig1.3 (B)           | Davide Puricelli (evo) <evo@debian.org>                              |         1817770 |            5716
+csh                    | csh                     | cvs (B)               | Matej Vela <vela@debian.org>                                         |          225378 |             348
+drac-dev               | drac                    | cyrus21-imapd (B)     | Noel Koethe <noel@debian.org>                                        |            5788 |              56
+gij                    | gcc-defaults            | swig1.3 (B)           | Debian GCC maintainers <debian-gcc@lists.debian.org>                 |            1188 |               4
+gij-3.3                | gcc-3.3                 | gcc-defaults (B)      | Debian GCC maintainers <debian-gcc@lists.debian.org>                 |           13030 |              28
+glutg3-dev             | glut                    | pike7.2 (B)           | Jamie Wilkinson <jaq@debian.org>                                     |           21364 |              48
+ldp-docbook-xsl        | ldp-docbook-stylesheets | pbuilder (B)          | John R. Daily <koala@debian.org>                                     |            6826 |              88
+libadns1-dev           | adns                    | python-adns (B)       | Bernd Eckenfels <ecki@debian.org>                                    |           65288 |             200
+libapr0-dev            | apache2                 | apache2 (B)           | Debian Apache Maintainers <debian-apache@lists.debian.org>           |          248428 |            1088
+libc-client-dev        | uw-imap                 | php4 (B)              | Jonas Smedegaard <dr@jones.dk>                                       |         1186370 |            2772
+libc-client2002edebian | uw-imap                 | uw-imap (B)           | Jonas Smedegaard <dr@jones.dk>                                       |          574246 |            1112
+libgd2-xpm             | libgd2                  | libgd2 (B)            | Jonas Smedegaard <dr@jones.dk>                                       |          165874 |             512
+libgd2-xpm-dev         | libgd2                  | php4 (B)              | Jonas Smedegaard <dr@jones.dk>                                       |          299888 |             743
+libkpathsea-dev        | tetex-bin               | freetype1 (B)         | teTeX maintainers <debian-tetex-maint@lists.debian.org>              |           66230 |             396
+libloudmouth1-dev      | loudmouth               | gossip (B)            | Ross Burton <ross@debian.org>                                        |           59260 |             384
+libmcal0               | libmcal                 | libmcal (B)           | Ola Lundqvist <opal@debian.org>                                      |           27158 |              80
+libmcal0-dev           | libmcal                 | php4 (B)              | Ola Lundqvist <opal@debian.org>                                      |           33590 |             137
+libmhash-dev           | mhash                   | php4 (B)              | Chris Hanson <cph@debian.org>                                        |           79458 |             240
+libmhash2              | mhash                   | mhash (B)             | Chris Hanson <cph@debian.org>                                        |           66616 |             204
+libmm-dev              | mm                      | php4 (B)              | Mark Brown <broonie@debian.org>                                      |           34472 |             128
+libmm13                | mm                      | mm (B)                | Mark Brown <broonie@debian.org>                                      |           15390 |              72
+libmysqlclient-dev     | mysql-dfsg              | libdbd-mysql-perl (B) | Christian Hammers <ch@debian.org>                                    |         2897704 |            8264
+libneon24-dev          | neon                    | subversion (B)        | Siggy Brentrup <bsb@debian.org>                                      |          107386 |             356
+libsablot0-dev         | sablotron               | caudium (B)           | Fernando Sanchez <fer@debian.org>                                    |          417784 |            1448
+libsablot0c102         | sablotron               | sablotron (B)         | Fernando Sanchez <fer@debian.org>                                    |          326876 |             888
+libsdl-mixer1.2        | sdl-mixer1.2            | sdl-mixer1.2 (B)      | Josselin Mouette <joss@debian.org>                                   |          130014 |             288
+libsdl-mixer1.2-dev    | sdl-mixer1.2            | pike7.4 (B)           | Josselin Mouette <joss@debian.org>                                   |          180062 |             458
+libsmpeg-dev           | smpeg                   | sdl-mixer1.2 (B)      | Joe Drew <drew@debian.org>                                           |          108724 |             424
+libsmpeg0              | smpeg                   | sdl-mixer1.2 (B)      | Joe Drew <drew@debian.org>                                           |           96102 |             304
+libsnmp4.2-dev         | ucd-snmp                | cyrus21-imapd (B)     | David Engel <david@debian.org>                                       |          487212 |            1620
+libttf-dev             | freetype1               | pike7.2 (B)           | Anthony Fok <foka@debian.org>                                        |          470872 |             916
+libttf2                | freetype1               | freetype1 (B)         | Anthony Fok <foka@debian.org>                                        |          146122 |             351
+libxmltok1             | libxmltok               | libxmltok (B)         | Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org> |           45766 |             168
+libxmltok1-dev         | libxmltok               | caudium (B)           | Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org> |           65238 |             304
+mgetty                 | mgetty                  | mgetty (B)            | Andreas Barth <aba@not.so.argh.org>                                  |          166680 |             388
+mgetty-fax             | mgetty                  | courier (B)           | Andreas Barth <aba@not.so.argh.org>                                  |          131784 |             564
+mlock                  | uw-imap                 | uw-imap (B)           | Jonas Smedegaard <dr@jones.dk>                                       |           19360 |              88
+php4-dev               | php4                    | swig1.3 (B)           | Adam Conrad <adconrad@0c3.net>                                       |          315040 |            1544
+pike7.2                | pike7.2                 | caudium (B)           | Marek Habersack <grendel@debian.org>                                 |         2122186 |            7872
+pike7.4                | pike7.4                 | swig1.3 (B)           | Marek Habersack <grendel@debian.org>                                 |            9292 |              12
+pike7.4-core           | pike7.4                 | pike7.4 (B)           | Marek Habersack <grendel@debian.org>                                 |         2132674 |            7692
+pike7.4-dev            | pike7.4                 | swig1.3 (B)           | Marek Habersack <grendel@debian.org>                                 |          190964 |            1128
+pike7.4-gdbm           | pike7.4                 | pike7.4 (B)           | Marek Habersack <grendel@debian.org>                                 |            7294 |              16
+pike7.4-image          | pike7.4                 | pike7.4 (B)           | Marek Habersack <grendel@debian.org>                                 |          341292 |             996
+python-gnome2-dev      | python-gnome2           | gnome-blog (B)        | Sebastien Bacher <seb128@debian.org>                                 |           44794 |             432
+re2c                   | re2c                    | php4 (B)              | Daniel Bungert <drb@debian.org>                                      |          111498 |             236
+ssl-cert               | ssl-cert                | apache2 (B)           | Debian Apache Maintainers <debian-apache@lists.debian.org>           |            5510 |              88
+swig                   | swig1.3                 | subversion (B)        | Torsten Landschoff <torsten@debian.org>                              |          631510 |            2740
+------------------------------------------------------------------------------------------------------------------------------------------------+-----------------+-----------------
+                                                                                                                                                |        18194202 |           59397

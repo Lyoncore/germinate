@@ -1,0 +1,62 @@
+Package                     | Source               | Why                         | Maintainer                                                            | Deb Size (B)    | Inst Size (KB) 
+----------------------------+----------------------+-----------------------------+-----------------------------------------------------------------------+-----------------+-----------------
+chicken                     | chicken              | libswig1.3.21               | Davide Puricelli (evo) <evo@debian.org>                               |         2328916 |            7660
+courier-authdaemon          | courier              | courier-pop                 | Stefan Hornburg (Racke) <racke@linuxia.de>                            |           51486 |             208
+courier-base                | courier              | courier-pop                 | Stefan Hornburg (Racke) <racke@linuxia.de>                            |          230866 |             620
+courier-imap                | courier              | courier-imap-ssl            | Stefan Hornburg (Racke) <racke@linuxia.de>                            |          552608 |            1564
+courier-pop                 | courier              | courier-pop-ssl             | Stefan Hornburg (Racke) <racke@linuxia.de>                            |           46614 |             216
+courier-ssl                 | courier              | courier-pop-ssl             | Stefan Hornburg (Racke) <racke@linuxia.de>                            |          188422 |             692
+cyrus21-common              | cyrus21-imapd        | cyrus21-murder              | Henrique de Moraes Holschuh <hmh@debian.org>                          |         1989436 |            4820
+db4.2-util                  | db4.2                | subversion                  | Debian Berkeley DB Maintainers <pkg-db-devel@lists.alioth.debian.org> |           60564 |             208
+debconf-utils               | debconf              | debhelper                   | Joey Hess <joeyh@debian.org>                                          |           32526 |             120
+debootstrap                 | debootstrap          | pbuilder                    | Anthony Towns <ajt@debian.org>                                        |           61434 |             190
+diffstat                    | diffstat             | lintian                     | Greg Norris <adric@debian.org>                                        |           15248 |              80
+dovecot-common              | dovecot              | dovecot-imapd               | Jaldhar H. Vyas <jaldhar@debian.org>                                  |          225176 |             472
+dovecot-imapd               | dovecot              | dovecot                     | Jaldhar H. Vyas <jaldhar@debian.org>                                  |          288988 |             560
+dovecot-pop3d               | dovecot              | dovecot                     | Jaldhar H. Vyas <jaldhar@debian.org>                                  |          264324 |             512
+dpkg-dev                    | dpkg                 | build-essential             | Dpkg Development <debian-dpkg@lists.debian.org>                       |          121900 |             464
+g++                         | gcc-defaults         | build-essential             | Debian GCC maintainers <debian-gcc@lists.debian.org>                  |            1390 |               8
+g++-3.3                     | gcc-3.3              | g++                         | Debian GCC maintainers <debian-gcc@lists.debian.org>                  |         1775464 |            3788
+gawk                        | gawk                 | cyrus21-common              | James Troup <james@nocrew.org>                                        |          878682 |            1860
+gcc                         | gcc-defaults         | build-essential             | Debian GCC maintainers <debian-gcc@lists.debian.org>                  |            4834 |              28
+gcc-3.3                     | gcc-3.3              | gcc                         | Debian GCC maintainers <debian-gcc@lists.debian.org>                  |         1554396 |            4120
+gettext                     | gettext              | po-debconf                  | Santiago Vila <sanvila@debian.org>                                    |         1555230 |            4692
+html2text                   | html2text            | debhelper                   | Adrian Bridgett <bridgett@debian.org>                                 |           89300 |             272
+intltool-debian             | intltool-debian      | po-debconf                  | Denis Barbier <barbier@debian.org>                                    |           23412 |             120
+libadns1                    | adns                 | python2.3-adns              | Bernd Eckenfels <ecki@debian.org>                                     |           51258 |             148
+libapr0                     | apache2              | subversion                  | Debian Apache Maintainers <debian-apache@lists.debian.org>            |          119080 |             296
+libc6-dev                   | glibc                | build-essential             | GNU Libc Maintainers <debian-glibc@lists.debian.org>                  |         2529614 |            8684
+libcyrus-imap-perl21        | cyrus21-imapd        | cyrus21-admin               | Henrique de Moraes Holschuh <hmh@debian.org>                          |          135794 |             296
+libdbd-mysql-perl           | libdbd-mysql-perl    | mysql-client                | Raphael Hertzog <hertzog@debian.org>                                  |          129472 |             364
+libdbi-perl                 | libdbi-perl          | mysql-client                | Christian Hammers <ch@debian.org>                                     |          525026 |            1376
+libhesiod0                  | hesiod               | libzephyr3                  | Steve Langasek <vorlon@debian.org>                                    |           16212 |              64
+libiodbc2                   | libiodbc2            | slapd                       | Christian Hammers <ch@debian.org>                                     |          129036 |             384
+libloudmouth1-0             | loudmouth            | gossip                      | Ross Burton <ross@debian.org>                                         |           37204 |             132
+libmysqlclient12            | mysql-dfsg           | libdbd-mysql-perl           | Christian Hammers <ch@debian.org>                                     |          290288 |             580
+libneon24                   | neon                 | subversion                  | Siggy Brentrup <bsb@debian.org>                                       |           80130 |             164
+libnet-daemon-perl          | libnet-daemon-perl   | libplrpc-perl               | Mike Mattice <mattice@debian.org>                                     |           45992 |             164
+libpcre3                    | pcre3                | libapr0                     | Mark Baker <mbaker@iee.org>                                           |          107504 |             240
+libplrpc-perl               | libplrpc-perl        | libdbi-perl                 | Mike Mattice <mattice@debian.org>                                     |           35036 |             160
+libsnmp-base                | net-snmp             | libsnmp4.2                  | Jochen Friedrich <jochen@scram.de>                                    |          983520 |            2240
+libsnmp4.2                  | ucd-snmp             | cyrus21-common              | David Engel <david@debian.org>                                        |          636268 |            1236
+libstdc++5-3.3-dev          | gcc-3.3              | g++-3.3                     | Debian GCC maintainers <debian-gcc@lists.debian.org>                  |          772616 |            4420
+libsvn0                     | subversion           | subversion                  | David Kimdon <dwhedon@debian.org>                                     |          346784 |            1024
+libswig1.3.21               | swig1.3              | libsvn0                     | Torsten Landschoff <torsten@debian.org>                               |          167082 |             284
+libzephyr3                  | zephyr               | cyrus21-common              | Karl Ramm <kcr@debian.org>                                            |           23244 |              96
+linux-kernel-headers        | linux-kernel-headers | libc6-dev                   | GNU Libc Maintainers <debian-glibc@lists.debian.org>                  |         1376520 |            7208
+m4                          | m4                   | bison                       | Santiago Vila <sanvila@debian.org>                                    |          105232 |             336
+make                        | make                 | build-essential             | Manoj Srivastava <srivasta@debian.org>                                |          422944 |            1068
+mysql-common                | mysql-dfsg           | libmysqlclient12            | Christian Hammers <ch@debian.org>                                     |           23022 |              76
+openssl                     | openssl              | dovecot-common              | Christoph Martin <christoph.martin@uni-mainz.de>                      |          902934 |            2128
+patch                       | patch                | dpkg-dev                    | Michael Fedrowitz <michaelf@debian.org>                               |           92330 |             180
+po-debconf                  | po-debconf           | debhelper                   | Denis Barbier <barbier@debian.org>                                    |           66336 |             192
+python-gnome2               | python-gnome2        | gnome-blog                  | Sebastien Bacher <seb128@debian.org>                                  |            6728 |              36
+python2.3-adns              | python-adns          | straw                       | Peter Hawkins <peterh@debian.org>                                     |           15828 |              96
+python2.3-egenix-mxdatetime | egenix-mx-base       | straw                       | Joel Rosdahl <joel@debian.org>                                        |          104308 |             476
+python2.3-egenix-mxtools    | egenix-mx-base       | python2.3-egenix-mxdatetime | Joel Rosdahl <joel@debian.org>                                        |           86608 |             420
+python2.3-glade2            | python-gtk2          | straw                       | Sebastien Bacher <seb128@debian.org>                                  |           17590 |             100
+python2.3-gnome2            | python-gnome2        | python-gnome2               | Sebastien Bacher <seb128@debian.org>                                  |          212054 |             900
+python2.3-pyorbit           | pyorbit              | python2.3-gnome2            | Sebastien Bacher <seb128@debian.org>                                  |           59512 |             232
+squid-common                | squid                | squid                       | Luigi Gangitano <luigi@debian.org>                                    |          183692 |            3716
+---------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------+-----------------
+                                                                                                                                                         |        23178014 |           72790
