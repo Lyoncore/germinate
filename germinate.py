@@ -51,10 +51,8 @@ IPV6DB = "http://debdev.fabbione.net/stat/"
 SEEDNAMES = ['base', 'desktop', 'ship', 'installer', 'supported']
 
 SEEDINHERIT = {
-    'base':             [],
     'desktop':          ['base'],
     'ship':             ['base', 'desktop'],
-    'installer':        [],
     'supported':        ['base', 'desktop', 'ship'],
 }
 
@@ -466,7 +464,7 @@ class Germinator:
         global SEEDNAMES, SEEDINHERIT
         lesserseeds = []
         for seed in SEEDNAMES:
-            if seedname in SEEDINHERIT[seed]:
+            if seed in SEEDINHERIT and seedname in SEEDINHERIT[seed]:
                 lesserseeds.append(seed)
 
         found = False
