@@ -43,6 +43,8 @@ MIRROR = "http://archive.ubuntu.com/ubuntu/"
 DIST = "hoary"
 ARCH = "i386"
 
+CHECK_IPV6 = False
+
 # If we need to download a new IPv6 dump, where do we get it from?
 IPV6DB = "http://debdev.fabbione.net/stat/"
 
@@ -672,6 +674,8 @@ def write_list(filename, g, list):
     f.close()
 
 def write_source_list(filename, g, list):
+    global CHECK_IPV6
+
     src_len = len("Source")
     mnt_len = len("Maintainer")
     ipv6_len = len("IPv6 status")
@@ -683,20 +687,29 @@ def write_source_list(filename, g, list):
         _mnt_len = len(g.sources[src]["Maintainer"])
         if _mnt_len > mnt_len: mnt_len = _mnt_len
 
-	_ipv6_len = len(g.sources[src]["IPv6"])
-	if _ipv6_len > ipv6_len: ipv6_len = _ipv6_len
+        if CHECK_IPV6:
+            _ipv6_len = len(g.sources[src]["IPv6"])
+            if _ipv6_len > ipv6_len: ipv6_len = _ipv6_len
 
     list.sort()
     f = open(filename, "w")
-    print >>f, "%-*s | %-*s | %-*s" % (src_len, "Source",
-                                       mnt_len, "Maintainer",
-                                       ipv6_len, "IPv6 status")
-    print >>f, ("-" * src_len) + "-+-" + ("-" * mnt_len) + "-+-" \
-          + ("-" * ipv6_len) + "-"
+
+    format = "%-*s | %-*s"
+    header_args = (src_len, "Source", mnt_len, "Maintainer")
+    separator = ("-" * src_len) + "-+-" + ("-" * mnt_len) + "-"
+    if CHECK_IPV6:
+        format += " | %-*s"
+        header_args.extend(ipv6_len, "IPv6 status")
+        separator += "+-" + ("-" * ipv6_len) + "-"
+
+    print >>f, format % header_args
+    print >>f, separator
     for src in list:
-        print >>f, "%-*s | %-*s | %-*s" % (src_len, src, mnt_len,
-                                           g.sources[src]["Maintainer"],
-                                           ipv6_len,  g.sources[src]["IPv6"])
+        args = (src_len, src, mnt_len, g.sources[src]["Maintainer"])
+        if CHECK_IPV6:
+            args.extend(ipv6_len, g.sources[src]["IPv6"])
+        print >>f, format % args
+
     f.close()
 
 def write_rdepend_list(filename, g, pkg):
@@ -775,23 +788,25 @@ Options:
                         (default: %s).
   -d, --dist=DIST       Operate on distribution DIST (default: %s).
   -a, --arch=ARCH       Operate on architecture ARCH (default: %s).
+  -i, --ipv6            Check IPv6 status of source packages.
   --no-rdepends         Disable reverse-dependency calculations.
 """ % (RELEASE, MIRROR, DIST, ARCH)
 
 
 def main():
-    global RELEASE, MIRROR, DIST, ARCH
+    global RELEASE, MIRROR, DIST, ARCH, CHECK_IPV6
     want_rdepends = True
 
     g = Germinator()
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hs:m:d:a:",
+        opts, args = getopt.getopt(sys.argv[1:], "hs:m:d:a:i",
                                    ["help",
                                     "seed-dist=",
                                     "mirror=",
                                     "dist=",
                                     "arch=",
+                                    "ipv6",
                                     "no-rdepends"])
     except getopt.GetoptError:
         usage(sys.stderr)
@@ -809,6 +824,8 @@ def main():
             DIST = value
         elif option in ("-a", "--arch"):
             ARCH = value
+        elif option in ("-i", "--ipv6"):
+            CHECK_IPV6 = True
         elif option == "--no-rdepends":
             want_rdepends = False
 
@@ -822,7 +839,8 @@ def main():
                                   "debian-installer/binary-"+ARCH+
                                   "/Packages.gz"),
                     "udeb")
-    g.parseIPv6(open_ipv6_tag_file("dailydump"))
+    if CHECK_IPV6:
+        g.parseIPv6(open_ipv6_tag_file("dailydump"))
 
     if os.path.isfile("hints"):
         g.parseHints(open("hints"))
