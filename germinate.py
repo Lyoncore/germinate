@@ -241,7 +241,10 @@ class Germinator:
 
         print "Downloading", seedname, "list ..."
         url = SEEDS + RELEASE + "/" + seedname
-        f = urllib.urlopen(url)
+        urlopener = urllib.FancyURLopener()
+        urlopener.addheader('Cache-Control', 'no-cache')
+        urlopener.addheader('Pragma', 'no-cache')
+        f = urlopener.open(url)
         for line in f:
             if not line.startswith(" * "):
                 continue
@@ -646,7 +649,10 @@ def open_blacklist(filename):
     try:
         url = SEEDS + RELEASE + "/" + filename
         print "Downloading", url, "..."
-        return urllib.urlopen(url)
+        urlopener = urllib.FancyURLopener()
+        urlopener.addheader('Cache-Control', 'no-cache')
+        urlopener.addheader('Pragma', 'no-cache')
+        return urlopener.open(url)
     except IOError:
         return None
 
