@@ -532,13 +532,15 @@ def _write_rdepend_list(f, g, pkg, prefix, stack=None, done=None):
         if field not in g.packages[pkg]["Reverse-Depends"]:
             continue
 
+        i = 0
         print >>f, prefix + "*", "Reverse", field + ":"
         for dep in g.packages[pkg]["Reverse-Depends"][field]:
+            i += 1
             print >>f, prefix + " +- " + dep
             if field.startswith("Build-"):
                 continue
 
-            if dep == g.packages[pkg]["Reverse-Depends"][field][-1]:
+            if i == len(g.packages[pkg]["Reverse-Depends"][field]):
                 extra = "    "
             else:
                 extra = " |  "
