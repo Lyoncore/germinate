@@ -17,7 +17,8 @@ install: build
 	dh_installdirs
 
 	# TODO: use distutils
-	install -m644 Germinate/*.py $(tmp)/usr/share/germinate/Germinate/
+	dh_install Germinate/*.py usr/share/germinate/Germinate/
+	dh_install Germinate/Archive/*.py usr/share/germinate/Germinate/Archive/
 	install -m755 germinate.py $(tmp)/usr/share/germinate/
 	install -m755 pkg-diff.py $(tmp)/usr/bin/germinate-pkg-diff
 
