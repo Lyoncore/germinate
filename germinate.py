@@ -13,7 +13,7 @@ import urllib
 
 
 # Where do we get up-to-date seeds from?
-WIKI = "http://warthogs:wartyhoarygrumpy@www.warthogs.hbd.com/"
+WIKI = "http://warthogs:talentlesstramps@www.warthogs.hbd.com/"
 RELEASE = "WartyWarthog"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
