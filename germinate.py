@@ -275,7 +275,7 @@ class Germinator:
 
         return False
 
-    def plantSeed(self, seedname, seedinherit):
+    def plantSeed(self, seedurl, release, seedname, seedinherit):
         """Add a seed."""
         if seedname in self.seeds:
             return
@@ -284,7 +284,7 @@ class Germinator:
         seedpkgs = []
 
         print "Downloading", seedname, "list ..."
-        url = SEEDS + RELEASE + "/" + seedname
+        url = seedurl + release + "/" + seedname
         urlopener = urllib.FancyURLopener()
         urlopener.addheader('Cache-Control', 'no-cache')
         urlopener.addheader('Pragma', 'no-cache')
@@ -993,7 +993,7 @@ def main():
             seedinherit = SEEDINHERIT[seedname]
         else:
             seedinherit = []
-        g.plantSeed(seedname, seedinherit)
+        g.plantSeed(SEEDS, RELEASE, seedname, seedinherit)
     g.prune()
     g.grow()
     g.addExtras()
