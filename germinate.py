@@ -203,6 +203,17 @@ class Germinator:
                         if dep[0] in self.all:
                             self.addReverse(dep[0], field, src)
 
+        for pkg in self.all:
+            if "Reverse-Depends" not in self.packages[pkg]:
+                continue
+
+            for field in ("Pre-Depends", "Depends", "Recommends", "Suggests",
+                          "Build-Depends", "Build-Depends-Indep"):
+                if field not in self.packages[pkg]["Reverse-Depends"]:
+                    continue
+
+                self.packages[pkg]["Reverse-Depends"][field].sort()
+
     def alreadySatisfied(self, seedname, pkg, depend, with_build=False):
         """Work out whether a dependency has already been satisfied."""
         if depend in self.packages:
@@ -488,6 +499,7 @@ def write_source_list(filename, g, list):
 
 def write_rdepend_list(filename, g, pkg):
     f = open(filename, "w")
+    print >>f, pkg
     _write_rdepend_list(f, g, pkg, "", done=[])
     f.close()
 
@@ -497,18 +509,17 @@ def _write_rdepend_list(f, g, pkg, prefix, stack=None, done=None):
     else:
         stack = list(stack)
         if pkg in stack:
-            print >>f, prefix + pkg, "! loop !"
+            print >>f, prefix + "! loop"
             return
     stack.append(pkg)
 
     if done is None:
         done = []
     elif pkg in done:
-        print >>f, prefix + pkg, "! skipped !"
+        print >>f, prefix + "! skipped"
         return
     done.append(pkg)
 
-    print >>f, prefix + pkg
     for seed in g.seeds:
         if pkg in g.seed[seed]:
             print >>f, prefix + "*", seed.title(), "seed"
@@ -521,16 +532,13 @@ def _write_rdepend_list(f, g, pkg, prefix, stack=None, done=None):
         if field not in g.packages[pkg]["Reverse-Depends"]:
             continue
 
-        deplist = g.packages[pkg]["Reverse-Depends"][field]
-        deplist.sort()
-
-        print >>f, prefix + "*", field + ":"
-        for dep in deplist:
+        print >>f, prefix + "*", "Reverse", field + ":"
+        for dep in g.packages[pkg]["Reverse-Depends"][field]:
             print >>f, prefix + " +- " + dep
-            if field.startswith("Build-") and dep not in g.all:
+            if field.startswith("Build-"):
                 continue
 
-            if dep == deplist[-1]:
+            if dep == g.packages[pkg]["Reverse-Depends"][field][-1]:
                 extra = "    "
             else:
                 extra = " |  "
