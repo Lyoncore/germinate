@@ -162,17 +162,20 @@ class Germinator:
                 self.sources[src]["IPv6"] = info.strip()
         f.close()
 
-    def parseBlacklist(self, filename):
+    def parseBlacklist(self, f):
         """Parse a blacklist file, used to indicate unwanted packages"""
 
-        fh = open(filename)
-        for line in fh:
+        name = ''
+
+        for line in f:
             line = line.strip()
-            if not line or line.startswith('#'):
+            if line.startswith('# blacklist: '):
+                name = line[13:]
+            elif not line or line.startswith('#'):
                 continue
-            
-            self.blacklist[line] = filename
-        fh.close()
+            else:
+                self.blacklist[line] = name
+        f.close()
 
     def writeBlacklisted(self, filename):
         """Write out the list of blacklisted packages we encountered"""
@@ -619,6 +622,14 @@ def open_ipv6_tag_file(filename):
     os.unlink(gzip_fn)
     return open(filename, "r")
 
+def open_blacklist(filename):
+    try:
+        url = SEEDS + RELEASE + "/" + filename
+        print "Downloading", url, "..."
+        return urllib.urlopen(url)
+    except IOError:
+        return None
+
 def write_list(filename, g, list):
     pkg_len = len("Package")
     src_len = len("Source")
@@ -843,7 +854,8 @@ def main():
     if os.path.isfile("hints"):
         g.parseHints(open("hints"))
 
-    for blacklist in glob.glob('blacklist.*[a-z0-9]'):
+    blacklist = open_blacklist("blacklist")
+    if blacklist is not None:
         g.parseBlacklist(blacklist)
 
     for seedname in ("base", "desktop", "ship", "installer", "supported"):

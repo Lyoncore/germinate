@@ -1,4 +1,0 @@
-# KDE is big and interdependent; avoid shipping it at all if we can
-
-# Currently, only vim pulls this in
-kdelibs
