@@ -12,6 +12,7 @@ import sys
 import urllib
 import glob
 import string
+import getopt
 
 
 # Where do we get up-to-date seeds from?
@@ -702,8 +703,46 @@ def write_prov_list(filename, g, dict):
     f.close()
 
 
+def usage(f):
+        print >>f, """Usage: germinate.py [options]
+
+Options:
+
+  -h, --help            Print this help message.
+  -m, --mirror=MIRROR   Get package lists from MIRROR
+                        (default: %s).
+  -d, --dist=DIST       Operate on distribution DIST (default: %s).
+  -a, --arch=ARCH       Operate on architecture ARCH (default: %s).
+  --no-rdepends         Disable reverse-dependency calculations.
+""" % (MIRROR, DIST, ARCH)
+
+
 def main():
+    global MIRROR, DIST, ARCH
+    want_rdepends = True
+
     g = Germinator()
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hm:d:a:",
+                                   ["help", "mirror=", "dist=", "arch=",
+                                    "no-rdepends"])
+    except getopt.GetoptError:
+        usage(sys.stderr)
+        sys.exit(2)
+
+    for option, value in opts:
+        if option in ("-h", "--help"):
+            usage(sys.stdout)
+            sys.exit()
+        elif option in ("-m", "--mirror"):
+            MIRROR = value
+        elif option in ("-d", "--dist"):
+            DIST = value
+        elif option in ("-a", "--arch"):
+            ARCH = value
+        elif option == "--no-rdepends":
+            want_rdepends = False
 
     g.parsePackages(open_tag_file("Packages", "binary-"+ARCH+"/Packages.gz"),
                     "deb")
@@ -725,7 +764,8 @@ def main():
     g.prune()
     g.grow()
     g.addExtras()
-    g.reverseDepends()
+    if want_rdepends:
+        g.reverseDepends()
 
     for seedname in ("base", "desktop", "installer", "supported", "extra"):
         write_list(seedname, g, g.seed[seedname] + g.depends[seedname])
@@ -770,16 +810,17 @@ def main():
 
     if os.path.exists("rdepends"):
         shutil.rmtree("rdepends")
-    os.mkdir("rdepends")
-    os.mkdir(os.path.join("rdepends", "ALL"))
-    for pkg in g.all:
-        dirname = os.path.join("rdepends", g.packages[pkg]["Source"])
-        if not os.path.exists(dirname):
-            os.mkdir(dirname)
+    if want_rdepends:
+        os.mkdir("rdepends")
+        os.mkdir(os.path.join("rdepends", "ALL"))
+        for pkg in g.all:
+            dirname = os.path.join("rdepends", g.packages[pkg]["Source"])
+            if not os.path.exists(dirname):
+                os.mkdir(dirname)
 
-        write_rdepend_list(os.path.join(dirname, pkg), g, pkg)
-        os.symlink(os.path.join("..", g.packages[pkg]["Source"], pkg),
-                   os.path.join("rdepends", "ALL", pkg))
+            write_rdepend_list(os.path.join(dirname, pkg), g, pkg)
+            os.symlink(os.path.join("..", g.packages[pkg]["Source"], pkg),
+                       os.path.join("rdepends", "ALL", pkg))
 
     g.writeBlacklisted("blacklisted")
 
