@@ -20,7 +20,6 @@
 
 import apt_pkg
 import urllib
-import string
 import re
 import logging
 
@@ -236,7 +235,7 @@ class Germinator:
 
         substpkgs = []
         for substpieces in substituted:
-            substpkgs.append(string.join(substpieces, ""))
+            substpkgs.append("".join(substpieces))
         return substpkgs
 
     def innerSeeds(self, seedname):
@@ -514,7 +513,7 @@ class Germinator:
                 else:
                     dependlist = [depend]
                 self.info("Chose %s out of %s to satisfy %s",
-                          string.join(dependlist, ", "), virtual, pkg)
+                          ", ".join(dependlist), virtual, pkg)
             else:
                 self.error("Nothing to choose out of %s to satisfy %s",
                            virtual, pkg)
