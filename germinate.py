@@ -177,7 +177,7 @@ class Germinator:
         self.newSeed(seedname)
 
         print "Downloading", seedname, "list ..."
-        url = WIKI + RELEASE + seedname.title() + "Seed?action=raw"
+        url = WIKI + RELEASE + "/" + seedname.title() + "Seed?action=raw"
         f = urllib.urlopen(url)
         for line in f:
             if not line.startswith(" * "):
