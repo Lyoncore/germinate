@@ -264,6 +264,18 @@ class Germinator:
                 self.substvars[name] = values
                 continue
 
+            archspec = []
+            startarchspec = pkg.find("[")
+            if startarchspec != -1:
+                endarchspec = pkg.find("]")
+                if endarchspec == -1:
+                    print "? Broken architecture specification:", pkg
+                else:
+                    archspec = pkg[startarchspec + 1:endarchspec].split()
+                    pkg = pkg[:startarchspec - 1]
+                    if ARCH not in archspec:
+                        continue
+
             if pkg.find(" ") != -1:
                 pkg = pkg[:pkg.find(" ")]
 
