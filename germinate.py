@@ -461,9 +461,9 @@ class Germinator:
 
         # Last ditch effort to satisfy this by promoting lesser seeds to
         # higher dependencies
-        global SEEDNAMES, SEEDINHERIT
+        global SEEDINHERIT
         lesserseeds = []
-        for seed in SEEDNAMES:
+        for seed in self.seeds:
             if seed in SEEDINHERIT and seedname in SEEDINHERIT[seed]:
                 lesserseeds.append(seed)
 
