@@ -190,7 +190,7 @@ class Germinator:
     def reverseDepends(self):
         """Calculate the reverse dependency relationships."""
         for pkg in self.all:
-            for field in "Pre-Depends", "Depends", "Recommends", "Suggests":
+            for field in "Pre-Depends", "Depends":
                 for deplist in self.packages[pkg][field]:
                     for dep in deplist:
                         if dep[0] in self.all:
@@ -207,7 +207,7 @@ class Germinator:
             if "Reverse-Depends" not in self.packages[pkg]:
                 continue
 
-            for field in ("Pre-Depends", "Depends", "Recommends", "Suggests",
+            for field in ("Pre-Depends", "Depends",
                           "Build-Depends", "Build-Depends-Indep"):
                 if field not in self.packages[pkg]["Reverse-Depends"]:
                     continue
@@ -527,7 +527,7 @@ def _write_rdepend_list(f, g, pkg, prefix, stack=None, done=None):
     if "Reverse-Depends" not in g.packages[pkg]:
         return
 
-    for field in ("Pre-Depends", "Depends", "Recommends", "Suggests",
+    for field in ("Pre-Depends", "Depends",
                   "Build-Depends", "Build-Depends-Indep"):
         if field not in g.packages[pkg]["Reverse-Depends"]:
             continue
