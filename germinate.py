@@ -259,7 +259,7 @@ class Germinator:
                 name = pkg[:colon]
                 name = name.lower()
                 value = pkg[colon + 1:]
-                values = value.strip(" ").split()
+                values = value.strip().split()
                 if name == "kernel-version":
                     # Allows us to pick the right modules later
                     print "! Allowing d-i kernel versions:", values
@@ -279,8 +279,7 @@ class Germinator:
                     if ARCH not in archspec:
                         continue
 
-            if pkg.find(" ") != -1:
-                pkg = pkg[:pkg.find(" ")]
+            pkg = pkg.split()[0]
 
             seedpkgs.extend(self.substituteSeedVars(pkg))
 
