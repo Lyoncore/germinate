@@ -638,13 +638,13 @@ def open_blacklist(filename):
     except IOError:
         return None
 
-def write_list(filename, g, list):
+def write_list(filename, g, pkglist):
     pkg_len = len("Package")
     src_len = len("Source")
     why_len = len("Why")
     mnt_len = len("Maintainer")
 
-    for pkg in list:
+    for pkg in pkglist:
         _pkg_len = len(pkg)
         if _pkg_len > pkg_len: pkg_len = _pkg_len
 
@@ -660,7 +660,7 @@ def write_list(filename, g, list):
     size = 0
     installed_size = 0
 
-    list.sort()
+    pkglist.sort()
     f = open(filename, "w")
     print >>f, "%-*s | %-*s | %-*s | %-*s | %-15s | %-15s" % \
           (pkg_len, "Package",
@@ -672,7 +672,7 @@ def write_list(filename, g, list):
     print >>f, ("-" * pkg_len) + "-+-" + ("-" * src_len) + "-+-" \
           + ("-" * why_len) + "-+-" + ("-" * mnt_len) + "-+-" \
           + ("-" * 15) + "-+-" + ("-" * 15) + "-"
-    for pkg in list:
+    for pkg in pkglist:
         size += g.packages[pkg]["Size"]
         installed_size += g.packages[pkg]["Installed-Size"]
         print >>f, "%-*s | %-*s | %-*s | %-*s | %15d | %15d" % \
@@ -690,14 +690,14 @@ def write_list(filename, g, list):
 
     f.close()
 
-def write_source_list(filename, g, list):
+def write_source_list(filename, g, srclist):
     global CHECK_IPV6
 
     src_len = len("Source")
     mnt_len = len("Maintainer")
     ipv6_len = len("IPv6 status")
 
-    for src in list:
+    for src in srclist:
         _src_len = len(src)
         if _src_len > src_len: src_len = _src_len
 
@@ -708,7 +708,7 @@ def write_source_list(filename, g, list):
             _ipv6_len = len(g.sources[src]["IPv6"])
             if _ipv6_len > ipv6_len: ipv6_len = _ipv6_len
 
-    list.sort()
+    srclist.sort()
     f = open(filename, "w")
 
     format = "%-*s | %-*s"
@@ -721,7 +721,7 @@ def write_source_list(filename, g, list):
 
     print >>f, format % tuple(header_args)
     print >>f, separator
-    for src in list:
+    for src in srclist:
         args = [src_len, src, mnt_len, g.sources[src]["Maintainer"]]
         if CHECK_IPV6:
             args.extend((ipv6_len, g.sources[src]["IPv6"]))
@@ -778,17 +778,17 @@ def _write_rdepend_list(f, g, pkg, prefix, stack=None, done=None):
                 extra = " |  "
             _write_rdepend_list(f, g, dep, prefix + extra, stack, done)
 
-def write_prov_list(filename, dict):
-    provides = dict.keys()
+def write_prov_list(filename, provdict):
+    provides = provdict.keys()
     provides.sort()
 
     f = open(filename, "w")
     for prov in provides:
         print >>f, prov
 
-        list = dict[prov]
-        list.sort()
-        for pkg in list:
+        provlist = provdict[prov]
+        provlist.sort()
+        for pkg in provlist:
             print >>f, "\t%s" % (pkg,)
         print >>f
     f.close()
