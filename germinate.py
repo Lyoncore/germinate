@@ -627,7 +627,8 @@ class Germinator:
             return
 
         if build_tree:
-            self.all_srcs.append(src)
+            if src not in self.all_srcs:
+                self.all_srcs.append(src)
             self.build_sourcepkgs[seedname].append(src)
             if src in self.blacklist and src not in self.blacklisted:
                 self.blacklisted.append(src)
