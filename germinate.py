@@ -33,8 +33,8 @@ import getopt
 
 
 # Where do we get up-to-date seeds from?
-WIKI = "http://wiki.ubuntu.com/"
-RELEASE = "WartyWarthog"
+WIKI = "http://people.ubuntu.com/~cjwatson/seeds/"
+RELEASE = "warty"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
 # them from?
@@ -195,7 +195,7 @@ class Germinator:
         self.newSeed(seedname)
 
         print "Downloading", seedname, "list ..."
-        url = WIKI + RELEASE + "/" + seedname.title() + "Seed?action=raw"
+        url = WIKI + RELEASE + "/" + seedname
         f = urllib.urlopen(url)
         for line in f:
             if not line.startswith(" * "):
