@@ -49,12 +49,13 @@ CHECK_IPV6 = False
 IPV6DB = "http://debdev.fabbione.net/stat/"
 
 # Keep this list topologically sorted with respect to SEEDINHERIT.
-SEEDNAMES = ['base', 'desktop', 'ship', 'installer', 'supported']
+SEEDNAMES = ['base', 'desktop', 'ship', 'live', 'installer', 'supported']
 
 SEEDINHERIT = {
     'desktop':          ['base'],
     'ship':             ['base', 'desktop'],
-    'supported':        ['base', 'desktop', 'ship'],
+    'live':             ['base', 'desktop'],
+    'supported':        ['base', 'desktop', 'ship', 'live'],
 }
 
 class Germinator:
