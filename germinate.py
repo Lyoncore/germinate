@@ -778,7 +778,7 @@ def _write_rdepend_list(f, g, pkg, prefix, stack=None, done=None):
                 extra = " |  "
             _write_rdepend_list(f, g, dep, prefix + extra, stack, done)
 
-def write_prov_list(filename, g, dict):
+def write_prov_list(filename, dict):
     provides = dict.keys()
     provides.sort()
 
@@ -936,7 +936,7 @@ def main():
     write_list("all+extra", g, g.all)
     write_source_list("all+extra.sources", g, g.all_srcs)
 
-    write_prov_list("provides", g, g.pkgprovides)
+    write_prov_list("provides", g.pkgprovides)
 
     if os.path.exists("rdepends"):
         shutil.rmtree("rdepends")
