@@ -15,6 +15,9 @@ svgalib
 # we ship server software with TLS built-in
 stunnel
 
+# mdz, 2004-06-15
+apache
+
 ## Packages which haven't shown up yet; make sure they don't sneak in
 
 # mdz, 2004-06-14: many, many bugs and unmaintained (both debian and upstream)
