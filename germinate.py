@@ -23,7 +23,7 @@ DIST = "sid"
 ARCH = "i386"
 
 # If we need to download a new IPv6 dump, where do we get it from?
-IPV6DB= "http://debdev.fabbione.net/stat/"
+IPV6DB = "http://debdev.fabbione.net/stat/"
 
 class Germinator:
     def __init__(self):
@@ -91,8 +91,13 @@ class Germinator:
             for prov in provides:
                 if prov[0][0] not in self.provides:
                     self.provides[prov[0][0]] = []
+                    if prov[0][0] in self.packages:
+                        self.provides[prov[0][0]].append(prov[0][0])
                 self.provides[prov[0][0]].append(pkg)
             self.packages[pkg]["Provides"] = provides
+
+            if pkg in self.provides:
+                self.provides[pkg].append(pkg)
         f.close()
 
     def parseSources(self, f):
@@ -152,14 +157,7 @@ class Germinator:
                 print "! Taking the hint:", pkg
                 continue
 
-            if pkg in self.packages:
-                if pkg not in self.seeded:
-                    self.seed[seedname].append(pkg)
-                    self.seeded.append(pkg)
-                else:
-                    print "! Duplicated seed:", pkg
-
-            elif pkg in self.provides:
+            if pkg in self.provides:
                 # Virtual package, include everything
                 print "* Virtual", seedname, "package:", pkg
                 for vpkg in self.provides[pkg]:
@@ -167,6 +165,14 @@ class Germinator:
                         print "  - " + vpkg
                         self.seed[seedname].append(vpkg)
                         self.seeded.append(vpkg)
+
+            elif pkg in self.packages:
+                # Ordinary package
+                if pkg not in self.seeded:
+                    self.seed[seedname].append(pkg)
+                    self.seeded.append(pkg)
+                else:
+                    print "! Duplicated seed:", pkg
 
             else:
                 # No idea
@@ -246,10 +252,10 @@ class Germinator:
 
     def alreadySatisfied(self, seedname, pkg, depend, with_build=False):
         """Work out whether a dependency has already been satisfied."""
-        if depend in self.packages:
-            trylist = [ depend ]
-        elif depend in self.provides:
+        if depend in self.provides:
             trylist = self.provides[depend]
+        elif depend in self.packages:
+            trylist = [ depend ]
         else:
             return False
 
@@ -268,12 +274,12 @@ class Germinator:
     def addDependency(self, seedname, pkg, depend, build_depend,
                       second_class, build_tree):
         """Add a single dependency."""
-        if depend in self.packages:
-            virtual = None
-            trylist = [ depend ]
-        elif depend in self.provides:
+        if depend in self.provides:
             virtual = depend
             trylist = self.provides[depend]
+        elif depend in self.packages:
+            virtual = None
+            trylist = [ depend ]
         else:
             print "? Unknown dependency", depend, "by", pkg
             return
