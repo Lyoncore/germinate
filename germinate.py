@@ -11,6 +11,7 @@ import shutil
 import sys
 import urllib
 import glob
+import string
 
 
 # Where do we get up-to-date seeds from?
@@ -31,6 +32,7 @@ class Germinator:
         self.packages = {}
         self.provides = {}
         self.sources = {}
+        self.pruned = {}
 
         self.seeds = []
         self.seed = {}
@@ -56,6 +58,8 @@ class Germinator:
         self.blacklist = {}
         self.blacklisted = []
 
+        self.di_kernel_versions = []
+
     def parseHints(self, f):
         """Parse a hints file."""
         for line in f:
@@ -74,6 +78,7 @@ class Germinator:
         while p.Step() == 1:
             pkg = p.Section["Package"]
             self.packages[pkg] = {}
+            self.pruned[pkg] = False
 
             self.packages[pkg]["Maintainer"] = p.Section.get("Maintainer", "")
 
@@ -102,6 +107,8 @@ class Germinator:
 
             if pkg in self.provides:
                 self.provides[pkg].append(pkg)
+
+            self.packages[pkg]["Kernel-Version"] = p.Section.get("Kernel-Version", "")
         f.close()
 
     def parseSources(self, f):
@@ -175,6 +182,24 @@ class Germinator:
                 continue
 
             pkg = line[3:].strip()
+            if pkg.find("#") != -1:
+                pkg = pkg[:pkg.find("#")]
+
+            colon = pkg.find(":")
+            if colon != -1:
+                # Special header
+                name = pkg[:colon]
+                name = name.lower()
+                value = pkg[colon + 1:]
+                value = value.strip(" ")
+                if name == "kernel-version":
+                    # Allows us to pick the right modules later
+                    print "! Allowing d-i kernel version:", value
+                    self.di_kernel_versions.append(value)
+                else:
+                    print "? Unknown seed header:", pkg
+                continue
+
             if pkg.find(" ") != -1:
                 pkg = pkg[:pkg.find(" ")]
 
@@ -212,6 +237,14 @@ class Germinator:
                 else:
                     print "? Unknown hinted package:", pkg
 
+    def prune(self):
+        """Remove packages that are inapplicable for some reason, such as
+           being for the wrong d-i kernel version."""
+        for pkg in self.packages:
+            kernver = self.packages[pkg]["Kernel-Version"]
+            if kernver != "" and kernver not in self.di_kernel_versions:
+                self.pruned[pkg] = True
+
     def grow(self):
         """Grow the seeds."""
         for seedname in self.seeds:
@@ -228,6 +261,8 @@ class Germinator:
             for pkg in self.sources[srcname]["Binaries"]:
                 if pkg not in self.packages:
                     continue
+                if self.pruned[pkg]:
+                    continue
                 if pkg in self.all:
                     continue
 
@@ -241,6 +276,8 @@ class Germinator:
 
     def addReverse(self, pkg, field, rdep):
         """Add a reverse dependency entry."""
+        if self.pruned[pkg]:
+            return
         if "Reverse-Depends" not in self.packages[pkg]:
             self.packages[pkg]["Reverse-Depends"] = {}
         if field not in self.packages[pkg]["Reverse-Depends"]:
@@ -279,7 +316,7 @@ class Germinator:
         """Work out whether a dependency has already been satisfied."""
         if depend in self.provides:
             trylist = self.provides[depend]
-        elif depend in self.packages:
+        elif depend in self.packages and not self.pruned[depend]:
             trylist = [ depend ]
         else:
             return False
@@ -299,7 +336,7 @@ class Germinator:
     def addDependency(self, seedname, pkg, depend, build_depend,
                       second_class, build_tree):
         """Add a single dependency."""
-        if depend in self.packages:
+        if depend in self.packages and not self.pruned[depend]:
             virtual = None
             trylist = [ depend ]
         elif depend in self.provides:
@@ -328,27 +365,38 @@ class Germinator:
                     break
             if found: break
 
+        dependlist = [depend]
         if virtual is not None and not found:
             reallist = [ d for d in self.provides[virtual]
-                         if d in self.packages ]
+                         if d in self.packages and not self.pruned[d] ]
             if len(reallist):
                 depend = reallist[0]
-                print "* Chose", depend, "out of", virtual, "to satisfy", pkg
+                # If this one was a d-i kernel module, pick all the modules
+                # for other allowed kernel versions too.
+                if self.packages[depend]["Kernel-Version"] != "":
+                    dependlist = [ d for d in reallist
+                                   if self.packages[d]["Kernel-Version"] in self.di_kernel_versions ]
+                else:
+                    dependlist = [depend]
+                print "* Chose", string.join(dependlist, ", "), "out of", virtual, "to satisfy", pkg
             else:
                 print "? Nothing to choose out of", virtual, "to satisfy", pkg
                 return
 
         if build_tree:
-            self.build_depends[seedname].append(depend)
+            for dep in dependlist:
+                self.build_depends[seedname].append(dep)
             if build_depend:
                 why = self.packages[pkg]["Source"] + " (Build-Depend)"
             else:
                 why = pkg
         else:
-            self.depends[seedname].append(depend)
+            for dep in dependlist:
+                self.depends[seedname].append(dep)
             why = pkg
 
-        self.addPackage(seedname, depend, why, build_tree, second_class)
+        for dep in dependlist:
+            self.addPackage(seedname, dep, why, build_tree, second_class)
 
     def addDependencyTree(self, seedname, pkg, depends,
                           build_depend=False,
@@ -363,7 +411,7 @@ class Germinator:
                     break
             else:
                 if len(deplist) > 1:
-                    reallist = [ d for d in deplist if d[0] in self.packages ]
+                    reallist = [ d for d in deplist if d[0] in self.packages and not self.pruned[d[0]] ]
                     if len(reallist):
                         depend = reallist[0][0]
                         print "* Chose", depend, "to satisfy", pkg
@@ -379,6 +427,9 @@ class Germinator:
                    second_class=False,
                    build_tree=False):
         """Add a package and its dependency trees."""
+        if self.pruned[pkg]:
+            print "! Pruned seed package:", pkg
+            return
         if build_tree: second_class=True
         if pkg not in self.all:
             self.all.append(pkg)
@@ -631,6 +682,9 @@ def main():
 
     g.parsePackages(open_tag_file("Packages", "binary-"+ARCH+"/Packages.gz"))
     g.parseSources(open_tag_file("Sources", "source/Sources.gz"))
+    g.parsePackages(open_tag_file("InstallerPackages",
+                                  "debian-installer/binary-"+ARCH+
+                                  "/Packages.gz"))
     g.parseIPv6(open_ipv6_tag_file("dailydump"))
 
     if os.path.isfile("hints"):
@@ -639,13 +693,14 @@ def main():
     for blacklist in glob.glob('blacklist.*[a-z0-9]'):
         g.parseBlacklist(blacklist)
 
-    for seedname in ("base", "desktop", "supported"):
+    for seedname in ("base", "desktop", "installer", "supported"):
         g.plantSeed(seedname)
+    g.prune()
     g.grow()
     g.addExtras()
     g.reverseDepends()
 
-    for seedname in ("base", "desktop", "supported", "extra"):
+    for seedname in ("base", "desktop", "installer", "supported", "extra"):
         write_list(seedname, g, g.seed[seedname] + g.depends[seedname])
         write_list(seedname + ".seed", g, g.seed[seedname])
         write_list(seedname + ".depends", g, g.depends[seedname])
@@ -661,7 +716,7 @@ def main():
     sup = []
     all_srcs = []
     sup_srcs = []
-    for seedname in ("base", "desktop", "supported"):
+    for seedname in ("base", "desktop", "installer", "supported"):
         all += g.seed[seedname]
         all += g.depends[seedname]
         all += g.build_depends[seedname]
