@@ -18,7 +18,7 @@ RELEASE = "WartyWarthog"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
 # them from?
-MIRROR = "http://debdev.fabbione.net/debian/"
+MIRROR = "http://ftp.debian.org/debian/"
 DIST = "sid"
 ARCH = "i386"
 
