@@ -22,6 +22,23 @@
 # 02111-1307, USA.
 
 import os, sys, getopt
+import apt_pkg
+from Germinate import Germinator
+import Germinate.Archive
+
+# TODO: cloned from germinate.py; should be common
+SEEDS = "http://people.ubuntu.com/~cjwatson/seeds/"
+RELEASE = "hoary"
+MIRROR = "http://archive.ubuntu.com/ubuntu/"
+DIST = ["hoary"]
+COMPONENTS = ["main"]
+ARCH = "i386"
+SEEDINHERIT = {
+    'desktop':          ['base'],
+    'ship':             ['base', 'desktop'],
+    'live':             ['base', 'desktop'],
+    'supported':        ['base', 'desktop', 'ship', 'live'],
+}
 
 class Package:
     def __init__(self, name):
@@ -67,20 +84,38 @@ class Package:
 class Globals:
     def __init__(self):
         self.package = {}
+        self.seeds = []
+        self.outputs = {}
         self.outmode = ""
 
-    def parseSeed(self, seedname):
-        """Parse an individual germinate output"""
-        if not os.access(seedname, os.R_OK):
-            print "Germinating"
-            os.system("./germinate.py")
-        f = open(seedname)
-        lines = f.readlines()
-        f.close()
-        for l in lines[2:-2]:
-            pkg = l.split(None)[0]
-            self.package.setdefault(pkg, Package(pkg))
-            self.package[pkg].setSeed(seedname)
+    def setSeeds(self, seeds):
+        self.seeds = seeds
+
+        global MIRROR, DIST, COMPONENTS, ARCH
+        print "Germinating"
+        g = Germinator()
+        apt_pkg.InitConfig()
+        apt_pkg.Config.Set("APT::Architecture", ARCH)
+
+        Germinate.Archive.TagFile(MIRROR).feed(g, DIST, COMPONENTS, ARCH)
+
+        for seedname in self.seeds:
+            global SEEDS, RELEASE, SEEDINHERIT
+            if seedname in SEEDINHERIT:
+                seedinherit = SEEDINHERIT[seedname]
+            else:
+                seedinherit = []
+            g.plantSeed(SEEDS, RELEASE, ARCH, seedname, seedinherit)
+        g.prune()
+        g.grow()
+
+        for seedname in self.seeds:
+            for pkg in g.seed[seedname]:
+                self.package.setdefault(pkg, Package(pkg))
+                self.package[pkg].setSeed(seedname + ".seed")
+            for pkg in g.depends[seedname]:
+                self.package.setdefault(pkg, Package(pkg))
+                self.package[pkg].setSeed(seedname + ".depends")
 
     def parseDpkg(self, fname):
         if fname == None:
@@ -119,9 +154,7 @@ def main():
     g.parseDpkg(dpkgFile)
     if not len(args):
         args = ["base", "desktop"]
-    for fname in args:
-        g.parseSeed(fname + ".seed")
-        g.parseSeed(fname + ".depends")
+    g.setSeeds(args)
     g.output()
 
 if __name__ == "__main__":
