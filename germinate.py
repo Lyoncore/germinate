@@ -41,6 +41,7 @@ RELEASE = "hoary"
 # them from?
 MIRROR = "http://archive.ubuntu.com/ubuntu/"
 DIST = "hoary"
+COMPONENTS = ["main"]
 ARCH = "i386"
 
 CHECK_IPV6 = False
@@ -582,13 +583,13 @@ class Germinator:
                                build_depend=True)
 
 
-def open_tag_file(filename, ftppath):
+def open_tag_file(filename, component, ftppath):
     """Download an apt tag file if needed, then open it."""
     if os.path.exists(filename):
         return open(filename, "r")
 
     print "Downloading", filename, "file ..."
-    url = MIRROR + "dists/" + DIST + "/main/" + ftppath
+    url = MIRROR + "dists/" + DIST + "/" + component + "/" + ftppath
     gzip_fn = urllib.urlretrieve(url)[0]
 
     # apt_pkg is weird and won't accept GzipFile
@@ -797,23 +798,26 @@ Options:
                         (default: %s).
   -d, --dist=DIST       Operate on distribution DIST (default: %s).
   -a, --arch=ARCH       Operate on architecture ARCH (default: %s).
+  -c, --components=COMPS
+                        Operate on components COMPS (default: %s).
   -i, --ipv6            Check IPv6 status of source packages.
   --no-rdepends         Disable reverse-dependency calculations.
-""" % (RELEASE, MIRROR, DIST, ARCH)
+""" % (RELEASE, MIRROR, DIST, ARCH, string.join(COMPONENTS, ","))
 
 
 def main():
-    global RELEASE, MIRROR, DIST, ARCH, CHECK_IPV6
+    global RELEASE, MIRROR, DIST, ARCH, COMPONENTS, CHECK_IPV6
     want_rdepends = True
 
     g = Germinator()
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hs:m:d:a:i",
+        opts, args = getopt.getopt(sys.argv[1:], "hs:m:d:c:a:i",
                                    ["help",
                                     "seed-dist=",
                                     "mirror=",
                                     "dist=",
+                                    "components=",
                                     "arch=",
                                     "ipv6",
                                     "no-rdepends"])
@@ -831,6 +835,8 @@ def main():
             MIRROR = value
         elif option in ("-d", "--dist"):
             DIST = value
+        elif option in ("-c", "--components"):
+            COMPONENTS = value.split(",")
         elif option in ("-a", "--arch"):
             ARCH = value
         elif option in ("-i", "--ipv6"):
@@ -841,13 +847,25 @@ def main():
     apt_pkg.InitConfig()
     apt_pkg.Config.Set("APT::Architecture", ARCH)
 
-    g.parsePackages(open_tag_file("Packages", "binary-"+ARCH+"/Packages.gz"),
-                    "deb")
-    g.parseSources(open_tag_file("Sources", "source/Sources.gz"))
-    g.parsePackages(open_tag_file("InstallerPackages",
-                                  "debian-installer/binary-"+ARCH+
-                                  "/Packages.gz"),
-                    "udeb")
+    for component in COMPONENTS:
+        g.parsePackages(open_tag_file(component + "_Packages", component,
+                                      "binary-" + ARCH + "/Packages.gz"),
+                        "deb")
+        g.parseSources(open_tag_file(component + "_Sources", component,
+                                     "source/Sources.gz"))
+        instpackages = ""
+        try:
+            instpackages = open_tag_file(component + "_InstallerPackages",
+                                         component,
+                                         "debian-installer/binary-" + ARCH +
+                                            "/Packages.gz")
+        except IOError:
+            # can live without these
+            print "Missing installer Packages file for", component, \
+                  "(ignoring)"
+        else:
+            g.parsePackages(instpackages, "udeb")
+
     if CHECK_IPV6:
         g.parseIPv6(open_ipv6_tag_file("dailydump"))
 
