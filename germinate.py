@@ -50,6 +50,20 @@ class Germinator:
         self.why = {}
         self.seeded = []
 
+        self.hints = {}
+
+    def parseHints(self, f):
+        """Parse a hints file."""
+        for line in f:
+            if line.startswith("#") or not len(line.rstrip()): continue
+
+            words = line.rstrip().split(None)
+            if len(words) != 2:
+                continue
+
+            self.hints[words[1]] = words[0]
+        f.close()
+
     def parsePackages(self, f):
         """Parse a Packages file and get the information we need."""
         p = apt_pkg.ParseTagFile(f)
@@ -134,6 +148,10 @@ class Germinator:
             if pkg.find(" ") != -1:
                 pkg = pkg[:pkg.find(" ")]
 
+            if pkg in self.hints and self.hints[pkg] != seedname:
+                print "! Taking the hint:", pkg
+                continue
+
             if pkg in self.packages:
                 if pkg not in self.seeded:
                     self.seed[seedname].append(pkg)
@@ -155,6 +173,14 @@ class Germinator:
                 print "? Unknown", seedname, "package:", pkg
         f.close()
 
+        for pkg in self.hints:
+            if self.hints[pkg] == seedname and pkg not in self.seeded:
+                if pkg in self.packages:
+                    self.seed[seedname].append(pkg)
+                    self.seeded.append(pkg)
+                else:
+                    print "? Unknown hinted package:", pkg
+
     def grow(self):
         """Grow the seeds."""
         for seedname in self.seeds:
@@ -172,6 +198,10 @@ class Germinator:
                 if pkg not in self.packages:
                     continue
                 if pkg in self.all:
+                    continue
+
+                if pkg in self.hints and self.hints[pkg] != "extra":
+                    print "! Taking the hint:", pkg
                     continue
 
                 self.seed["extra"].append(pkg)
@@ -561,12 +591,16 @@ def write_prov_list(filename, g, dict):
         print >>f
     f.close()
 
+
 def main():
     g = Germinator()
 
     g.parsePackages(open_tag_file("Packages", "binary-"+ARCH+"/Packages.gz"))
     g.parseSources(open_tag_file("Sources", "source/Sources.gz"))
     g.parseIPv6(open_ipv6_tag_file("dailydump"))
+
+    if os.path.isfile("hints"):
+        g.parseHints(open("hints"))
 
     for seedname in ("base", "desktop", "supported"):
         g.plantSeed(seedname)
