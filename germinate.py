@@ -308,7 +308,7 @@ class Germinator:
                          if d in self.packages ]
             if len(reallist):
                 depend = reallist[0]
-                print "* Chose", depend, "out of", virtual, "to satifsy", pkg
+                print "* Chose", depend, "out of", virtual, "to satisfy", pkg
             else:
                 print "? Nothing to choose out of", virtual, "to satisfy", pkg
                 return
