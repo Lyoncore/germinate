@@ -34,12 +34,12 @@ import getopt
 
 # Where do we get up-to-date seeds from?
 WIKI = "http://people.ubuntu.com/~cjwatson/seeds/"
-RELEASE = "warty"
+RELEASE = "hoary"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
 # them from?
-MIRROR = "http://ftp.debian.org/debian/"
-DIST = "sid"
+MIRROR = "http://archive.ubuntu.com/ubuntu/"
+DIST = "hoary"
 ARCH = "i386"
 
 # If we need to download a new IPv6 dump, where do we get it from?
