@@ -27,7 +27,6 @@ import os
 import shutil
 import sys
 import urllib
-import string
 import getopt
 from Germinate import Germinator
 import Germinate.Archive
@@ -269,8 +268,7 @@ Options:
                         Operate on components COMPS (default: %s).
   -i, --ipv6            Check IPv6 status of source packages.
   --no-rdepends         Disable reverse-dependency calculations.
-""" % (SEEDS, RELEASE, MIRROR, string.join(DIST, ","), ARCH,
-       string.join(COMPONENTS, ","))
+""" % (SEEDS, RELEASE, MIRROR, ",".join(DIST), ARCH, ",".join(COMPONENTS))
 
 
 def main():
