@@ -16,7 +16,9 @@ install: build
 	dh_clean -k
 	dh_installdirs
 
-	install -m755 germinate.py $(tmp)/usr/bin/germinate
+	# TODO: use distutils
+	install -m644 Germinate/*.py $(tmp)/usr/share/germinate/Germinate/
+	install -m755 germinate.py $(tmp)/usr/share/germinate/
 	install -m755 pkg-diff.py $(tmp)/usr/bin/germinate-pkg-diff
 
 binary-arch:
@@ -26,6 +28,7 @@ binary-indep: build install
 	dh_testroot
 	dh_installdocs
 	dh_installchangelogs
+	dh_link
 	dh_compress
 	dh_fixperms
 	dh_python
