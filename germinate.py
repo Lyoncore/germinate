@@ -16,7 +16,7 @@ import getopt
 
 
 # Where do we get up-to-date seeds from?
-WIKI = "http://sounders:oink@wiki.no-name-yet.com/"
+WIKI = "http://wiki.ubuntu.com/"
 RELEASE = "WartyWarthog"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
