@@ -712,20 +712,20 @@ def write_source_list(filename, g, list):
     f = open(filename, "w")
 
     format = "%-*s | %-*s"
-    header_args = (src_len, "Source", mnt_len, "Maintainer")
+    header_args = [src_len, "Source", mnt_len, "Maintainer"]
     separator = ("-" * src_len) + "-+-" + ("-" * mnt_len) + "-"
     if CHECK_IPV6:
         format += " | %-*s"
-        header_args.extend(ipv6_len, "IPv6 status")
+        header_args.extend((ipv6_len, "IPv6 status"))
         separator += "+-" + ("-" * ipv6_len) + "-"
 
-    print >>f, format % header_args
+    print >>f, format % tuple(header_args)
     print >>f, separator
     for src in list:
-        args = (src_len, src, mnt_len, g.sources[src]["Maintainer"])
+        args = [src_len, src, mnt_len, g.sources[src]["Maintainer"]]
         if CHECK_IPV6:
-            args.extend(ipv6_len, g.sources[src]["IPv6"])
-        print >>f, format % args
+            args.extend((ipv6_len, g.sources[src]["IPv6"]))
+        print >>f, format % tuple(args)
 
     f.close()
 
