@@ -57,7 +57,7 @@ class Germinator:
 
             self.packages[pkg]["Maintainer"] = p.Section.get("Maintainer", "")
 
-            for field in "Depends", "Recommends", "Suggests":
+            for field in "Pre-Depends", "Depends", "Recommends", "Suggests":
                 value = p.Section.get(field, "")
                 self.packages[pkg][field] = apt_pkg.ParseDepends(value)
 
@@ -300,6 +300,11 @@ class Germinator:
                 self.pkgprovides[prov[0][0]] = []
             if pkg not in self.pkgprovides[prov[0][0]]:
                 self.pkgprovides[prov[0][0]].append(pkg)
+
+        self.addDependencyTree(seedname, pkg,
+                               self.packages[pkg]["Pre-Depends"],
+                               second_class=second_class,
+                               build_tree=build_tree)
 
         self.addDependencyTree(seedname, pkg, self.packages[pkg]["Depends"],
                                second_class=second_class,
