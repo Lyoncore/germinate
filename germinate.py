@@ -873,6 +873,9 @@ def usage(f):
 Options:
 
   -h, --help            Print this help message.
+  -S, --seed-source=SOURCE
+                        Fetch seeds from SOURCE
+                        (default: %s).
   -s, --seed-dist=DIST  Fetch seeds for distribution DIST (default: %s).
   -m, --mirror=MIRROR   Get package lists from MIRROR
                         (default: %s).
@@ -882,19 +885,21 @@ Options:
                         Operate on components COMPS (default: %s).
   -i, --ipv6            Check IPv6 status of source packages.
   --no-rdepends         Disable reverse-dependency calculations.
-""" % (RELEASE, MIRROR, string.join(DIST, ","), ARCH,
+""" % (SEEDS, RELEASE, MIRROR, string.join(DIST, ","), ARCH,
        string.join(COMPONENTS, ","))
 
 
 def main():
-    global RELEASE, MIRROR, DIST, ARCH, COMPONENTS, CHECK_IPV6, SEEDNAMES
+    global SEEDS, RELEASE, MIRROR, DIST, ARCH, COMPONENTS, CHECK_IPV6
+    global SEEDNAMES
     want_rdepends = True
 
     g = Germinator()
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hs:m:d:c:a:i",
+        opts, args = getopt.getopt(sys.argv[1:], "hS:s:m:d:c:a:i",
                                    ["help",
+                                    "seed-source=",
                                     "seed-dist=",
                                     "mirror=",
                                     "dist=",
@@ -910,6 +915,8 @@ def main():
         if option in ("-h", "--help"):
             usage(sys.stdout)
             sys.exit()
+        elif option in ("-S", "--seed-source"):
+            SEEDS = value
         elif option in ("-s", "--seed-dist"):
             RELEASE = value
         elif option in ("-m", "--mirror"):
