@@ -759,7 +759,7 @@ def main():
     for blacklist in glob.glob('blacklist.*[a-z0-9]'):
         g.parseBlacklist(blacklist)
 
-    for seedname in ("base", "desktop", "installer", "supported"):
+    for seedname in ("base", "desktop", "ship", "installer", "supported"):
         g.plantSeed(seedname)
     g.prune()
     g.grow()
@@ -767,7 +767,7 @@ def main():
     if want_rdepends:
         g.reverseDepends()
 
-    for seedname in ("base", "desktop", "installer", "supported", "extra"):
+    for seedname in ("base", "desktop", "ship", "installer", "supported", "extra"):
         write_list(seedname, g, g.seed[seedname] + g.depends[seedname])
         write_list(seedname + ".seed", g, g.seed[seedname])
         write_list(seedname + ".depends", g, g.depends[seedname])
@@ -783,7 +783,7 @@ def main():
     sup = []
     all_srcs = []
     sup_srcs = []
-    for seedname in ("base", "desktop", "installer", "supported"):
+    for seedname in ("base", "desktop", "ship", "installer", "supported"):
         all += g.seed[seedname]
         all += g.depends[seedname]
         all += g.build_depends[seedname]
