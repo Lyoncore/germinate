@@ -25,8 +25,6 @@ metamail
 # mdz, 2004-06-14: lots of unsafe string handling, CVE-2002-0789,
 # CAN-2003-0436, CAN-2003-0437
 mnogosearch
-# mdz, 2004-06-14: upstream deliberately obfuscates vulnerabilities
-webmin
 # mdz, 2004-06-14: requires no explanation
 wu-ftpd
 # mdz, 2004-06-14: CAN-2003-0781, unmaintained upstream, Debian#210444
@@ -34,5 +32,6 @@ ecartis
 # mdz, 2004-06-14: lots of DoS and other badness, CAN-2003-0946, CAN-2004-0270,
 # debian#209084
 clamav
+# mdz, 2004-06-14: upstream deliberately obfuscates vulnerabilities
 # mdz, 2004-06-20: CAN-2002-0757, CAN-2003-0101, SNS 74, SNS 75
 webmin
