@@ -55,7 +55,7 @@ seed.  Likewise if a package in the desktop dependency list depends
 on 'bar', it won't be added to the desktop dependency list because
 it's already in the base dependency list.
 
-*However* build-dependecies are considered lesser-favoured than
+*However* build-dependencies are considered lesser-favoured than
 any seed or dependency list, so if a package needed in the desktop seed
 or dependency list is in the base build-dependency list it will be
 moved out of it and into the list it's needed in.
@@ -95,7 +95,7 @@ For maximum greppability, we also get supported+build-depends.sources
 and all.sources files.
 
 
-What happens to the binary packages created by our sourecs that
+What happens to the binary packages created by our sources that
 we don't place in any set?  I'm glad you asked that, they become the
 "extra" seed (the sources list of which is obviously empty so omitted)
 have the dependency tree calculated and placed in the extra dependency
