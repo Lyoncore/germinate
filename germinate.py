@@ -286,7 +286,8 @@ class Germinator:
         for prov in self.packages[pkg]["Provides"]:
             if prov[0][0] not in self.pkgprovides:
                 self.pkgprovides[prov[0][0]] = []
-            self.pkgprovides[prov[0][0]].append(pkg)
+            if pkg not in self.pkgprovides[prov[0][0]]:
+                self.pkgprovides[prov[0][0]].append(pkg)
 
         self.addDependencyTree(seedname, pkg, self.packages[pkg]["Depends"],
                                second_class=second_class,

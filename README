@@ -118,6 +118,13 @@ These won't all be in the archive, we will almost certainly want to
 cherry-pick from extra but there's a lot of crack in it too.
 
 
+Germinate tries very hard to satisfy package dependencies using the
+existing lists, and in any given sequence of alternative packages or
+virtual dependency it will generally pick a package already added.
+An interesting list of virtual packages and those chosen that provide
+that is output in the provides file.
+
+
 Lastly (oh gods, there's more?!) Germinate waffles quite a bit as it
 runs and there's a _germinate_output file containing this.  Lines
 beginning '?' are missing or unresolvable packages, '*' are choices
