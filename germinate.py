@@ -21,6 +21,7 @@ MIRROR = "http://debdev.fabbione.net/debian/"
 DIST = "sid"
 ARCH = "i386"
 
+# If we need to download a new IPv6 dump, where do we get it from?
 IPV6DB= "http://debdev.fabbione.net/stat/"
 
 class Germinator:
@@ -80,7 +81,7 @@ class Germinator:
             self.packages[pkg]["Provides"] = provides
         f.close()
 
-    def parseSources(self, f, ipv6f):
+    def parseSources(self, f):
         """Parse a Sources file and get the information we need."""
         p = apt_pkg.ParseTagFile(f)
         while p.Step() == 1:
@@ -88,7 +89,7 @@ class Germinator:
             self.sources[src] = {}
 
             self.sources[src]["Maintainer"] = p.Section.get("Maintainer", "")
-	    self.sources[src]["Ipv6"] = self.IPv6get(src, ipv6f)
+            self.sources[src]["IPv6"] = "Unknown"
 
             for field in "Build-Depends", "Build-Depends-Indep":
                 value = p.Section.get(field, "")
@@ -98,16 +99,14 @@ class Germinator:
             self.sources[src]["Binaries"] = [ bin[0][0] for bin in binaries ]
 
         f.close()
-	ipv6f.close()
 
-    def IPv6get(self, src, ipv6f):
-    	"""Get the ipv6 status from the dailydump"""
-	for line in ipv6f:
-	   if line.startswith(src):
-	   	ipv6status =  line[len(src)+1:]
-	   	return ipv6status
-	   else:
-	   	continue
+    def parseIPv6(self, f):
+        """Parse the IPv6 dailydump file and get the information we need."""
+        for line in f:
+            (src, info) = line.split(None, 1)
+            if src in self.sources:
+                self.sources[src]["IPv6"] = info.strip()
+        f.close()
 
     def newSeed(self, seedname):
         self.seeds.append(seedname)
@@ -364,7 +363,7 @@ def open_tag_file(filename, ftppath):
     return open(filename, "r")
 
 def open_ipv6_tag_file(filename):
-    """Download the daily ipv6 db dump if needed, and open it."""
+    """Download the daily IPv6 db dump if needed, and open it."""
     if os.path.exists(filename):
         return open(filename, "r")
 
@@ -446,18 +445,20 @@ def write_source_list(filename, g, list):
         _mnt_len = len(g.sources[src]["Maintainer"])
         if _mnt_len > mnt_len: mnt_len = _mnt_len
 
-	_ipv6_len = len(g.sources[src]["Ipv6"])
+	_ipv6_len = len(g.sources[src]["IPv6"])
 	if _ipv6_len > ipv6_len: ipv6_len = _ipv6_len
 
     list.sort()
     f = open(filename, "w")
-    print >>f, "%-*s | %-*s | %-*s" % (src_len, "Source", mnt_len, "Maintainer", ipv6_len, "IPv6 status")
-    print >>f, ("-" * src_len) + "-+-" + ("-" * mnt_len) + "-+-" + ("-" * ipv6_len) + "-"
+    print >>f, "%-*s | %-*s | %-*s" % (src_len, "Source",
+                                       mnt_len, "Maintainer",
+                                       ipv6_len, "IPv6 status")
+    print >>f, ("-" * src_len) + "-+-" + ("-" * mnt_len) + "-+-" \
+          + ("-" * ipv6_len) + "-"
     for src in list:
-        print >>f, "%-*s | %-*s | %-*s" % (src_len, src,
-                                    mnt_len, g.sources[src]["Maintainer"],
-				    ipv6_len,  g.sources[src]["Ipv6"])
-
+        print >>f, "%-*s | %-*s | %-*s" % (src_len, src, mnt_len,
+                                           g.sources[src]["Maintainer"],
+                                           ipv6_len,  g.sources[src]["IPv6"])
     f.close()
 
 def write_prov_list(filename, g, dict):
@@ -479,7 +480,8 @@ def main():
     g = Germinator()
 
     g.parsePackages(open_tag_file("Packages", "binary-"+ARCH+"/Packages.gz"))
-    g.parseSources(open_tag_file("Sources", "source/Sources.gz"), open_ipv6_tag_file("dailydump"))
+    g.parseSources(open_tag_file("Sources", "source/Sources.gz"))
+    g.parseIPv6(open_ipv6_tag_file("dailydump"))
 
     for seedname in ("base", "desktop", "supported"):
         g.plantSeed(seedname)
