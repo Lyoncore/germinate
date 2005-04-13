@@ -35,12 +35,12 @@ import Germinate.Archive
 
 # Where do we get up-to-date seeds from?
 SEEDS = "http://people.ubuntu.com/~cjwatson/seeds/"
-RELEASE = "hoary"
+RELEASE = "breezy"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
 # them from?
 MIRROR = "http://archive.ubuntu.com/ubuntu/"
-DIST = ["hoary"]
+DIST = ["breezy"]
 COMPONENTS = ["main"]
 ARCH = "i386"
 

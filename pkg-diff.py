@@ -30,9 +30,9 @@ import Germinate.Archive
 
 # TODO: cloned from germinate.py; should be common
 SEEDS = "http://people.ubuntu.com/~cjwatson/seeds/"
-RELEASE = "hoary"
+RELEASE = "breezy"
 MIRROR = "http://archive.ubuntu.com/ubuntu/"
-DIST = ["hoary"]
+DIST = ["breezy"]
 COMPONENTS = ["main"]
 ARCH = "i386"
 
