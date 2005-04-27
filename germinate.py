@@ -241,7 +241,7 @@ def write_prov_list(filename, provdict):
 
 
 def usage(f):
-        print >>f, """Usage: germinate.py [options]
+    print >>f, """Usage: germinate.py [options]
 
 Options:
 
