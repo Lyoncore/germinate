@@ -67,7 +67,7 @@ class Germinator:
         self.blacklist = {}
         self.blacklisted = []
 
-        self.di_kernel_versions = []
+        self.di_kernel_versions = {}
 
     def debug(self, msg, *args, **kwargs):
         logging.debug(msg, *args, **kwargs)
@@ -232,6 +232,7 @@ class Germinator:
         self.build_srcs[seedname] = []
         self.not_build_srcs[seedname] = []
         self.why[seedname] = {}
+        self.di_kernel_versions[seedname] = []
 
     def substituteSeedVars(self, pkg):
         """Process substitution variables. These look like ${name} (e.g.
@@ -326,7 +327,7 @@ class Germinator:
                 if name == "kernel-version":
                     # Allows us to pick the right modules later
                     self.warning("Allowing d-i kernel versions: %s", values)
-                    self.di_kernel_versions.extend(values)
+                    self.di_kernel_versions[seedname].extend(values)
                 self.substvars[name] = values
                 continue
 
@@ -391,7 +392,7 @@ class Germinator:
             kernver = self.packages[pkg]["Kernel-Version"]
             if kernver != "":
                 for seed in self.seeds:
-                    if kernver not in self.di_kernel_versions:
+                    if kernver not in self.di_kernel_versions[seed]:
                         self.pruned[pkg].append(seed)
 
     def grow(self):
@@ -550,7 +551,7 @@ class Germinator:
                 # for other allowed kernel versions too.
                 if self.packages[depend]["Kernel-Version"] != "":
                     dependlist = [ d for d in reallist
-                                   if self.packages[d]["Kernel-Version"] in self.di_kernel_versions ]
+                                   if self.packages[d]["Kernel-Version"] in self.di_kernel_versions[seedname] ]
                 else:
                     dependlist = [depend]
                 self.info("Chose %s out of %s to satisfy %s",
