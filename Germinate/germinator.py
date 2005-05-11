@@ -599,6 +599,8 @@ class Germinator:
             # we see.
             if not old_build_tree:
                 return
+            if build_tree:
+                return
 
         self.why[seedname][pkg] = (why, build_tree)
 
