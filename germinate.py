@@ -29,6 +29,7 @@ import sys
 import urllib
 import getopt
 import logging
+import codecs
 from Germinate import Germinator
 import Germinate.Archive
 
@@ -107,7 +108,7 @@ def write_list(whyname, filename, g, pkglist):
     installed_size = 0
 
     pkglist.sort()
-    f = open(filename, "w")
+    f = codecs.open(filename, "w", "utf8", "replace")
     print >>f, "%-*s | %-*s | %-*s | %-*s | %-15s | %-15s" % \
           (pkg_len, "Package",
            src_len, "Source",
@@ -155,7 +156,7 @@ def write_source_list(filename, g, srclist):
             if _ipv6_len > ipv6_len: ipv6_len = _ipv6_len
 
     srclist.sort()
-    f = open(filename, "w")
+    f = codecs.open(filename, "w", "utf8", "replace")
 
     format = "%-*s | %-*s"
     header_args = [src_len, "Source", mnt_len, "Maintainer"]

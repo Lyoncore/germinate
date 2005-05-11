@@ -135,7 +135,8 @@ class Germinator:
             self.packagetype[pkg] = pkgtype
             self.pruned[pkg] = False
 
-            self.packages[pkg]["Maintainer"] = p.Section.get("Maintainer", "")
+            self.packages[pkg]["Maintainer"] = \
+                unicode(p.Section.get("Maintainer", ""), "utf8", "replace")
 
             for field in "Pre-Depends", "Depends", "Recommends", "Suggests":
                 value = p.Section.get(field, "")
@@ -173,7 +174,8 @@ class Germinator:
             src = p.Section["Package"]
             self.sources[src] = {}
 
-            self.sources[src]["Maintainer"] = p.Section.get("Maintainer", "")
+            self.sources[src]["Maintainer"] = \
+                unicode(p.Section.get("Maintainer", ""), "utf8", "replace")
             self.sources[src]["IPv6"] = "Unknown"
 
             for field in "Build-Depends", "Build-Depends-Indep":
