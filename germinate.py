@@ -295,6 +295,8 @@ def main():
             sys.exit()
         elif option in ("-S", "--seed-source"):
             SEEDS = value
+            if not SEEDS.endswith("/"):
+                SEEDS += "/"
         elif option in ("-s", "--seed-dist"):
             RELEASE = value
         elif option in ("-m", "--mirror"):
