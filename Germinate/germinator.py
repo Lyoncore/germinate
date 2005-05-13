@@ -357,7 +357,7 @@ class Germinator:
                 if self.alreadySeeded(seedname, pkg):
                     self.warning("Duplicated seed: %s", pkg)
                 elif seedname in self.pruned[pkg]:
-                    self.warning("Pruned %s from %s", pkg, seed)
+                    self.warning("Pruned %s from %s", pkg, seedname)
                 else:
                     self.seed[seedname].append(pkg)
 
