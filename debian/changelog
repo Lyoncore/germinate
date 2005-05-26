@@ -1,3 +1,14 @@
+germinate (0.2) breezy; urgency=low
+
+  * Fix formatting of output lines with UTF-8 maintainer strings.
+  * Really pick the first reason from the build-dependency tree to display
+    in output files.
+  * Record allowed d-i kernel versions on a per-seed basis, so that we can
+    have some kernel versions supported for netboot installations only.
+  * Force a trailing slash onto the end of any --seed-source argument.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Thu, 26 May 2005 16:32:38 +0100
+
 germinate (0.1) breezy; urgency=low
 
   * Initial release.
