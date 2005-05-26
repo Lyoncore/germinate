@@ -7,7 +7,7 @@ build:
 clean:
 	dh_testdir
 	dh_testroot
-	-rm -f *.pyc
+	-find -name \*.pyc | xargs -r rm -f
 	dh_clean
 
 install: build
