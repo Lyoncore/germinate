@@ -7,6 +7,7 @@ germinate (0.3) UNRELEASED; urgency=low
     the breezy seeds.
   * Add germinate --seed-packages option, to allow calculating dependencies
     of individual extra packages during a germinate run.
+  * Policy version 3.6.2. No changes required.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 27 Jul 2005 12:24:40 +0100
 
