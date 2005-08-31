@@ -331,7 +331,7 @@ def main():
 
     (seednames, seedinherit) = g.parseStructure(open_metafile("STRUCTURE"))
     for seedname in seednames:
-        g.plantSeed(SEEDS, RELEASE, ARCH, seedname,
+        g.plantSeed(open_metafile(seedname), ARCH, seedname,
                     list(seedinherit[seedname]))
     g.prune()
     g.grow()

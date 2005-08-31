@@ -19,7 +19,6 @@
 # 02111-1307, USA.
 
 import apt_pkg
-import urllib
 import re
 import logging
 
@@ -295,7 +294,7 @@ class Germinator:
 
         return False
 
-    def plantSeed(self, seedurl, release, arch, seedname, seedinherit):
+    def plantSeed(self, entries, arch, seedname, seedinherit):
         """Add a seed."""
         if seedname in self.seeds:
             return
@@ -303,13 +302,7 @@ class Germinator:
         self.newSeed(seedname, seedinherit)
         seedpkgs = []
 
-        self.progress("Downloading %s list ...", seedname)
-        url = seedurl + release + "/" + seedname
-        urlopener = urllib.FancyURLopener()
-        urlopener.addheader('Cache-Control', 'no-cache')
-        urlopener.addheader('Pragma', 'no-cache')
-        f = urlopener.open(url)
-        for line in f:
+        for line in entries:
             if not line.startswith(" * "):
                 continue
 
@@ -376,7 +369,6 @@ class Germinator:
             else:
                 # No idea
                 self.error("Unknown %s package: %s", seedname, pkg)
-        f.close()
 
         for pkg in self.hints:
             if self.hints[pkg] == seedname and not self.alreadySeeded(seedname, pkg):
