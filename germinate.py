@@ -259,6 +259,9 @@ Options:
                         Operate on components COMPS (default: %s).
   -i, --ipv6            Check IPv6 status of source packages.
   --no-rdepends         Disable reverse-dependency calculations.
+  --seed-packages=PARENT/PKG,PARENT/PKG,...
+                        Treat each PKG as a seed by itself, inheriting from
+                        PARENT.
 """ % (SEEDS, RELEASE, MIRROR, ",".join(DIST), ARCH, ",".join(COMPONENTS))
 
 
@@ -284,7 +287,8 @@ def main():
                                     "components=",
                                     "arch=",
                                     "ipv6",
-                                    "no-rdepends"])
+                                    "no-rdepends",
+                                    "seed-packages="])
     except getopt.GetoptError:
         usage(sys.stderr)
         sys.exit(2)
@@ -313,6 +317,8 @@ def main():
             CHECK_IPV6 = True
         elif option == "--no-rdepends":
             want_rdepends = False
+        elif option == "--seed-packages":
+            seed_packages = value.split(',')
 
     apt_pkg.InitConfig()
     apt_pkg.Config.Set("APT::Architecture", ARCH)
@@ -333,13 +339,16 @@ def main():
     for seedname in seednames:
         g.plantSeed(open_metafile(seedname), ARCH, seedname,
                     list(seedinherit[seedname]))
+    for seed_package in seed_packages:
+        (parent, pkg) = seed_package.split('/')
+        g.plantSeed([" * " + pkg], ARCH, pkg, seedinherit[parent] + [parent])
     g.prune()
     g.grow()
     g.addExtras()
     if want_rdepends:
         g.reverseDepends()
 
-    seednames_extra = list(seednames)
+    seednames_extra = list(g.seeds)
     seednames_extra.append('extra')
     for seedname in seednames_extra:
         write_list(seedname, seedname,
@@ -361,7 +370,7 @@ def main():
     sup = []
     all_srcs = []
     sup_srcs = []
-    for seedname in seednames:
+    for seedname in g.seeds:
         all += g.seed[seedname]
         all += g.depends[seedname]
         all += g.build_depends[seedname]

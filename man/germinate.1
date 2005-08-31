@@ -165,6 +165,14 @@ These calculations cause a large number of small files to be written out in
 the
 .Pa rdepends/
 directory, and may take some time.
+.It Fl Fl seed\-packages Ar parent Ns / Ns Ar pkg Ns \&,...
+Treat each
+.Ar pkg
+as a seed by itself, inheriting from
+.Ar parent .
+This allows the use of
+.Nm
+to calculate the dependencies of individual extra packages.
 .El
 .Sh BUGS
 The wiki-style markup in seeds was inherited from an early implementation,

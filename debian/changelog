@@ -5,6 +5,8 @@ germinate (0.3) UNRELEASED; urgency=low
     compare against as non-option arguments.
   * Update pkg-diff's default seeds to 'minimal standard desktop', to match
     the breezy seeds.
+  * Add germinate --seed-packages option, to allow calculating dependencies
+    of individual extra packages during a germinate run.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 27 Jul 2005 12:24:40 +0100
 
