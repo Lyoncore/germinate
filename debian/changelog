@@ -1,4 +1,4 @@
-germinate (0.3) UNRELEASED; urgency=low
+germinate (0.3) breezy; urgency=low
 
   * Add a man page for germinate.
   * Explain in pkg-diff --help that you can supply a list of seeds to
@@ -10,7 +10,7 @@ germinate (0.3) UNRELEASED; urgency=low
   * Policy version 3.6.2. No changes required.
   * Update GPL notices with the FSF's new address.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Wed, 27 Jul 2005 12:24:40 +0100
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 31 Aug 2005 18:47:20 +0100
 
 germinate (0.2) breezy; urgency=low
 
