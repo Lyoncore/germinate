@@ -150,7 +150,7 @@ class Globals:
                 print l
 
 def usage(f):
-    print >>f, """Usage: pkg-diff.py [options]
+    print >>f, """Usage: pkg-diff.py [options] [seeds]
 
 Options:
 
@@ -158,6 +158,9 @@ Options:
   -l, --list=FILE       Read list of packages from this file
                         (default: read from dpkg --get-selections)
   -m, --mode=[i|r|d]    Show packages to install/remove/diff (default: d).
+
+A list of seeds against which to compare may be supplied as non-option
+arguments. The default is 'base desktop'.
 """
 
 def main():

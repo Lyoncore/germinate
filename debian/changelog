@@ -1,6 +1,8 @@
 germinate (0.3) UNRELEASED; urgency=low
 
   * Add a man page for germinate.
+  * Explain in pkg-diff --help that you can supply a list of seeds to
+    compare against as non-option arguments.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 27 Jul 2005 12:24:40 +0100
 
