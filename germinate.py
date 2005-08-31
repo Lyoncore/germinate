@@ -268,6 +268,7 @@ Options:
 def main():
     global SEEDS, RELEASE, MIRROR, DIST, ARCH, COMPONENTS, CHECK_IPV6
     want_rdepends = True
+    seed_packages = ()
 
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
