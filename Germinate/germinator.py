@@ -436,6 +436,17 @@ class Germinator:
             else:
                 return False
 
+    def allowedVirtualDependency(self, pkg, deptype):
+        """May pkg's dependency relationship type deptype be satisfied by a
+           virtual package? (Versioned dependencies may not be satisfied by
+           virtual packages, unless pkg is a udeb.)"""
+        if pkg in self.packagetype and self.packagetype[pkg] == "udeb":
+            return True
+        elif deptype == "":
+            return True
+        else:
+            return False
+
     def addReverse(self, pkg, field, rdep):
         """Add a reverse dependency entry."""
         if "Reverse-Depends" not in self.packages[pkg]:
@@ -476,12 +487,13 @@ class Germinator:
 
     def alreadySatisfied(self, seedname, pkg, depend, build_depend=False, with_build=False):
         """Work out whether a dependency has already been satisfied."""
-        if depend in self.provides:
-            trylist = [ d for d in self.provides[depend]
+        (depname, depver, deptype) = depend
+        if self.allowedVirtualDependency(pkg, deptype) and depname in self.provides:
+            trylist = [ d for d in self.provides[depname]
                         if d in self.packages and self.allowedDependency(pkg, d, seedname, build_depend) ]
-        elif depend in self.packages and \
-             self.allowedDependency(pkg, depend, seedname, build_depend):
-            trylist = [ depend ]
+        elif depname in self.packages and \
+             self.allowedDependency(pkg, depname, seedname, build_depend):
+            trylist = [ depname ]
         else:
             return False
 
@@ -503,16 +515,17 @@ class Germinator:
                       second_class, build_tree):
         """Add a single dependency. Returns True if a dependency was added,
            otherwise False."""
-        if depend in self.packages and \
-           self.allowedDependency(pkg, depend, seedname, build_depend):
+        (depname, depver, deptype) = depend
+        if depname in self.packages and \
+           self.allowedDependency(pkg, depname, seedname, build_depend):
             virtual = None
-            trylist = [ depend ]
-        elif depend in self.provides:
-            virtual = depend
-            trylist = [ d for d in self.provides[depend]
+            trylist = [ depname ]
+        elif self.allowedVirtualDependency(pkg, deptype) and depname in self.provides:
+            virtual = depname
+            trylist = [ d for d in self.provides[depname]
                         if d in self.packages and self.allowedDependency(pkg, d, seedname, build_depend) ]
         else:
-            self.error("Unknown dependency %s by %s", depend, pkg)
+            self.error("Unknown dependency %s by %s", depname, pkg)
             return False
 
         # Last ditch effort to satisfy this by promoting lesser seeds to
@@ -528,24 +541,24 @@ class Germinator:
                     self.warning("Promoted %s from %s to %s to satisfy %s",
                                  trydep, lesserseed, seedname, pkg)
 
-                    depend = trydep
+                    depname = trydep
                     found = True
                     break
             if found: break
 
-        dependlist = [depend]
+        dependlist = [depname]
         if virtual is not None and not found:
             reallist = [ d for d in self.provides[virtual]
                          if d in self.packages and self.allowedDependency(pkg, d, seedname, build_depend) ]
             if len(reallist):
-                depend = reallist[0]
+                depname = reallist[0]
                 # If this one was a d-i kernel module, pick all the modules
                 # for other allowed kernel versions too.
-                if self.packages[depend]["Kernel-Version"] != "":
+                if self.packages[depname]["Kernel-Version"] != "":
                     dependlist = [ d for d in reallist
                                    if self.packages[d]["Kernel-Version"] in self.di_kernel_versions[seedname] ]
                 else:
-                    dependlist = [depend]
+                    dependlist = [depname]
                 self.info("Chose %s out of %s to satisfy %s",
                           ", ".join(dependlist), virtual, pkg)
             else:
@@ -579,11 +592,11 @@ class Germinator:
         if build_tree: second_class = True
         for deplist in depends:
             for dep in deplist:
-                if self.alreadySatisfied(seedname, pkg, dep[0], build_depend, second_class):
+                if self.alreadySatisfied(seedname, pkg, dep, build_depend, second_class):
                     break
             else:
                 for dep in deplist:
-                    if self.addDependency(seedname, pkg, dep[0], build_depend,
+                    if self.addDependency(seedname, pkg, dep, build_depend,
                                           second_class, build_tree):
                         if len(deplist) > 1:
                             self.info("Chose %s to satisfy %s", dep[0], pkg)

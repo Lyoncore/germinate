@@ -1,3 +1,11 @@
+germinate (0.4) UNRELEASED; urgency=low
+
+  * Don't attempt to satisfy versioned dependencies of .debs using virtual
+    packages, as the packaging toolchain doesn't support that. (udpkg/anna
+    do support this for .udebs, and the installer relies on that.)
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Fri, 21 Oct 2005 18:02:11 +0100
+
 germinate (0.3) breezy; urgency=low
 
   * Add a man page for germinate.
