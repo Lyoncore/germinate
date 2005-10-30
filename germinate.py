@@ -343,13 +343,14 @@ def main():
     for seed_package in seed_packages:
         (parent, pkg) = seed_package.split('/')
         g.plantSeed([" * " + pkg], ARCH, pkg, seedinherit[parent] + [parent])
+        seednames.append(pkg)
     g.prune()
     g.grow()
     g.addExtras()
     if want_rdepends:
         g.reverseDepends()
 
-    seednames_extra = list(g.seeds)
+    seednames_extra = list(seednames)
     seednames_extra.append('extra')
     for seedname in seednames_extra:
         write_list(seedname, seedname,
@@ -371,7 +372,7 @@ def main():
     sup = []
     all_srcs = []
     sup_srcs = []
-    for seedname in g.seeds:
+    for seedname in seednames:
         all += g.seed[seedname]
         all += g.depends[seedname]
         all += g.build_depends[seedname]

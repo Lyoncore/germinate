@@ -1,3 +1,10 @@
+germinate (0.5) UNRELEASED; urgency=low
+
+  * Stop accidentally including extra in the all and supported+build-depends
+    outputs.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Sun, 30 Oct 2005 12:33:04 -0500
+
 germinate (0.4) dapper; urgency=low
 
   * Don't attempt to satisfy versioned dependencies of .debs using virtual
