@@ -324,21 +324,28 @@ class Germinator:
                 self.substvars[name] = values
                 continue
 
+            pkg = pkg.strip()
             archspec = []
             startarchspec = pkg.find("[")
             if startarchspec != -1:
                 endarchspec = pkg.find("]")
-                if endarchspec == -1:
-                    self.error("Broken architecture specification: %s", pkg)
-                else:
-                    archspec = pkg[startarchspec + 1:endarchspec].split()
+                if pkg.endswith("]"):
+                    archspec = pkg[startarchspec + 1:-1].split()
                     pkg = pkg[:startarchspec - 1]
                     if arch not in archspec:
                         continue
 
             pkg = pkg.split()[0]
 
-            seedpkgs.extend(self.substituteSeedVars(pkg))
+            if pkg.startswith('/') and pkg.endswith('/'):
+                pkgre = re.compile(pkg[1:-1])
+                pkgs = [p for p in self.packages if pkgre.search(p) is not None]
+                pkgs.sort()
+            else:
+                pkgs = [pkg]
+
+            for pkg in pkgs:
+                seedpkgs.extend(self.substituteSeedVars(pkg))
 
         for pkg in seedpkgs:
             if pkg in self.hints and self.hints[pkg] != seedname:

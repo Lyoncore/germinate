@@ -1,3 +1,11 @@
+germinate (0.6) UNRELEASED; urgency=low
+
+  * Add regular expression support in seeds. Weaken architecture
+    specification error checking in order to be able to use [...] in regular
+    expressions more easily.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Mon,  7 Nov 2005 20:00:24 -0500
+
 germinate (0.5) dapper; urgency=high
 
   * Stop accidentally including extra in the all and supported+build-depends
