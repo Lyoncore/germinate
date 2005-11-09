@@ -337,7 +337,14 @@ class Germinator:
 
             pkg = pkg.split()[0]
 
-            if pkg.startswith('/') and pkg.endswith('/'):
+            if pkg.startswith('%'):
+                pkg = pkg[1:]
+                if pkg in self.sources:
+                    pkgs = list(self.sources[pkg]["Binaries"])
+                else:
+                    self.warning("Unknown source package: %s", pkg)
+                    pkgs = []
+            elif pkg.startswith('/') and pkg.endswith('/'):
                 pkgre = re.compile(pkg[1:-1])
                 pkgs = [p for p in self.packages if pkgre.search(p) is not None]
                 pkgs.sort()
