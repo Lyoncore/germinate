@@ -1,4 +1,4 @@
-germinate (0.6) UNRELEASED; urgency=low
+germinate (0.6) dapper; urgency=low
 
   * Add regular expression support in seeds. Weaken architecture
     specification error checking in order to be able to use [...] in regular
@@ -10,7 +10,7 @@ germinate (0.6) UNRELEASED; urgency=low
   * Add germinate --source-mirror option, to allow Packages and Sources
     files to be on different mirrors (e.g. Ubuntu ports architectures).
 
- -- Colin Watson <cjwatson@ubuntu.com>  Mon,  7 Nov 2005 20:00:24 -0500
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 16 Nov 2005 14:37:37 +0000
 
 germinate (0.5) dapper; urgency=high
 
