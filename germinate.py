@@ -258,6 +258,7 @@ Options:
   -c, --components=COMPS
                         Operate on components COMPS (default: %s).
   -i, --ipv6            Check IPv6 status of source packages.
+  --cleanup             Don't cache Packages or Sources files.
   --no-rdepends         Disable reverse-dependency calculations.
   --seed-packages=PARENT/PKG,PARENT/PKG,...
                         Treat each PKG as a seed by itself, inheriting from
@@ -267,6 +268,7 @@ Options:
 
 def main():
     global SEEDS, RELEASE, MIRROR, DIST, ARCH, COMPONENTS, CHECK_IPV6
+    cleanup = False
     want_rdepends = True
     seed_packages = ()
 
@@ -288,6 +290,7 @@ def main():
                                     "components=",
                                     "arch=",
                                     "ipv6",
+                                    "cleanup",
                                     "no-rdepends",
                                     "seed-packages="])
     except getopt.GetoptError:
@@ -316,6 +319,8 @@ def main():
             ARCH = value
         elif option in ("-i", "--ipv6"):
             CHECK_IPV6 = True
+        elif option == "--cleanup":
+            cleanup = True
         elif option == "--no-rdepends":
             want_rdepends = False
         elif option == "--seed-packages":
@@ -324,7 +329,7 @@ def main():
     apt_pkg.InitConfig()
     apt_pkg.Config.Set("APT::Architecture", ARCH)
 
-    Germinate.Archive.TagFile(MIRROR).feed(g, DIST, COMPONENTS, ARCH)
+    Germinate.Archive.TagFile(MIRROR).feed(g, DIST, COMPONENTS, ARCH, cleanup)
 
     if CHECK_IPV6:
         g.parseIPv6(open_ipv6_tag_file("dailydump"))

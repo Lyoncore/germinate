@@ -51,7 +51,7 @@ class TagFile:
 
         return open(filename, "r")
 
-    def feed(self, g, dists, components, arch):
+    def feed(self, g, dists, components, arch, cleanup=False):
         for dist in dists:
             for component in components:
                 g.parsePackages(
@@ -60,17 +60,25 @@ class TagFile:
                         dist, component,
                         "binary-" + arch + "/Packages.gz"),
                     "deb")
+                if cleanup:
+                    os.unlink("%s_%s_Packages" % (dist, component))
+
                 g.parseSources(
                     self.open_tag_file(
                         "%s_%s_Sources" % (dist, component),
                         dist, component,
                         "source/Sources.gz"))
+                if cleanup:
+                    os.unlink("%s_%s_Sources" % (dist, component))
+
                 instpackages = ""
                 try:
                     instpackages = self.open_tag_file(
                         "%s_%s_InstallerPackages" % (dist, component),
                         dist, component,
                         "debian-installer/binary-" + arch + "/Packages.gz")
+                    if cleanup:
+                        os.unlink("%s_%s_InstallerPackages" % (dist, component))
                 except IOError:
                     # can live without these
                     print "Missing installer Packages file for", component, \

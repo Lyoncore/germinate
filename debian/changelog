@@ -5,6 +5,8 @@ germinate (0.6) UNRELEASED; urgency=low
     expressions more easily.
   * Add support for including all the binaries from a given source package
     (using "%source") in seeds.
+  * Add germinate --cleanup option, to prevent caching of Packages and
+    Sources files.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon,  7 Nov 2005 20:00:24 -0500
 
