@@ -7,6 +7,8 @@ germinate (0.6) UNRELEASED; urgency=low
     (using "%source") in seeds.
   * Add germinate --cleanup option, to prevent caching of Packages and
     Sources files.
+  * Add germinate --source-mirror option, to allow Packages and Sources
+    files to be on different mirrors (e.g. Ubuntu ports architectures).
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon,  7 Nov 2005 20:00:24 -0500
 

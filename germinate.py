@@ -41,6 +41,7 @@ RELEASE = "dapper"
 # If we need to download Packages.gz and/or Sources.gz, where do we get
 # them from?
 MIRROR = "http://archive.ubuntu.com/ubuntu/"
+SOURCE_MIRROR = None
 DIST = ["dapper"]
 COMPONENTS = ["main"]
 ARCH = "i386"
@@ -253,6 +254,9 @@ Options:
   -s, --seed-dist=DIST  Fetch seeds for distribution DIST (default: %s).
   -m, --mirror=MIRROR   Get package lists from MIRROR
                         (default: %s).
+  --source-mirror=MIRROR
+                        Get source package lists from mirror
+                        (default: value of --mirror).
   -d, --dist=DIST       Operate on distribution DIST (default: %s).
   -a, --arch=ARCH       Operate on architecture ARCH (default: %s).
   -c, --components=COMPS
@@ -267,7 +271,8 @@ Options:
 
 
 def main():
-    global SEEDS, RELEASE, MIRROR, DIST, ARCH, COMPONENTS, CHECK_IPV6
+    global SEEDS, RELEASE, MIRROR, SOURCE_MIRROR
+    global DIST, ARCH, COMPONENTS, CHECK_IPV6
     cleanup = False
     want_rdepends = True
     seed_packages = ()
@@ -286,6 +291,7 @@ def main():
                                     "seed-source=",
                                     "seed-dist=",
                                     "mirror=",
+                                    "source-mirror=",
                                     "dist=",
                                     "components=",
                                     "arch=",
@@ -311,6 +317,10 @@ def main():
             MIRROR = value
             if not MIRROR.endswith("/"):
                 MIRROR += "/"
+        elif option == "--source-mirror":
+            SOURCE_MIRROR = value
+            if not SOURCE_MIRROR.endswith("/"):
+                SOURCE_MIRROR += "/"
         elif option in ("-d", "--dist"):
             DIST = value.split(",")
         elif option in ("-c", "--components"):
@@ -329,7 +339,8 @@ def main():
     apt_pkg.InitConfig()
     apt_pkg.Config.Set("APT::Architecture", ARCH)
 
-    Germinate.Archive.TagFile(MIRROR).feed(g, DIST, COMPONENTS, ARCH, cleanup)
+    Germinate.Archive.TagFile(MIRROR, SOURCE_MIRROR).feed(
+        g, DIST, COMPONENTS, ARCH, cleanup)
 
     if CHECK_IPV6:
         g.parseIPv6(open_ipv6_tag_file("dailydump"))

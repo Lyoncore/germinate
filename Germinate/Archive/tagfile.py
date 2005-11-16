@@ -23,16 +23,20 @@ import urllib
 import gzip
 
 class TagFile:
-    def __init__(self, mirror):
+    def __init__(self, mirror, source_mirror=None):
         self.mirror = mirror
+        if source_mirror is not None:
+            self.source_mirror = source_mirror
+        else:
+            self.source_mirror = mirror
 
-    def open_tag_file(self, filename, dist, component, ftppath):
+    def open_tag_file(self, mirror, filename, dist, component, ftppath):
         """Download an apt tag file if needed, then open it."""
         if os.path.exists(filename):
             return open(filename, "r")
 
         print "Downloading", filename, "file ..."
-        url = self.mirror + "dists/" + dist + "/" + component + "/" + ftppath
+        url = mirror + "dists/" + dist + "/" + component + "/" + ftppath
         gzip_fn = None
         try:
             gzip_fn = urllib.urlretrieve(url, filename + ".gz")[0]
@@ -56,6 +60,7 @@ class TagFile:
             for component in components:
                 g.parsePackages(
                     self.open_tag_file(
+                        self.mirror,
                         "%s_%s_Packages" % (dist, component),
                         dist, component,
                         "binary-" + arch + "/Packages.gz"),
@@ -65,6 +70,7 @@ class TagFile:
 
                 g.parseSources(
                     self.open_tag_file(
+                        self.source_mirror,
                         "%s_%s_Sources" % (dist, component),
                         dist, component,
                         "source/Sources.gz"))
@@ -74,6 +80,7 @@ class TagFile:
                 instpackages = ""
                 try:
                     instpackages = self.open_tag_file(
+                        self.mirror,
                         "%s_%s_InstallerPackages" % (dist, component),
                         dist, component,
                         "debian-installer/binary-" + arch + "/Packages.gz")
