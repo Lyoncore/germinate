@@ -1,3 +1,9 @@
+germinate (0.7) UNRELEASED; urgency=low
+
+  * Depend on python-apt (thanks, Jani Monoses).
+
+ -- Colin Watson <cjwatson@debian.org>  Tue, 29 Nov 2005 19:20:48 +0000
+
 germinate (0.6) dapper; urgency=low
 
   * Add regular expression support in seeds. Weaken architecture

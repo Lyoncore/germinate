@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 4)
 
 Package: germinate
 Architecture: all
-Depends: ${python:Depends}
+Depends: ${python:Depends}, python-apt
 Description: Expand dependencies in a list of seed packages
  Germinate takes lists of seed packages and expands their dependencies to
  produce a full list of packages. This can be used for purposes such as
