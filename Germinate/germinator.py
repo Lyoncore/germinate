@@ -417,6 +417,8 @@ class Germinator:
             for pkg in self.sources[srcname]["Binaries"]:
                 if pkg not in self.packages:
                     continue
+                if self.packages[pkg]["Source"] != srcname:
+                    continue
                 if pkg in self.all:
                     continue
 
