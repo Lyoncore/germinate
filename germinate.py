@@ -43,7 +43,7 @@ RELEASE = "dapper"
 MIRROR = "http://archive.ubuntu.com/ubuntu/"
 SOURCE_MIRROR = None
 DIST = ["dapper"]
-COMPONENTS = ["main"]
+COMPONENTS = ["main", "restricted"]
 ARCH = "i386"
 
 CHECK_IPV6 = False

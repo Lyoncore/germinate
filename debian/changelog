@@ -2,6 +2,8 @@ germinate (0.8) UNRELEASED; urgency=low
 
   * When identifying extras, check for binaries built from multiple source
     packages and skip any superseded binaries.
+  * Change default for --components to main and restricted, since the Ubuntu
+    seeds rely on packages from restricted in order to germinate correctly.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed,  1 Feb 2006 12:54:55 +0000
 
