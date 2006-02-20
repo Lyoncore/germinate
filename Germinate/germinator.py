@@ -551,11 +551,19 @@ class Germinator:
             for lesserseed in self.strictlyOuterSeeds(seedname):
                 if trydep in self.seed[lesserseed]:
                     if second_class:
-                        # I'll get you next time, Gadget!
-                        return False
-                    self.seed[lesserseed].remove(trydep)
-                    self.warning("Promoted %s from %s to %s to satisfy %s",
-                                 trydep, lesserseed, seedname, pkg)
+                        # "I'll get you next time, Gadget!"
+                        # When processing the build tree, we don't promote
+                        # packages from lesser seeds, since we still want to
+                        # consider them (e.g.) part of ship even if they're
+                        # build-dependencies of desktop. However, we do need
+                        # to process them now anyway, since otherwise we
+                        # might end up selecting the wrong alternative from
+                        # an or-ed build-dependency.
+                        pass
+                    else:
+                        self.seed[lesserseed].remove(trydep)
+                        self.warning("Promoted %s from %s to %s to satisfy %s",
+                                     trydep, lesserseed, seedname, pkg)
 
                     depname = trydep
                     found = True

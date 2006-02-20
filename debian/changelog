@@ -1,3 +1,16 @@
+germinate (0.9) UNRELEASED; urgency=low
+
+  * When processing the build tree, germinate is (correctly) careful not to
+    promote packages from lesser seeds, since we still want to consider them
+    (e.g.) part of ship even if they're build-dependencies of desktop.
+    However, this sometimes caused us to select the wrong alternative from
+    an or-ed build-dependency (e.g. redland Build-Depends:
+    libmysqlclient15-dev | libmysqlclient12-dev | libmysqlclient10-dev and
+    libmysqlclient15-dev was in the Ubuntu supported seed). To fix this,
+    process the packages at that point anyway and just avoid promoting them.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Mon, 20 Feb 2006 13:41:55 +0000
+
 germinate (0.8) dapper; urgency=low
 
   * When identifying extras, check for binaries built from multiple source
