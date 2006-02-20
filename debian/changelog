@@ -1,4 +1,4 @@
-germinate (0.9) UNRELEASED; urgency=low
+germinate (0.9) dapper; urgency=low
 
   * When processing the build tree, germinate is (correctly) careful not to
     promote packages from lesser seeds, since we still want to consider them
@@ -9,7 +9,7 @@ germinate (0.9) UNRELEASED; urgency=low
     libmysqlclient15-dev was in the Ubuntu supported seed). To fix this,
     process the packages at that point anyway and just avoid promoting them.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Mon, 20 Feb 2006 13:41:55 +0000
+ -- Colin Watson <cjwatson@ubuntu.com>  Mon, 20 Feb 2006 13:51:30 +0000
 
 germinate (0.8) dapper; urgency=low
 
