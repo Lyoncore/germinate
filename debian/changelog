@@ -1,8 +1,8 @@
-germinate (0.10) UNRELEASED; urgency=low
+germinate (0.10) dapper; urgency=low
 
   * Add seed distribution name to seed descriptions in the "Why" column.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Tue, 21 Feb 2006 18:01:54 +0000
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 21 Feb 2006 18:07:16 +0000
 
 germinate (0.9) dapper; urgency=low
 
