@@ -355,14 +355,15 @@ def main():
     (seednames, seedinherit) = g.parseStructure(open_metafile("STRUCTURE"))
     for seedname in seednames:
         g.plantSeed(open_metafile(seedname), ARCH, seedname,
-                    list(seedinherit[seedname]))
+                    list(seedinherit[seedname]), RELEASE)
     for seed_package in seed_packages:
         (parent, pkg) = seed_package.split('/')
-        g.plantSeed([" * " + pkg], ARCH, pkg, seedinherit[parent] + [parent])
+        g.plantSeed([" * " + pkg], ARCH, pkg,
+                    seedinherit[parent] + [parent], RELEASE)
         seednames.append(pkg)
     g.prune()
     g.grow()
-    g.addExtras()
+    g.addExtras(RELEASE)
     if want_rdepends:
         g.reverseDepends()
 

@@ -102,7 +102,7 @@ class Globals:
         # Suppress most log information
         logging.getLogger().setLevel(logging.CRITICAL)
 
-        global MIRROR, DIST, COMPONENTS, ARCH
+        global RELEASE, MIRROR, DIST, COMPONENTS, ARCH
         print "Germinating"
         g = Germinator()
         apt_pkg.InitConfig()
@@ -113,7 +113,7 @@ class Globals:
         (seednames, seedinherit) = g.parseStructure(open_metafile("STRUCTURE"))
         for seedname in self.seeds:
             g.plantSeed(open_metafile(seedname), ARCH, seedname,
-                        list(seedinherit[seedname]))
+                        list(seedinherit[seedname]), RELEASE)
         g.prune()
         g.grow()
 

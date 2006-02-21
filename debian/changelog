@@ -1,3 +1,9 @@
+germinate (0.10) UNRELEASED; urgency=low
+
+  * Add seed distribution name to seed descriptions in the "Why" column.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 21 Feb 2006 18:01:54 +0000
+
 germinate (0.9) dapper; urgency=low
 
   * When processing the build tree, germinate is (correctly) careful not to
