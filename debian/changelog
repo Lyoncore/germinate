@@ -1,3 +1,10 @@
+germinate (0.11) UNRELEASED; urgency=low
+
+  * Fix plantSeed() backward incompatibility for *-meta/update scripts by
+    defaulting seedrelease to None.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 22 Feb 2006 15:55:35 +0000
+
 germinate (0.10) dapper; urgency=low
 
   * Add seed distribution name to seed descriptions in the "Why" column.
