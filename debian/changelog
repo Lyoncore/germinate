@@ -1,3 +1,10 @@
+germinate (0.12) UNRELEASED; urgency=low
+
+  * Upload to Debian (closes: #360631).
+  * Switch to my debian.org maintainer address.
+
+ -- Colin Watson <cjwatson@debian.org>  Mon,  3 Apr 2006 23:17:56 +0100
+
 germinate (0.11) dapper; urgency=low
 
   * Fix plantSeed() backward incompatibility for *-meta/update scripts by

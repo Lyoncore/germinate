@@ -1,7 +1,7 @@
 Source: germinate
 Section: utils
 Priority: optional
-Maintainer: Colin Watson <cjwatson@ubuntu.com>
+Maintainer: Colin Watson <cjwatson@debian.org>
 Standards-Version: 3.6.2
 Build-Depends: debhelper (>= 4)
 
