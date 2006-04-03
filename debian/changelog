@@ -1,9 +1,9 @@
-germinate (0.12) UNRELEASED; urgency=low
+germinate (0.12) unstable; urgency=low
 
   * Upload to Debian (closes: #360631).
   * Switch to my debian.org maintainer address.
 
- -- Colin Watson <cjwatson@debian.org>  Mon,  3 Apr 2006 23:17:56 +0100
+ -- Colin Watson <cjwatson@debian.org>  Mon,  3 Apr 2006 23:25:23 +0100
 
 germinate (0.11) dapper; urgency=low
 
