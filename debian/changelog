@@ -1,8 +1,8 @@
-germinate (0.13) UNRELEASED; urgency=low
+germinate (0.13) unstable; urgency=low
 
   * Build-depend on python (closes: #363040).
 
- -- Colin Watson <cjwatson@debian.org>  Mon, 17 Apr 2006 11:41:20 +0100
+ -- Colin Watson <cjwatson@debian.org>  Mon, 17 Apr 2006 11:44:13 +0100
 
 germinate (0.12) unstable; urgency=low
 
