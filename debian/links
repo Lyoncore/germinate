@@ -1,2 +1,2 @@
-usr/share/germinate/germinate.py usr/bin/germinate
-usr/share/germinate/pkg-diff.py usr/bin/germinate-pkg-diff
+usr/lib/germinate/germinate.py usr/bin/germinate
+usr/lib/germinate/pkg-diff.py usr/bin/germinate-pkg-diff

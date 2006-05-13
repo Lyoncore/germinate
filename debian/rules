@@ -17,9 +17,9 @@ install: build
 	dh_installdirs
 
 	# TODO: use distutils
-	dh_install Germinate/*.py usr/share/germinate/Germinate/
-	dh_install Germinate/Archive/*.py usr/share/germinate/Germinate/Archive/
-	install -m755 *.py $(tmp)/usr/share/germinate/
+	dh_install Germinate/*.py usr/lib/germinate/Germinate/
+	dh_install Germinate/Archive/*.py usr/lib/germinate/Germinate/Archive/
+	install -m755 *.py $(tmp)/usr/lib/germinate/
 
 binary-arch:
 

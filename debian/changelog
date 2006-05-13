@@ -1,3 +1,10 @@
+germinate (0.14) UNRELEASED; urgency=low
+
+  * Move Python modules to /usr/lib/germinate; .pyc/.pyo files are
+    architecture-dependent.
+
+ -- Colin Watson <cjwatson@debian.org>  Sat, 13 May 2006 10:04:18 +0100
+
 germinate (0.13) unstable; urgency=low
 
   * Build-depend on python (closes: #363040).
