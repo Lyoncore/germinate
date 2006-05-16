@@ -1,11 +1,9 @@
 This is germinate, written by Scott James Remnant <scott@canonical.com> and
 Colin Watson <cjwatson@canonical.com>, and packaged by Colin Watson.
 
-The source is available using tla or baz in the
-colin.watson@canonical.com--2005/germinate--mainline--0 archive; this
-archive is available here:
+The source is available using bzr from here:
 
-  http://people.ubuntu.com/~cjwatson/archives/colin.watson@canonical.com--2005
+  http://people.ubuntu.com/~cjwatson/bzr/germinate/mainline/
 
 Copyright (c) 2004, 2005 Canonical Ltd.
 
