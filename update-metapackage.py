@@ -85,7 +85,11 @@ for arch in architectures:
         else:
             raise RuntimeError('no archive_base configured for %s' % arch)
 
-seed_base = "%s/%s/" % (config.get(dist, 'seed_base'), dist)
+try:
+    seed_dist = config.get(dist, 'seed_dist')
+except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+    seed_dist = dist
+seed_base = "%s/%s/" % (config.get(dist, 'seed_base'), seed_dist)
 seed_entry = re.compile(' *\* *(?P<package>\S+) *(\[(?P<arches>[^]]*)\])? *(#.*)?')
 components = config.get(dist, 'components').split()
 

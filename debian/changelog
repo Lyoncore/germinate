@@ -3,6 +3,8 @@ germinate (0.16) UNRELEASED; urgency=low
   * Add --bzr option to automatically check out seeds from bzr.
   * Switch from urllib to urllib2.
   * Refactor duplicated seed-fetching code into new Germinate.seeds module.
+  * Add optional seed_dist setting in update.cfg files, to allow setting a
+    default seed distribution.
 
  -- Colin Watson <cjwatson@debian.org>  Fri,  9 Jun 2006 02:08:36 +0100
 
