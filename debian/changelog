@@ -5,6 +5,8 @@ germinate (0.16) UNRELEASED; urgency=low
   * Refactor duplicated seed-fetching code into new Germinate.seeds module.
   * Add optional seed_dist setting in update.cfg files, to allow setting a
     default seed distribution.
+  * Add --bzr option to update-metapackage as well (mostly implementing
+    https://launchpad.net/distros/ubuntu/+spec/ubuntu-meta-from-bzr).
 
  -- Colin Watson <cjwatson@debian.org>  Fri,  9 Jun 2006 02:08:36 +0100
 

@@ -27,6 +27,7 @@
 import sys
 import re
 import os
+import getopt
 import logging
 import ConfigParser
 import apt_pkg
@@ -39,6 +40,30 @@ try:
 except NameError:
     import sets
     set = sets.Set
+
+def usage(f):
+    print >>f, """Usage: update-metapackage.py [options]
+
+Options:
+
+  -h, --help            Print this help message.
+  --bzr                 Fetch seeds using bzr. Requires bzr to be installed.
+"""
+
+bzr = False
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "h", ["help", "bzr"])
+except getopt.GetoptError:
+    usage(sys.stderr)
+    sys.exit(2)
+
+for option, value in opts:
+    if option in ("-h", "--help"):
+        usage(sys.stdout)
+        sys.exit()
+    elif option == "--bzr":
+        bzr = True
 
 if not os.path.exists('debian/control'):
     raise RuntimeError('must be run from the top level of a source package')
@@ -63,8 +88,8 @@ config_file = open('update.cfg')
 config.readfp(config_file)
 config_file.close()
 
-if len(sys.argv) > 1:
-    dist = sys.argv[1]
+if len(args) > 0:
+    dist = args[0]
 else:
     dist = config.get('DEFAULT', 'dist')
         
@@ -85,12 +110,17 @@ for arch in architectures:
         else:
             raise RuntimeError('no archive_base configured for %s' % arch)
 
-seed_base = config.get(dist, 'seed_base')
+if bzr and config.has_option("%s/bzr" % dist, 'seed_base'):
+    seed_base = config.get("%s/bzr" % dist, 'seed_base')
+else:
+    seed_base = config.get(dist, 'seed_base')
 if not seed_base.endswith('/'):
     seed_base += '/'
-try:
+if bzr and config.has_option("%s/bzr" % dist, 'seed_dist'):
+    seed_dist = config.get("%s/bzr" % dist, 'seed_dist')
+elif config.has_option(dist, 'seed_dist'):
     seed_dist = config.get(dist, 'seed_dist')
-except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+else:
     seed_dist = dist
 seed_base += seed_dist
 seed_entry = re.compile(' *\* *(?P<package>\S+) *(\[(?P<arches>[^]]*)\])? *(#.*)?')
@@ -157,9 +187,10 @@ for architecture in architectures:
 
     print "[%s] Loading seed lists..." % architecture
     (seed_names, seed_inherit) = germinator.parseStructure(
-        Germinate.seeds.open_seed(seed_base, "STRUCTURE"))
+        Germinate.seeds.open_seed(seed_base, "STRUCTURE", bzr))
     for seed_name in seeds:
-        germinator.plantSeed(Germinate.seeds.open_seed(seed_base, seed_name),
+        germinator.plantSeed(Germinate.seeds.open_seed(seed_base, seed_name,
+                                                       bzr),
                              architecture, seed_name,
                              list(seed_inherit[seed_name]))
 
