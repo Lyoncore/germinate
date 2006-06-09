@@ -169,7 +169,11 @@ directory, and may take some time.
 Treat each
 .Ar pkg
 as a seed by itself, inheriting from
-.Ar parent .
+.Ar parent
+(i.e. assuming that
+.Ar parent
+is already installed while calculating the additional dependencies of
+.Ar pkg ) .
 This allows the use of
 .Nm
 to calculate the dependencies of individual extra packages.
