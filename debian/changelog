@@ -2,7 +2,8 @@ germinate (0.15) unstable; urgency=low
 
   * Source moved to bzr; update copyright file.
   * Add germinate-update-metapackage script to help manage updating
-    ubuntu-meta et al (closes: https://launchpad.net/bugs/37917).
+    ubuntu-meta et al (thanks, Gustavo Franco; closes:
+    https://launchpad.net/bugs/37917).
   * Improve man page documentation of --seed-packages slightly (see
     #363536).
 
