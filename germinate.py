@@ -26,11 +26,12 @@ import gzip
 import os
 import shutil
 import sys
-import urllib
+import urllib2
 import getopt
 import logging
 import codecs
 import tempfile
+import cStringIO
 from Germinate import Germinator
 import Germinate.Archive
 
@@ -60,19 +61,17 @@ def open_ipv6_tag_file(filename):
 
     print "Downloading", filename, "file ..."
     url = IPV6DB + filename + ".gz"
-    gzip_fn = None
-    try:
-        gzip_fn = urllib.urlretrieve(url, filename + ".gz")[0]
-        print "Decompressing", filename, "file ..."
-        gzip_f = gzip.GzipFile(filename=gzip_fn)
-        f = open(filename, "w")
-        for line in gzip_f:
-            print >>f, line,
-        f.close()
-        gzip_f.close()
-    finally:
-        if gzip_fn is not None:
-            os.unlink(gzip_fn)
+    url_f = urllib2.urlopen(url)
+    url_data = cStringIO.StringIO(url_f.read())
+    url_f.close()
+    print "Decompressing", filename, "file ..."
+    gzip_f = gzip.GzipFile(fileobj=url_data)
+    f = open(filename, "w")
+    for line in gzip_f:
+        print >>f, line,
+    f.close()
+    gzip_f.close()
+    url_data.close()
 
     return open(filename, "r")
 
@@ -103,13 +102,13 @@ def open_metafile(filename, bzr):
             return None
     else:
         url = SEEDS + RELEASE + "/" + filename
-        print "Downloading", url, "..."
+        logging.info("Downloading %s", url)
         try:
-            urlopener = urllib.FancyURLopener()
-            urlopener.addheader('Cache-Control', 'no-cache')
-            urlopener.addheader('Pragma', 'no-cache')
-            return urlopener.open(url)
-        except IOError:
+            req = urllib2.Request(url)
+            req.add_header('Cache-Control', 'no-cache')
+            req.add_header('Pragma', 'no-cache')
+            return urllib2.urlopen(req)
+        except urllib2.URLError:
             logging.warning("Could not open %s", url)
             return None
 

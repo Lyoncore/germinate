@@ -19,7 +19,8 @@
 # 02110-1301, USA.
 
 import os
-import urllib
+import urllib2
+import cStringIO
 import gzip
 
 class TagFile:
@@ -37,21 +38,18 @@ class TagFile:
 
         print "Downloading", filename, "file ..."
         url = mirror + "dists/" + dist + "/" + component + "/" + ftppath
-        gzip_fn = None
-        try:
-            gzip_fn = urllib.urlretrieve(url, filename + ".gz")[0]
-
-            # apt_pkg is weird and won't accept GzipFile
-            print "Decompressing", filename, "file ..."
-            gzip_f = gzip.GzipFile(filename=gzip_fn)
-            f = open(filename, "w")
-            for line in gzip_f:
-                print >>f, line,
-            f.close()
-            gzip_f.close()
-        finally:
-            if gzip_fn is not None:
-                os.unlink(gzip_fn)
+        url_f = urllib2.urlopen(url)
+        url_data = cStringIO.StringIO(url_f.read())
+        url_f.close()
+        # apt_pkg is weird and won't accept GzipFile
+        print "Decompressing", filename, "file ..."
+        gzip_f = gzip.GzipFile(fileobj=url_data)
+        f = open(filename, "w")
+        for line in gzip_f:
+            print >>f, line,
+        f.close()
+        gzip_f.close()
+        url_data.close()
 
         return open(filename, "r")
 

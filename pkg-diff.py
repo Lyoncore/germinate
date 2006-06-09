@@ -24,7 +24,7 @@
 import os, sys, getopt
 import logging
 import apt_pkg
-import urllib
+import urllib2
 from Germinate import Germinator
 import Germinate.Archive
 
@@ -38,14 +38,15 @@ ARCH = "i386"
 
 # TODO: cloned from germinate.py; should be common
 def open_metafile(filename):
+    url = SEEDS + RELEASE + "/" + filename
+    logging.info("Downloading %s", url)
     try:
-        url = SEEDS + RELEASE + "/" + filename
-        print "Downloading", url, "..."
-        urlopener = urllib.FancyURLopener()
-        urlopener.addheader('Cache-Control', 'no-cache')
-        urlopener.addheader('Pragma', 'no-cache')
-        return urlopener.open(url)
-    except IOError:
+        req = urllib2.Request(url)
+        req.add_header('Cache-Control', 'no-cache')
+        req.add_header('Pragma', 'no-cache')
+        return urllib2.urlopen(req)
+    except urllib2.URLError:
+        logging.warning("Could not open %s", url)
         return None
 
 class Package:

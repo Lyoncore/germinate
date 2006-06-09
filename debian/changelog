@@ -1,6 +1,7 @@
 germinate (0.16) UNRELEASED; urgency=low
 
   * Add --bzr option to automatically check out seeds from bzr.
+  * Switch from urllib to urllib2.
 
  -- Colin Watson <cjwatson@debian.org>  Fri,  9 Jun 2006 02:08:36 +0100
 
