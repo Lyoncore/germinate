@@ -25,9 +25,6 @@
 # - Exclude essential packages from dependencies
 
 import sys
-import urllib2
-import urlparse
-import gzip
 import re
 import os
 import logging
@@ -35,6 +32,7 @@ import ConfigParser
 import apt_pkg
 from Germinate import Germinator
 import Germinate.Archive
+import Germinate.seeds
 
 try:
     set # introduced in 2.4
@@ -131,14 +129,6 @@ def check_debootstrap_version():
 def update_debootstrap_version():
     open(debootstrap_version_file, 'w').write(get_debootstrap_version() + '\n')
 
-def open_seed(seed_name):
-    url = urlparse.urljoin(seed_base, seed_name)
-    print "[info] Fetching %s" % url
-    req = urllib2.Request(url)
-    req.add_header('Cache-Control', 'no-cache')
-    req.add_header('Pragma', 'no-cache')
-    return urllib2.urlopen(req)
-
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler(sys.stdout)
@@ -159,9 +149,11 @@ for architecture in architectures:
     debootstrap_base = set(debootstrap_packages(architecture))
 
     print "[%s] Loading seed lists..." % architecture
-    (seed_names, seed_inherit) = germinator.parseStructure(open_seed("STRUCTURE"))
+    (seed_names, seed_inherit) = germinator.parseStructure(
+        Germinate.seeds.open_seed(seed_base, "STRUCTURE"))
     for seed_name in seeds:
-        germinator.plantSeed(open_seed(seed_name), architecture, seed_name,
+        germinator.plantSeed(Germinate.seeds.open_seed(seed_base, seed_name),
+                             architecture, seed_name,
                              list(seed_inherit[seed_name]))
 
     print "[%s] Merging seeds with available package lists..." % architecture

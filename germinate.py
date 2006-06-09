@@ -30,10 +30,10 @@ import urllib2
 import getopt
 import logging
 import codecs
-import tempfile
 import cStringIO
 from Germinate import Germinator
 import Germinate.Archive
+import Germinate.seeds
 
 
 # Where do we get up-to-date seeds from?
@@ -74,43 +74,6 @@ def open_ipv6_tag_file(filename):
     url_data.close()
 
     return open(filename, "r")
-
-bzr_cache_dir = None
-
-def open_metafile(filename, bzr):
-    if bzr:
-        global bzr_cache_dir
-        if bzr_cache_dir is None:
-            bzr_cache_dir = tempfile.mkdtemp(prefix='germinate-')
-            # https://launchpad.net/products/bzr/+bug/39542
-            if SEEDS.startswith('http:'):
-                operation = 'get'
-            else:
-                operation = 'checkout'
-            command = ('bzr %s %s %s' %
-                       (operation, SEEDS + RELEASE,
-                        os.path.join(bzr_cache_dir, 'checkout')))
-            status = os.system(command)
-            if status != 0:
-                raise RuntimeError("Command failed with exit status %d:\n"
-                                   "  '%s'" % (status, command))
-        try:
-            return open(os.path.join(bzr_cache_dir, 'checkout', filename))
-        except IOError:
-            logging.warning("Could not open %s from checkout of %s",
-                            filename, SEEDS + RELEASE)
-            return None
-    else:
-        url = SEEDS + RELEASE + "/" + filename
-        logging.info("Downloading %s", url)
-        try:
-            req = urllib2.Request(url)
-            req.add_header('Cache-Control', 'no-cache')
-            req.add_header('Pragma', 'no-cache')
-            return urllib2.urlopen(req)
-        except urllib2.URLError:
-            logging.warning("Could not open %s", url)
-            return None
 
 def write_list(whyname, filename, g, pkglist):
     pkg_len = len("Package")
@@ -379,15 +342,15 @@ def main():
     if os.path.isfile("hints"):
         g.parseHints(open("hints"))
 
-    blacklist = open_metafile("blacklist", bzr)
+    blacklist = Germinate.seeds.open_seed(SEEDS + RELEASE, "blacklist", bzr)
     if blacklist is not None:
         g.parseBlacklist(blacklist)
 
     (seednames, seedinherit) = g.parseStructure(
-        open_metafile("STRUCTURE", bzr))
+        Germinate.seeds.open_seed(SEEDS + RELEASE, "STRUCTURE", bzr))
     for seedname in seednames:
-        g.plantSeed(open_metafile(seedname, bzr), ARCH, seedname,
-                    list(seedinherit[seedname]), RELEASE)
+        g.plantSeed(Germinate.seeds.open_seed(SEEDS + RELEASE, seedname, bzr),
+                    ARCH, seedname, list(seedinherit[seedname]), RELEASE)
     for seed_package in seed_packages:
         (parent, pkg) = seed_package.split('/')
         g.plantSeed([" * " + pkg], ARCH, pkg,
@@ -479,9 +442,6 @@ def main():
                        os.path.join("rdepends", "ALL", pkg))
 
     g.writeBlacklisted("blacklisted")
-
-    if bzr_cache_dir is not None:
-        shutil.rmtree(bzr_cache_dir, ignore_errors=True)
 
 if __name__ == "__main__":
     main()
