@@ -14,6 +14,7 @@
 .Op Fl a Ar arch
 .Op Fl c Ar component Ns \&,...
 .Op Fl i
+.Op Fl Fl bzr
 .Op Fl Fl no\-rdepends
 .Sh DESCRIPTION
 .Nm
@@ -159,6 +160,15 @@ The default is
 .Xc
 Check IPv6 status of source packages, using the statistics available at
 .Pa http://debdev.fabbione.net/stat/ .
+.It Fl Fl bzr
+Check out seeds from the
+.Ic bzr
+branch found at
+.Ar seed\-source Ns / Ns Ar seed\-dist
+rather than fetching them directly from a URL.
+Requires
+.Ic bzr
+to be installed.
 .It Fl Fl no\-rdepends
 Disable reverse-dependency calculations.
 These calculations cause a large number of small files to be written out in

@@ -30,6 +30,7 @@ import urllib
 import getopt
 import logging
 import codecs
+import tempfile
 from Germinate import Germinator
 import Germinate.Archive
 
@@ -75,16 +76,42 @@ def open_ipv6_tag_file(filename):
 
     return open(filename, "r")
 
-def open_metafile(filename):
-    try:
+bzr_cache_dir = None
+
+def open_metafile(filename, bzr):
+    if bzr:
+        global bzr_cache_dir
+        if bzr_cache_dir is None:
+            bzr_cache_dir = tempfile.mkdtemp(prefix='germinate-')
+            # https://launchpad.net/products/bzr/+bug/39542
+            if SEEDS.startswith('http:'):
+                operation = 'get'
+            else:
+                operation = 'checkout'
+            command = ('bzr %s %s %s' %
+                       (operation, SEEDS + RELEASE,
+                        os.path.join(bzr_cache_dir, 'checkout')))
+            status = os.system(command)
+            if status != 0:
+                raise RuntimeError("Command failed with exit status %d:\n"
+                                   "  '%s'" % (status, command))
+        try:
+            return open(os.path.join(bzr_cache_dir, 'checkout', filename))
+        except IOError:
+            logging.warning("Could not open %s from checkout of %s",
+                            filename, SEEDS + RELEASE)
+            return None
+    else:
         url = SEEDS + RELEASE + "/" + filename
         print "Downloading", url, "..."
-        urlopener = urllib.FancyURLopener()
-        urlopener.addheader('Cache-Control', 'no-cache')
-        urlopener.addheader('Pragma', 'no-cache')
-        return urlopener.open(url)
-    except IOError:
-        return None
+        try:
+            urlopener = urllib.FancyURLopener()
+            urlopener.addheader('Cache-Control', 'no-cache')
+            urlopener.addheader('Pragma', 'no-cache')
+            return urlopener.open(url)
+        except IOError:
+            logging.warning("Could not open %s", url)
+            return None
 
 def write_list(whyname, filename, g, pkglist):
     pkg_len = len("Package")
@@ -262,6 +289,7 @@ Options:
   -c, --components=COMPS
                         Operate on components COMPS (default: %s).
   -i, --ipv6            Check IPv6 status of source packages.
+  --bzr                 Fetch seeds using bzr. Requires bzr to be installed.
   --cleanup             Don't cache Packages or Sources files.
   --no-rdepends         Disable reverse-dependency calculations.
   --seed-packages=PARENT/PKG,PARENT/PKG,...
@@ -273,6 +301,7 @@ Options:
 def main():
     global SEEDS, RELEASE, MIRROR, SOURCE_MIRROR
     global DIST, ARCH, COMPONENTS, CHECK_IPV6
+    bzr = False
     cleanup = False
     want_rdepends = True
     seed_packages = ()
@@ -296,6 +325,7 @@ def main():
                                     "components=",
                                     "arch=",
                                     "ipv6",
+                                    "bzr",
                                     "cleanup",
                                     "no-rdepends",
                                     "seed-packages="])
@@ -329,6 +359,8 @@ def main():
             ARCH = value
         elif option in ("-i", "--ipv6"):
             CHECK_IPV6 = True
+        elif option == "--bzr":
+            bzr = True
         elif option == "--cleanup":
             cleanup = True
         elif option == "--no-rdepends":
@@ -348,13 +380,14 @@ def main():
     if os.path.isfile("hints"):
         g.parseHints(open("hints"))
 
-    blacklist = open_metafile("blacklist")
+    blacklist = open_metafile("blacklist", bzr)
     if blacklist is not None:
         g.parseBlacklist(blacklist)
 
-    (seednames, seedinherit) = g.parseStructure(open_metafile("STRUCTURE"))
+    (seednames, seedinherit) = g.parseStructure(
+        open_metafile("STRUCTURE", bzr))
     for seedname in seednames:
-        g.plantSeed(open_metafile(seedname), ARCH, seedname,
+        g.plantSeed(open_metafile(seedname, bzr), ARCH, seedname,
                     list(seedinherit[seedname]), RELEASE)
     for seed_package in seed_packages:
         (parent, pkg) = seed_package.split('/')
@@ -447,6 +480,9 @@ def main():
                        os.path.join("rdepends", "ALL", pkg))
 
     g.writeBlacklisted("blacklisted")
+
+    if bzr_cache_dir is not None:
+        shutil.rmtree(bzr_cache_dir, ignore_errors=True)
 
 if __name__ == "__main__":
     main()
