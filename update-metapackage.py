@@ -56,7 +56,7 @@ if not this_source.endswith('-meta'):
     raise RuntimeError('source package name must be *-meta')
 metapackage = this_source[:-5]
 
-print "[info] Initializing %s-* package lists update..." % metapackage
+print "[info] Initialising %s-* package lists update..." % metapackage
     
 config = ConfigParser.SafeConfigParser()
 config_file = open('update.cfg')
