@@ -1,3 +1,11 @@
+germinate (0.17) UNRELEASED; urgency=low
+
+  * Fix d-i kernel version pruning to happen early enough to exclude seeded
+    packages for the wrong kernel version (which can easily happen e.g. if
+    regex seeds are used).
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 21 Jun 2006 17:57:32 +0100
+
 germinate (0.16) unstable; urgency=low
 
   * Add --bzr option to automatically check out seeds from bzr.

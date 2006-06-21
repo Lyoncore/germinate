@@ -365,7 +365,7 @@ class Germinator:
                 # Ordinary package
                 if self.alreadySeeded(seedname, pkg):
                     self.warning("Duplicated seed: %s", pkg)
-                elif seedname in self.pruned[pkg]:
+                elif self.is_pruned(pkg, seedname):
                     self.warning("Pruned %s from %s", pkg, seedname)
                 else:
                     self.seed[seedname].append(pkg)
@@ -393,15 +393,19 @@ class Germinator:
                 else:
                     self.error("Unknown hinted package: %s", pkg)
 
+    def is_pruned(self, pkg, seed):
+        kernver = self.packages[pkg]["Kernel-Version"]
+        if kernver != "" and kernver not in self.di_kernel_versions[seed]:
+            return True
+        return False
+
     def prune(self):
         """Remove packages that are inapplicable for some reason, such as
            being for the wrong d-i kernel version."""
         for pkg in self.packages:
-            kernver = self.packages[pkg]["Kernel-Version"]
-            if kernver != "":
-                for seed in self.seeds:
-                    if kernver not in self.di_kernel_versions[seed]:
-                        self.pruned[pkg].append(seed)
+            for seed in self.seeds:
+                if self.is_pruned(pkg, seed):
+                    self.pruned[pkg].append(seed)
 
     def grow(self):
         """Grow the seeds."""
