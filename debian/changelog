@@ -3,6 +3,7 @@ germinate (0.17) UNRELEASED; urgency=low
   * Fix d-i kernel version pruning to happen early enough to exclude seeded
     packages for the wrong kernel version (which can easily happen e.g. if
     regex seeds are used).
+  * Change default distribution to edgy.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 21 Jun 2006 17:57:32 +0100
 
