@@ -1,4 +1,4 @@
-germinate (0.17) UNRELEASED; urgency=low
+germinate (0.17) unstable; urgency=low
 
   * Fix d-i kernel version pruning to happen early enough to exclude seeded
     packages for the wrong kernel version (which can easily happen e.g. if
@@ -7,7 +7,7 @@ germinate (0.17) UNRELEASED; urgency=low
     Kernel-Version headers rather than none of them.
   * Change default distribution to edgy.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Wed, 21 Jun 2006 17:57:32 +0100
+ -- Colin Watson <cjwatson@debian.org>  Wed, 21 Jun 2006 18:10:40 +0100
 
 germinate (0.16) unstable; urgency=low
 
