@@ -394,6 +394,8 @@ class Germinator:
                     self.error("Unknown hinted package: %s", pkg)
 
     def is_pruned(self, pkg, seed):
+        if not self.di_kernel_versions[seed]:
+            return False
         kernver = self.packages[pkg]["Kernel-Version"]
         if kernver != "" and kernver not in self.di_kernel_versions[seed]:
             return True
@@ -591,7 +593,8 @@ class Germinator:
                 # for other allowed kernel versions too.
                 if self.packages[depname]["Kernel-Version"] != "":
                     dependlist = [ d for d in reallist
-                                   if self.packages[d]["Kernel-Version"] in self.di_kernel_versions[seedname] ]
+                                   if not self.di_kernel_versions[seedname] or
+                                      self.packages[d]["Kernel-Version"] in self.di_kernel_versions[seedname] ]
                 else:
                     dependlist = [depname]
                 self.info("Chose %s out of %s to satisfy %s",
