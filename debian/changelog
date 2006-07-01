@@ -1,11 +1,11 @@
-germinate (0.18) UNRELEASED; urgency=low
+germinate (0.18) unstable; urgency=low
 
   * Convert to python-support.
   * Move python and python-support build-dependencies to
     Build-Depends-Indep.
   * Policy version 3.7.2.
 
- -- Colin Watson <cjwatson@debian.org>  Sat,  1 Jul 2006 12:01:00 +0100
+ -- Colin Watson <cjwatson@debian.org>  Sat,  1 Jul 2006 12:33:24 +0100
 
 germinate (0.17) unstable; urgency=low
 
