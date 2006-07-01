@@ -3,7 +3,8 @@ Section: utils
 Priority: optional
 Maintainer: Colin Watson <cjwatson@debian.org>
 Standards-Version: 3.6.2
-Build-Depends: debhelper (>= 5.0.37.2), python, python-support (>= 0.3)
+Build-Depends: debhelper (>= 5.0.37.2)
+Build-Depends-Indep: python, python-support (>= 0.3)
 
 Package: germinate
 Architecture: all
