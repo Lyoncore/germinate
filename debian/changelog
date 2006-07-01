@@ -1,3 +1,9 @@
+germinate (0.18) UNRELEASED; urgency=low
+
+  * Convert to python-support.
+
+ -- Colin Watson <cjwatson@debian.org>  Sat,  1 Jul 2006 12:01:00 +0100
+
 germinate (0.17) unstable; urgency=low
 
   * Fix d-i kernel version pruning to happen early enough to exclude seeded
