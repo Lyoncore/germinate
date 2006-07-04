@@ -3,6 +3,9 @@ germinate (0.19) UNRELEASED; urgency=low
   * Allow shell-style globs in seeds wherever regular expressions are
     allowed. (Regular expressions are surrounded by /.../, making this
     unambiguous.)
+  * Add support for Extra-Include and Extra-Exclude variables, which allow
+    automatically rescuing packages that match certain patterns from extra
+    (https://launchpad.net/distros/ubuntu/+spec/seed-cleanup).
 
  -- Colin Watson <cjwatson@debian.org>  Tue,  4 Jul 2006 09:01:49 +0100
 
