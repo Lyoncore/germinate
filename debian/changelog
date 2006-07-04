@@ -6,6 +6,7 @@ germinate (0.19) UNRELEASED; urgency=low
   * Add support for Extra-Include and Extra-Exclude variables, which allow
     automatically rescuing packages that match certain patterns from extra
     (https://launchpad.net/distros/ubuntu/+spec/seed-cleanup).
+  * Tweak logging priorities for messages about virtual seed entries.
 
  -- Colin Watson <cjwatson@debian.org>  Tue,  4 Jul 2006 09:01:49 +0100
 

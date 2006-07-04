@@ -406,15 +406,16 @@ class Germinator:
 
             elif pkg in self.provides:
                 # Virtual package, include everything
-                self.info("Virtual %s package: %s", seedname, pkg)
+                msg = "Virtual %s package: %s" % (seedname, pkg)
                 for vpkg in self.provides[pkg]:
                     if self.alreadySeeded(seedname, vpkg):
                         pass
                     elif seedname in self.pruned[vpkg]:
                         pass
                     else:
-                        self.debug("- %s", vpkg)
+                        msg += "\n  - %s" % vpkg
                         self.seed[seedname].append(vpkg)
+                self.info("%s", msg)
 
             else:
                 # No idea
