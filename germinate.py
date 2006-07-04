@@ -237,6 +237,7 @@ def usage(f):
 Options:
 
   -h, --help            Print this help message.
+  -v, --verbose         Be more verbose when processing seeds.
   -S, --seed-source=SOURCE
                         Fetch seeds from SOURCE
                         (default: %s).
@@ -263,22 +264,18 @@ Options:
 def main():
     global SEEDS, RELEASE, MIRROR, SOURCE_MIRROR
     global DIST, ARCH, COMPONENTS, CHECK_IPV6
+    verbose = False
     bzr = False
     cleanup = False
     want_rdepends = True
     seed_packages = ()
 
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter('%(levelname)s%(message)s'))
-    logger.addHandler(handler)
-
     g = Germinator()
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hS:s:m:d:c:a:i",
+        opts, args = getopt.getopt(sys.argv[1:], "hvS:s:m:d:c:a:i",
                                    ["help",
+                                    "verbose",
                                     "seed-source=",
                                     "seed-dist=",
                                     "mirror=",
@@ -299,6 +296,8 @@ def main():
         if option in ("-h", "--help"):
             usage(sys.stdout)
             sys.exit()
+        elif option in ("-v", "--verbose"):
+            verbose = True
         elif option in ("-S", "--seed-source"):
             SEEDS = value
             if not SEEDS.endswith("/"):
@@ -329,6 +328,15 @@ def main():
             want_rdepends = False
         elif option == "--seed-packages":
             seed_packages = value.split(',')
+
+    logger = logging.getLogger()
+    if verbose:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(Germinator.PROGRESS)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter('%(levelname)s%(message)s'))
+    logger.addHandler(handler)
 
     apt_pkg.InitConfig()
     apt_pkg.Config.Set("APT::Architecture", ARCH)
