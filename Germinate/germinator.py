@@ -52,11 +52,11 @@ class Germinator:
 
         self.pkgprovides = {}
 
-        self.all = []
+        self.all = set()
         self.build = {}
         self.not_build = {}
 
-        self.all_srcs = []
+        self.all_srcs = set()
         self.build_srcs = {}
         self.not_build_srcs = {}
 
@@ -66,7 +66,7 @@ class Germinator:
         self.hints = {}
 
         self.blacklist = {}
-        self.blacklisted = []
+        self.blacklisted = set()
 
         self.di_kernel_versions = {}
         self.extra_includes = {}
@@ -136,7 +136,7 @@ class Germinator:
             pkg = p.Section["Package"]
             self.packages[pkg] = {}
             self.packagetype[pkg] = pkgtype
-            self.pruned[pkg] = []
+            self.pruned[pkg] = set()
 
             self.packages[pkg]["Maintainer"] = \
                 unicode(p.Section.get("Maintainer", ""), "utf8", "replace")
@@ -217,7 +217,9 @@ class Germinator:
         """Write out the list of blacklisted packages we encountered"""
 
         fh = open(filename, 'w')
-        for pkg in self.blacklisted:
+        sorted_blacklisted = list(self.blacklisted)
+        sorted_blacklisted.sort()
+        for pkg in sorted_blacklisted:
             blacklist = self.blacklist[pkg]
             fh.write('%s\t%s\n' % (pkg, blacklist))
         fh.close()
@@ -227,16 +229,16 @@ class Germinator:
         self.seed[seedname] = []
         self.seedinherit[seedname] = seedinherit
         self.seedrelease[seedname] = seedrelease
-        self.depends[seedname] = []
-        self.build_depends[seedname] = []
-        self.sourcepkgs[seedname] = []
-        self.build_sourcepkgs[seedname] = []
-        self.build[seedname] = []
-        self.not_build[seedname] = []
-        self.build_srcs[seedname] = []
-        self.not_build_srcs[seedname] = []
+        self.depends[seedname] = set()
+        self.build_depends[seedname] = set()
+        self.sourcepkgs[seedname] = set()
+        self.build_sourcepkgs[seedname] = set()
+        self.build[seedname] = set()
+        self.not_build[seedname] = set()
+        self.build_srcs[seedname] = set()
+        self.not_build_srcs[seedname] = set()
         self.why[seedname] = {}
-        self.di_kernel_versions[seedname] = []
+        self.di_kernel_versions[seedname] = set()
         self.extra_includes[seedname] = []
         self.extra_excludes[seedname] = []
 
@@ -346,7 +348,7 @@ class Germinator:
                 if name == "kernel-version":
                     # Allows us to pick the right modules later
                     self.warning("Allowing d-i kernel versions: %s", values)
-                    self.di_kernel_versions[seedname].extend(values)
+                    self.di_kernel_versions[seedname].update(values)
                 elif name == "extra-include":
                     self.warning("Including packages from extra: %s", values)
                     self.extra_includes[seedname].extend(values)
@@ -436,7 +438,7 @@ class Germinator:
         for pkg in self.packages:
             for seed in self.seeds:
                 if self.is_pruned(pkg, seed):
-                    self.pruned[pkg].append(seed)
+                    self.pruned[pkg].add(seed)
 
     def grow(self):
         """Grow the seeds."""
@@ -455,7 +457,9 @@ class Germinator:
         self.newSeed("extra", self.seeds, seedrelease)
 
         self.progress("Identifying extras ...")
-        for srcname in self.all_srcs:
+        sorted_srcs = list(self.all_srcs)
+        sorted_srcs.sort()
+        for srcname in sorted_srcs:
             for pkg in self.sources[srcname]["Binaries"]:
                 if pkg not in self.packages:
                     continue
@@ -635,14 +639,14 @@ class Germinator:
 
         if build_tree:
             for dep in dependlist:
-                self.build_depends[seedname].append(dep)
+                self.build_depends[seedname].add(dep)
             if build_depend:
                 why = self.packages[pkg]["Source"] + " (Build-Depend)"
             else:
                 why = pkg
         else:
             for dep in dependlist:
-                self.depends[seedname].append(dep)
+                self.depends[seedname].add(dep)
             why = pkg
 
         for dep in dependlist:
@@ -696,24 +700,23 @@ class Germinator:
         if build_tree: second_class=True
 
         if pkg not in self.all:
-            self.all.append(pkg)
+            self.all.add(pkg)
         elif not build_tree:
             for buildseed in self.innerSeeds(seedname):
-                if pkg in self.build_depends[buildseed]:
-                    self.build_depends[buildseed].remove(pkg)
+                self.build_depends[buildseed].discard(pkg)
 
         for seed in self.innerSeeds(seedname):
             if pkg in self.build[seed]:
                 break
         else:
-            self.build[seedname].append(pkg)
+            self.build[seedname].add(pkg)
 
         if not build_tree:
             for seed in self.innerSeeds(seedname):
                 if pkg in self.not_build[seed]:
                     break
             else:
-                self.not_build[seedname].append(pkg)
+                self.not_build[seedname].add(pkg)
 
         # Remember why the package was added to the output for this seed.
         # Also remember a reason for "all" too, so that an aggregated list
@@ -723,9 +726,8 @@ class Germinator:
 
         for prov in self.packages[pkg]["Provides"]:
             if prov[0][0] not in self.pkgprovides:
-                self.pkgprovides[prov[0][0]] = []
-            if pkg not in self.pkgprovides[prov[0][0]]:
-                self.pkgprovides[prov[0][0]].append(pkg)
+                self.pkgprovides[prov[0][0]] = set()
+            self.pkgprovides[prov[0][0]].add(pkg)
 
         self.addDependencyTree(seedname, pkg,
                                self.packages[pkg]["Pre-Depends"],
@@ -751,22 +753,20 @@ class Germinator:
                     return
 
         if build_tree:
-            self.build_sourcepkgs[seedname].append(src)
-            if src in self.blacklist and src not in self.blacklisted:
-                self.blacklisted.append(src)
+            self.build_sourcepkgs[seedname].add(src)
+            if src in self.blacklist:
+                self.blacklisted.add(src)
 
         else:
             if src in self.all_srcs:
                 for buildseed in self.seeds:
-                    if src in self.build_sourcepkgs[buildseed]:
-                        self.build_sourcepkgs[buildseed].remove(src)
+                    self.build_sourcepkgs[buildseed].discard(src)
 
-            self.not_build_srcs[seedname].append(src)
-            self.sourcepkgs[seedname].append(src)
+            self.not_build_srcs[seedname].add(src)
+            self.sourcepkgs[seedname].add(src)
 
-        if src not in self.all_srcs:
-            self.all_srcs.append(src)
-        self.build_srcs[seedname].append(src)
+        self.all_srcs.add(src)
+        self.build_srcs[seedname].add(src)
 
         self.addDependencyTree(seedname, pkg,
                                self.sources[src]["Build-Depends"],

@@ -35,6 +35,12 @@ from Germinate import Germinator
 import Germinate.Archive
 import Germinate.seeds
 
+try:
+    set # introduced in 2.4
+except NameError:
+    import sets
+    set = sets.Set
+
 
 # Where do we get up-to-date seeds from?
 SEEDS = "http://people.ubuntu.com/~cjwatson/seeds/"
@@ -75,7 +81,10 @@ def open_ipv6_tag_file(filename):
 
     return open(filename, "r")
 
-def write_list(whyname, filename, g, pkglist):
+def write_list(whyname, filename, g, pkgset):
+    pkglist = list(pkgset)
+    pkglist.sort()
+
     pkg_len = len("Package")
     src_len = len("Source")
     why_len = len("Why")
@@ -127,8 +136,11 @@ def write_list(whyname, filename, g, pkglist):
 
     f.close()
 
-def write_source_list(filename, g, srclist):
+def write_source_list(filename, g, srcset):
     global CHECK_IPV6
+
+    srclist = list(srcset)
+    srclist.sort()
 
     src_len = len("Source")
     mnt_len = len("Maintainer")
@@ -169,7 +181,7 @@ def write_source_list(filename, g, srclist):
 def write_rdepend_list(filename, g, pkg):
     f = open(filename, "w")
     print >>f, pkg
-    _write_rdepend_list(f, g, pkg, "", done=[])
+    _write_rdepend_list(f, g, pkg, "", done=set())
     f.close()
 
 def _write_rdepend_list(f, g, pkg, prefix, stack=None, done=None):
@@ -183,11 +195,11 @@ def _write_rdepend_list(f, g, pkg, prefix, stack=None, done=None):
     stack.append(pkg)
 
     if done is None:
-        done = []
+        done = set()
     elif pkg in done:
         print >>f, prefix + "! skipped"
         return
-    done.append(pkg)
+    done.add(pkg)
 
     for seed in g.seeds:
         if pkg in g.seed[seed]:
@@ -223,7 +235,7 @@ def write_prov_list(filename, provdict):
     for prov in provides:
         print >>f, prov
 
-        provlist = provdict[prov]
+        provlist = list(provdict[prov])
         provlist.sort()
         for pkg in provlist:
             print >>f, "\t%s" % (pkg,)
@@ -374,7 +386,7 @@ def main():
     seednames_extra.append('extra')
     for seedname in seednames_extra:
         write_list(seedname, seedname,
-                   g, g.seed[seedname] + g.depends[seedname])
+                   g, set(g.seed[seedname]) | g.depends[seedname])
         write_list(seedname, seedname + ".seed",
                    g, g.seed[seedname])
         write_list(seedname, seedname + ".depends",
@@ -388,21 +400,21 @@ def main():
         write_source_list(seedname + ".build-sources",
                           g, g.build_sourcepkgs[seedname])
 
-    all = []
-    sup = []
-    all_srcs = []
-    sup_srcs = []
+    all = set()
+    sup = set()
+    all_srcs = set()
+    sup_srcs = set()
     for seedname in seednames:
-        all += g.seed[seedname]
-        all += g.depends[seedname]
-        all += g.build_depends[seedname]
-        all_srcs += g.sourcepkgs[seedname]
-        all_srcs += g.build_sourcepkgs[seedname]
+        all.update(g.seed[seedname])
+        all.update(g.depends[seedname])
+        all.update(g.build_depends[seedname])
+        all_srcs.update(g.sourcepkgs[seedname])
+        all_srcs.update(g.build_sourcepkgs[seedname])
 
         if seedname == "supported":
-            sup += g.seed[seedname]
-            sup += g.depends[seedname]
-            sup_srcs += g.sourcepkgs[seedname]
+            sup.update(g.seed[seedname])
+            sup.update(g.depends[seedname])
+            sup_srcs.update(g.sourcepkgs[seedname])
 
         # Only include those build-dependencies that aren't already in the
         # dependency outputs for inner seeds of supported. This allows
@@ -414,15 +426,8 @@ def main():
             build_depends.update(dict.fromkeys(g.seed[seed], False))
             build_depends.update(dict.fromkeys(g.depends[seed], False))
             build_sourcepkgs.update(dict.fromkeys(g.sourcepkgs[seed], False))
-        sup += [k for (k, v) in build_depends.iteritems() if v]
-        sup_srcs += [k for (k, v) in build_sourcepkgs.iteritems() if v]
-
-    # TODO: use sets from Python 2.4 once Ubuntu datacentre is upgraded to
-    # Hoary
-    all = dict.fromkeys(all).keys()
-    all_srcs = dict.fromkeys(all_srcs).keys()
-    sup = dict.fromkeys(sup).keys()
-    sup_srcs = dict.fromkeys(sup_srcs).keys()
+        sup.update([k for (k, v) in build_depends.iteritems() if v])
+        sup_srcs.update([k for (k, v) in build_sourcepkgs.iteritems() if v])
 
     write_list("all", "all", g, all)
     write_source_list("all.sources", g, all_srcs)
