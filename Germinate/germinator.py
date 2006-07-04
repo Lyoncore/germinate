@@ -20,6 +20,7 @@
 
 import apt_pkg
 import re
+import fnmatch
 import logging
 
 PROGRESS = 15
@@ -235,6 +236,25 @@ class Germinator:
         self.why[seedname] = {}
         self.di_kernel_versions[seedname] = []
 
+    def filterPackages(self, packages, pattern):
+        """Filter a list of packages, returning those that match the given
+        pattern. The pattern may either be a shell-style glob, or (if
+        surrounded by slashes) an extended regular expression."""
+
+        if pattern.startswith('/') and pattern.endswith('/'):
+            patternre = re.compile(pattern[1:-1])
+            filtered = [p for p in packages if patternre.search(p) is not None]
+        elif '*' in pattern or '?' in pattern or '[' in pattern:
+            filtered = fnmatch.filter(packages, pattern)
+        else:
+            # optimisation for common case
+            if pattern in packages:
+                filtered = [pattern]
+            else:
+                filtered = []
+        filtered.sort()
+        return filtered
+
     def substituteSeedVars(self, pkg):
         """Process substitution variables. These look like ${name} (e.g.
         "kernel-image-${Kernel-Version}"). The name is case-insensitive.
@@ -346,12 +366,10 @@ class Germinator:
                 else:
                     self.warning("Unknown source package: %s", pkg)
                     pkgs = []
-            elif pkg.startswith('/') and pkg.endswith('/'):
-                pkgre = re.compile(pkg[1:-1])
-                pkgs = [p for p in self.packages if pkgre.search(p) is not None]
-                pkgs.sort()
             else:
-                pkgs = [pkg]
+                pkgs = self.filterPackages(self.packages, pkg)
+                if not pkgs:
+                    pkgs = [pkg] # virtual or expanded; check again later
 
             for pkg in pkgs:
                 seedpkgs.extend(self.substituteSeedVars(pkg))

@@ -1,3 +1,11 @@
+germinate (0.19) UNRELEASED; urgency=low
+
+  * Allow shell-style globs in seeds wherever regular expressions are
+    allowed. (Regular expressions are surrounded by /.../, making this
+    unambiguous.)
+
+ -- Colin Watson <cjwatson@debian.org>  Tue,  4 Jul 2006 09:01:49 +0100
+
 germinate (0.18) unstable; urgency=low
 
   * Convert to python-support.
