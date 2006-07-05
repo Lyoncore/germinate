@@ -1,3 +1,17 @@
+germinate (0.20) UNRELEASED; urgency=low
+
+  * Consider sources from inner seeds while rescuing packages from extra (so
+    e.g. in Ubuntu Extra-Include in supported should look at source packages
+    from minimal etc. as well as from supported).
+  * Rescue from sources in the build tree in a separate pass, and add
+    rescued packages to the depends/build-depends lists rather than
+    pretending that they're explicitly seeded. This means that rescued
+    packages end up correctly in supported or supported+build-depends
+    depending on whether their source packages were found while processing
+    dependencies or build-dependencies.
+
+ -- Colin Watson <cjwatson@debian.org>  Wed,  5 Jul 2006 13:03:46 +0100
+
 germinate (0.19) unstable; urgency=low
 
   * Allow shell-style globs in seeds wherever regular expressions are
