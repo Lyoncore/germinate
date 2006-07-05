@@ -1,4 +1,4 @@
-germinate (0.20) UNRELEASED; urgency=low
+germinate (0.20) unstable; urgency=low
 
   * Consider sources from inner seeds while rescuing packages from extra (so
     e.g. in Ubuntu Extra-Include in supported should look at source packages
@@ -10,7 +10,7 @@ germinate (0.20) UNRELEASED; urgency=low
     depending on whether their source packages were found while processing
     dependencies or build-dependencies.
 
- -- Colin Watson <cjwatson@debian.org>  Wed,  5 Jul 2006 13:03:46 +0100
+ -- Colin Watson <cjwatson@debian.org>  Wed,  5 Jul 2006 13:08:34 +0100
 
 germinate (0.19) unstable; urgency=low
 
