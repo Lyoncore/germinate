@@ -94,6 +94,10 @@ else:
     dist = config.get('DEFAULT', 'dist')
         
 seeds = config.get(dist, 'seeds').split()
+try:
+    output_seeds = config.get(dist, 'output_seeds').split()
+except ConfigParser.NoOptionError:
+    output_seeds = list(seeds)
 architectures = config.get(dist, 'architectures').split()
 try:
     archive_base_default = config.get(dist, 'archive_base/default')
@@ -195,7 +199,7 @@ for architecture in architectures:
                              list(seed_inherit[seed_name]))
 
     print "[%s] Merging seeds with available package lists..." % architecture
-    for seed_name in seeds:
+    for seed_name in output_seeds:
         output_filename = '%s-%s' % (seed_name,architecture)
         old_list = None
         if os.path.exists(output_filename):
