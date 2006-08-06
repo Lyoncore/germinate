@@ -247,10 +247,16 @@ for architecture in architectures:
 if additions or removals:
     os.system("dch -i 'Refreshed dependencies'")
     changes = []
-    for package, files in additions.items():
-        changes.append('Added %s to %s' % (package, ', '.join(files)))
-    for package, files in removals.items():
-        changes.append('Removed %s from %s' % (package, ', '.join(files)))
+    addition_keys = additions.keys()
+    addition_keys.sort()
+    for package in addition_keys:
+        changes.append('Added %s to %s' %
+                       (package, ', '.join(additions[package])))
+    removal_keys = removals.keys()
+    removal_keys.sort()
+    for package in removal_keys:
+        changes.append('Removed %s from %s' %
+                       (package, ', '.join(removals[package])))
     for change in changes:
         print change
         os.system("dch -a '%s'" % change)
