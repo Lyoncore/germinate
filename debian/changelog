@@ -1,11 +1,11 @@
-germinate (0.21) UNRELEASED; urgency=low
+germinate (0.21) unstable; urgency=low
 
   * Add optional output_seeds setting (defaults to value of seeds) in
     update.cfg, to allow seeds to be germinated for inheritance purposes
     without being output.
   * Sort added and removed packages in metapackage changelogs.
 
- -- Colin Watson <cjwatson@debian.org>  Sat,  5 Aug 2006 14:03:03 +0100
+ -- Colin Watson <cjwatson@debian.org>  Mon,  7 Aug 2006 16:19:15 +0100
 
 germinate (0.20) unstable; urgency=low
 
