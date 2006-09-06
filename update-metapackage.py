@@ -206,6 +206,7 @@ for architecture in architectures:
             old_list = set(map(str.strip,open(output_filename).readlines()))
             os.rename(output_filename, output_filename + '.old')
 
+        # work on the depends
         new_list = []
         for package in germinator.seed[seed_name]:
             if package in seed_package_blacklist:
@@ -221,9 +222,28 @@ for architecture in architectures:
             output.write(package)
             output.write('\n')
         output.close()
-        
+
+        # work on the recommends
+        new_recommends_list = []
+        for package in germinator.seedrecommends[seed_name]:
+            if package in seed_package_blacklist:
+                continue
+            if seed_name == 'minimal' and package not in debootstrap_base:
+                print "%s/%s: Skipping package %s (package not in debootstrap)" % (seed_name,architecture,package)
+            else:
+                new_recommends_list.append(package)
+
+        new_recommends_list.sort()
+        output_recommends_filename = '%s-recommends-%s' % (seed_name,architecture)
+        output = open(output_recommends_filename, 'w')
+        for package in new_recommends_list:
+            output.write(package)
+            output.write('\n')
+        output.close()
+
 
         # Calculate deltas
+        # FIXME: calc delta for recommends as well
         if old_list is not None:
             merged = {}
             for package in new_list:
