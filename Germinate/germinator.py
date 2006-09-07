@@ -375,9 +375,10 @@ class Germinator:
 
             pkg = pkg.split()[0]
 
-            # see if we have recommends
-            if pkg.startswith('?'):
-                pkg = pkg[1:]
+            # a (pkgname) indicates that this is a recommend
+            # and not a depends
+            if pkg.startswith('(') and pkg.endswith(')'):
+                pkg = pkg[1:-1]
                 pkgs =  self.filterPackages(self.packages, pkg)
                 if not pkgs:
                     pkgs = [pkg] # virtual or expanded; check again later

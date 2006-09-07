@@ -1,3 +1,11 @@
+germinate (0.21ubuntu1) edgy; urgency=low
+
+  * added support for recommends in seeds via enclosing the
+    packagename in '('..')'. E.g. 
+    * (pkgname)     # this will produce a recommends
+
+ -- Michael Vogt <michael.vogt@ubuntu.com>  Thu,  7 Sep 2006 16:44:36 +0200
+
 germinate (0.21) unstable; urgency=low
 
   * Add optional output_seeds setting (defaults to value of seeds) in

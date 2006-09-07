@@ -224,6 +224,7 @@ for architecture in architectures:
         output.close()
 
         # work on the recommends
+        old_recommends_list = None
         new_recommends_list = []
         for package in germinator.seedrecommends[seed_name]:
             if package in seed_package_blacklist:
@@ -235,6 +236,10 @@ for architecture in architectures:
 
         new_recommends_list.sort()
         output_recommends_filename = '%s-recommends-%s' % (seed_name,architecture)
+        if os.path.exists(output_recommends_filename):
+            old_recommends_list = set(map(str.strip,open(output_recommends_filename).readlines()))
+            os.rename(output_recommends_filename, output_recommends_filename + '.old')
+
         output = open(output_recommends_filename, 'w')
         for package in new_recommends_list:
             output.write(package)
@@ -243,7 +248,6 @@ for architecture in architectures:
 
 
         # Calculate deltas
-        # FIXME: calc delta for recommends as well
         if old_list is not None:
             merged = {}
             for package in new_list:
@@ -252,7 +256,6 @@ for architecture in architectures:
             for package in old_list:
                 merged.setdefault(package, 0)
                 merged[package] -= 1
-
             mergeditems = merged.items()
             mergeditems.sort()
             for package, value in mergeditems:
@@ -263,6 +266,26 @@ for architecture in architectures:
                 elif value == -1:
                     removals.setdefault(package,[])
                     removals[package].append(output_filename)
+        # now the recommends
+        if old_recommends_list is not None:
+            recommends_merged = {}
+            for package in new_recommends_list:
+                recommends_merged.setdefault(package, 0)
+                recommends_merged[package] += 1
+            for package in old_recommends_list:
+                recommends_merged.setdefault(package, 0)
+                recommends_merged[package] -= 1
+            mergedrecitems = recommends_merged.items()
+            mergedrecitems.sort()
+            for package, value in mergedrecitems:
+                #print package, value
+                if value == 1:
+                    additions.setdefault(package,[])
+                    additions[package].append(output_filename)
+                elif value == -1:
+                    removals.setdefault(package,[])
+                    removals[package].append(output_filename)
+
 
 if additions or removals:
     os.system("dch -i 'Refreshed dependencies'")
