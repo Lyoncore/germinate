@@ -1,3 +1,9 @@
+germinate (0.21ubuntu2) UNRELEASED; urgency=low
+
+  * Fix crash when promoting from lesser seeds.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Sat,  9 Sep 2006 08:37:46 +0100
+
 germinate (0.21ubuntu1) edgy; urgency=low
 
   * added support for recommends in seeds via enclosing the

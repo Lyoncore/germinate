@@ -644,8 +644,10 @@ class Germinator:
                         # an or-ed build-dependency.
                         pass
                     else:
-                        self.seed[lesserseed].remove(trydep)
-                        self.seedrecommends[lesserseed].remove(trydep)
+                        if trydep in self.seed[lesserseed]:
+                            self.seed[lesserseed].remove(trydep)
+                        if trydep in self.seedrecommends[lesserseed]:
+                            self.seedrecommends[lesserseed].remove(trydep)
                         self.warning("Promoted %s from %s to %s to satisfy %s",
                                      trydep, lesserseed, seedname, pkg)
 
