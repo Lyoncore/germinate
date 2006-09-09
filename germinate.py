@@ -386,9 +386,12 @@ def main():
     seednames_extra.append('extra')
     for seedname in seednames_extra:
         write_list(seedname, seedname,
-                   g, set(g.seed[seedname]) | g.depends[seedname])
+                   g, set(g.seed[seedname]) | set(g.seedrecommends[seedname]) |
+                      set(g.depends[seedname]))
         write_list(seedname, seedname + ".seed",
                    g, g.seed[seedname])
+        write_list(seedname, seedname + ".seed-recommends",
+                   g, g.seedrecommends[seedname])
         write_list(seedname, seedname + ".depends",
                    g, g.depends[seedname])
         write_list(seedname, seedname + ".build-depends",
@@ -406,6 +409,7 @@ def main():
     sup_srcs = set()
     for seedname in seednames:
         all.update(g.seed[seedname])
+        all.update(g.seedrecommends[seedname])
         all.update(g.depends[seedname])
         all.update(g.build_depends[seedname])
         all_srcs.update(g.sourcepkgs[seedname])
@@ -413,6 +417,7 @@ def main():
 
         if seedname == "supported":
             sup.update(g.seed[seedname])
+            sup.update(g.seedrecommends[seedname])
             sup.update(g.depends[seedname])
             sup_srcs.update(g.sourcepkgs[seedname])
 
@@ -424,6 +429,7 @@ def main():
         build_sourcepkgs = dict.fromkeys(g.build_sourcepkgs[seedname], True)
         for seed in g.innerSeeds("supported"):
             build_depends.update(dict.fromkeys(g.seed[seed], False))
+            build_depends.update(dict.fromkeys(g.seedrecommends[seed], False))
             build_depends.update(dict.fromkeys(g.depends[seed], False))
             build_sourcepkgs.update(dict.fromkeys(g.sourcepkgs[seed], False))
         sup.update([k for (k, v) in build_depends.iteritems() if v])
