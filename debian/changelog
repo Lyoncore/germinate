@@ -1,11 +1,11 @@
-germinate (0.21ubuntu2) UNRELEASED; urgency=low
+germinate (0.22) unstable; urgency=low
 
   * Fix crash when promoting from lesser seeds.
   * Include recommends in main outputs (they should continue to appear in
     Task headers and such, just not in metapackage dependencies), and create
     a .seed-recommends output for just the seeded recommendations.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Sat,  9 Sep 2006 08:37:46 +0100
+ -- Colin Watson <cjwatson@debian.org>  Sat,  9 Sep 2006 15:28:57 +0100
 
 germinate (0.21ubuntu1) edgy; urgency=low
 
