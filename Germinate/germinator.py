@@ -466,14 +466,7 @@ class Germinator:
         """Grow the seeds."""
         for seedname in self.seeds:
             self.progress("Resolving %s dependencies ...", seedname)
-            for pkg in self.seed[seedname]:
-                if self.seedrelease[seedname] is None:
-                    self.addPackage(seedname, pkg, "%s seed" %
-                        seedname.title())
-                else:
-                    self.addPackage(seedname, pkg, "%s %s seed" %
-                        (self.seedrelease[seedname].title(), seedname))
-            for pkg in self.seedrecommends[seedname]:
+            for pkg in self.seed[seedname] + self.seedrecommends[seedname]:
                 if self.seedrelease[seedname] is None:
                     self.addPackage(seedname, pkg, "%s seed" %
                         seedname.title())
