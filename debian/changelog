@@ -1,3 +1,9 @@
+germinate (0.23) UNRELEASED; urgency=low
+
+  * Fix recommends-related changelog entries from update-metapackage.
+
+ -- Colin Watson <cjwatson@debian.org>  Sat,  9 Sep 2006 18:38:04 +0100
+
 germinate (0.22) unstable; urgency=low
 
   * Fix crash when promoting from lesser seeds.

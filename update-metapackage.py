@@ -284,10 +284,10 @@ for architecture in architectures:
                 #print package, value
                 if value == 1:
                     additions.setdefault(package,[])
-                    additions[package].append(output_filename)
+                    additions[package].append(output_recommends_filename)
                 elif value == -1:
                     removals.setdefault(package,[])
-                    removals[package].append(output_filename)
+                    removals[package].append(output_recommends_filename)
 
 
 if additions or removals:
