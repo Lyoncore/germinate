@@ -41,6 +41,7 @@ class Germinator:
 
         self.seeds = []
         self.seed = {}
+        self.seedrecommends = {}
         self.seedinherit = {}
         self.seedrelease = {}
         self.substvars = {}
@@ -227,6 +228,7 @@ class Germinator:
     def newSeed(self, seedname, seedinherit, seedrelease):
         self.seeds.append(seedname)
         self.seed[seedname] = []
+        self.seedrecommends[seedname] = []
         self.seedinherit[seedname] = seedinherit
         self.seedrelease[seedname] = seedrelease
         self.depends[seedname] = set()
@@ -317,7 +319,8 @@ class Germinator:
         which we inherit?"""
 
         for seed in self.innerSeeds(seedname):
-            if pkg in self.seed[seed]:
+            if (pkg in self.seed[seed] or
+                pkg in self.seedrecommends[seed]):
                 return True
 
         return False
@@ -329,6 +332,7 @@ class Germinator:
 
         self.newSeed(seedname, seedinherit, seedrelease)
         seedpkgs = []
+        seedrecommends = []
 
         for line in entries:
             if not line.startswith(" * "):
@@ -371,6 +375,16 @@ class Germinator:
 
             pkg = pkg.split()[0]
 
+            # a (pkgname) indicates that this is a recommend
+            # and not a depends
+            if pkg.startswith('(') and pkg.endswith(')'):
+                pkg = pkg[1:-1]
+                pkgs =  self.filterPackages(self.packages, pkg)
+                if not pkgs:
+                    pkgs = [pkg] # virtual or expanded; check again later
+                for pkg in pkgs:
+                    seedrecommends.extend(self.substituteSeedVars(pkg))
+
             if pkg.startswith('%'):
                 pkg = pkg[1:]
                 if pkg in self.sources:
@@ -385,7 +399,6 @@ class Germinator:
 
             for pkg in pkgs:
                 seedpkgs.extend(self.substituteSeedVars(pkg))
-
         for pkg in seedpkgs:
             if pkg in self.hints and self.hints[pkg] != seedname:
                 self.warning("Taking the hint: %s", pkg)
@@ -398,8 +411,10 @@ class Germinator:
                 elif self.is_pruned(pkg, seedname):
                     self.warning("Pruned %s from %s", pkg, seedname)
                 else:
-                    self.seed[seedname].append(pkg)
-
+                    if pkg in seedrecommends:
+                        self.seedrecommends[seedname].append(pkg)
+                    else:
+                        self.seed[seedname].append(pkg)
             elif pkg in self.provides:
                 # Virtual package, include everything
                 msg = "Virtual %s package: %s" % (seedname, pkg)
@@ -410,7 +425,10 @@ class Germinator:
                         pass
                     else:
                         msg += "\n  - %s" % vpkg
-                        self.seed[seedname].append(vpkg)
+                        if pkg in seedrecommends:
+                            self.seedrecommends[seedname].append(vpkg)
+                        else:
+                            self.seed[seedname].append(vpkg)
                 self.info("%s", msg)
 
             else:
@@ -420,7 +438,10 @@ class Germinator:
         for pkg in self.hints:
             if self.hints[pkg] == seedname and not self.alreadySeeded(seedname, pkg):
                 if pkg in self.packages:
-                    self.seed[seedname].append(pkg)
+                    if pkg in seedrecommends:
+                        self.seedrecommends[seedname].append(pkg)
+                    else:
+                        self.seed[seedname].append(pkg)
                 else:
                     self.error("Unknown hinted package: %s", pkg)
 
@@ -445,6 +466,13 @@ class Germinator:
         for seedname in self.seeds:
             self.progress("Resolving %s dependencies ...", seedname)
             for pkg in self.seed[seedname]:
+                if self.seedrelease[seedname] is None:
+                    self.addPackage(seedname, pkg, "%s seed" %
+                        seedname.title())
+                else:
+                    self.addPackage(seedname, pkg, "%s %s seed" %
+                        (self.seedrelease[seedname].title(), seedname))
+            for pkg in self.seedrecommends[seedname]:
                 if self.seedrelease[seedname] is None:
                     self.addPackage(seedname, pkg, "%s seed" %
                         seedname.title())
@@ -574,7 +602,8 @@ class Germinator:
                 for seed in self.innerSeeds(seedname):
                     if trydep in self.not_build[seed]:
                         return True
-            if trydep in self.seed[seedname]:
+            if (trydep in self.seed[seedname] or
+                trydep in self.seedrecommends[seedname]):
                 return True
         else:
             return False
@@ -601,7 +630,8 @@ class Germinator:
         found = False
         for trydep in trylist:
             for lesserseed in self.strictlyOuterSeeds(seedname):
-                if trydep in self.seed[lesserseed]:
+                if (trydep in self.seed[lesserseed] or
+                    trydep in self.seedrecommends[lesserseed]):
                     if second_class:
                         # "I'll get you next time, Gadget!"
                         # When processing the build tree, we don't promote
@@ -614,6 +644,7 @@ class Germinator:
                         pass
                     else:
                         self.seed[lesserseed].remove(trydep)
+                        self.seedrecommends[lesserseed].remove(trydep)
                         self.warning("Promoted %s from %s to %s to satisfy %s",
                                      trydep, lesserseed, seedname, pkg)
 
