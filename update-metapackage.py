@@ -256,6 +256,7 @@ for architecture in architectures:
             for package in old_list:
                 merged.setdefault(package, 0)
                 merged[package] -= 1
+
             mergeditems = merged.items()
             mergeditems.sort()
             for package, value in mergeditems:
@@ -266,6 +267,7 @@ for architecture in architectures:
                 elif value == -1:
                     removals.setdefault(package,[])
                     removals[package].append(output_filename)
+
         # now the recommends
         if old_recommends_list is not None:
             recommends_merged = {}
@@ -275,6 +277,7 @@ for architecture in architectures:
             for package in old_recommends_list:
                 recommends_merged.setdefault(package, 0)
                 recommends_merged[package] -= 1
+
             mergedrecitems = recommends_merged.items()
             mergedrecitems.sort()
             for package, value in mergedrecitems:

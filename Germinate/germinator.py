@@ -399,6 +399,7 @@ class Germinator:
 
             for pkg in pkgs:
                 seedpkgs.extend(self.substituteSeedVars(pkg))
+
         for pkg in seedpkgs:
             if pkg in self.hints and self.hints[pkg] != seedname:
                 self.warning("Taking the hint: %s", pkg)
