@@ -388,7 +388,8 @@ class Germinator:
             if pkg.startswith('%'):
                 pkg = pkg[1:]
                 if pkg in self.sources:
-                    pkgs = list(self.sources[pkg]["Binaries"])
+                    pkgs = [p for p in self.sources[pkg]["Binaries"]
+                              if p in self.packages]
                 else:
                     self.warning("Unknown source package: %s", pkg)
                     pkgs = []

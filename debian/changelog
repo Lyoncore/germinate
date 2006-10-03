@@ -1,3 +1,11 @@
+germinate (0.24) UNRELEASED; urgency=low
+
+  * When processing whole-source seed entries, only include real packages.
+    This avoids slews of warnings for binaries that only exist on other
+    architectures, and avoids mistakenly picking up virtual packages.
+
+ -- Colin Watson <cjwatson@debian.org>  Tue,  3 Oct 2006 11:57:29 +0100
+
 germinate (0.23) unstable; urgency=low
 
   * Fix recommends-related changelog entries from update-metapackage.
