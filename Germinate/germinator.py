@@ -39,6 +39,7 @@ class Germinator:
         self.sources = {}
         self.pruned = {}
 
+        self.structure = ''
         self.seeds = []
         self.seed = {}
         self.seedrecommends = {}
@@ -104,10 +105,12 @@ class Germinator:
         inheritance, with inherited-from seeds at the start.
 
         Returns (ordered list of seed names, dict of SEED -> INHERITED)."""
+        lines = []
         seednames = []
         seedinherit = {}
 
         for line in f:
+            lines.append(line)
             words = line.split()
             if words[0].endswith(':'):
                 seed = words[0][:-1]
@@ -117,6 +120,7 @@ class Germinator:
                 self.error("Unparseable seed structure entry: %s", line)
         f.close()
 
+        self.structure = ''.join(lines)
         return (seednames, seedinherit)
 
     def parseHints(self, f):

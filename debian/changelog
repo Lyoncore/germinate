@@ -2,6 +2,8 @@ germinate (0.25) UNRELEASED; urgency=low
 
   * Change default distribution to feisty.
   * Fix file descriptor leak in Germinator.parseStructure().
+  * Put the contents of the STRUCTURE seed file in a new "structure" output
+    file.
 
  -- Colin Watson <cjwatson@debian.org>  Wed, 25 Oct 2006 21:47:37 +0100
 

@@ -242,6 +242,11 @@ def write_prov_list(filename, provdict):
         print >>f
     f.close()
 
+def write_structure(filename, structure):
+    f = open(filename, "w")
+    print >>f, structure,
+    f.close()
+
 
 def usage(f):
     print >>f, """Usage: germinate.py [options]
@@ -445,6 +450,8 @@ def main():
     write_source_list("all+extra.sources", g, g.all_srcs)
 
     write_prov_list("provides", g.pkgprovides)
+
+    write_structure("structure", g.structure)
 
     if os.path.exists("rdepends"):
         shutil.rmtree("rdepends")
