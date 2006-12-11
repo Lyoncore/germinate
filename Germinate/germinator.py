@@ -115,6 +115,7 @@ class Germinator:
                 seedinherit[seed] = list(words[1:])
             else:
                 self.error("Unparseable seed structure entry: %s", line)
+        f.close()
 
         return (seednames, seedinherit)
 
