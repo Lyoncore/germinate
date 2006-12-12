@@ -1,4 +1,4 @@
-germinate (0.25) UNRELEASED; urgency=low
+germinate (0.25) unstable; urgency=low
 
   * Change default distribution to feisty.
   * Fix file descriptor leak in Germinator.parseStructure().
@@ -10,7 +10,7 @@ germinate (0.25) UNRELEASED; urgency=low
     http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/ by default if
     the --bzr option is used.
 
- -- Colin Watson <cjwatson@debian.org>  Wed, 25 Oct 2006 21:47:37 +0100
+ -- Colin Watson <cjwatson@debian.org>  Tue, 12 Dec 2006 09:29:46 +0000
 
 germinate (0.24) unstable; urgency=low
 
