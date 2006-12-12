@@ -44,6 +44,7 @@ except NameError:
 
 # Where do we get up-to-date seeds from?
 SEEDS = "http://people.ubuntu.com/~cjwatson/seeds/"
+SEEDS_BZR = "http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/"
 RELEASE = "ubuntu.feisty"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
@@ -279,13 +280,14 @@ Options:
 
 
 def main():
-    global SEEDS, RELEASE, MIRROR, SOURCE_MIRROR
+    global SEEDS, SEEDS_BZR, RELEASE, MIRROR, SOURCE_MIRROR
     global DIST, ARCH, COMPONENTS, CHECK_IPV6
     verbose = False
     bzr = False
     cleanup = False
     want_rdepends = True
     seed_packages = ()
+    seeds_set = False
 
     g = Germinator()
 
@@ -319,6 +321,7 @@ def main():
             SEEDS = value
             if not SEEDS.endswith("/"):
                 SEEDS += "/"
+            seeds_set = True
         elif option in ("-s", "--seed-dist"):
             RELEASE = value
         elif option in ("-m", "--mirror"):
@@ -339,6 +342,8 @@ def main():
             CHECK_IPV6 = True
         elif option == "--bzr":
             bzr = True
+            if not seeds_set:
+                SEEDS = SEEDS_BZR
         elif option == "--cleanup":
             cleanup = True
         elif option == "--no-rdepends":

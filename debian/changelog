@@ -6,6 +6,9 @@ germinate (0.25) UNRELEASED; urgency=low
     file.
   * Change default seed distribution to "ubuntu.feisty"; note new naming
     scheme.
+  * Fetch seeds from
+    http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/ by default if
+    the --bzr option is used.
 
  -- Colin Watson <cjwatson@debian.org>  Wed, 25 Oct 2006 21:47:37 +0100
 
