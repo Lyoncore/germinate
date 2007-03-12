@@ -1,3 +1,10 @@
+germinate (0.26) UNRELEASED; urgency=low
+
+  * Change default non-bzr seed location to
+    http://people.ubuntu.com/~ubuntu-archive/seeds/.
+
+ -- Colin Watson <cjwatson@debian.org>  Mon, 12 Mar 2007 11:59:45 +0000
+
 germinate (0.25) unstable; urgency=low
 
   * Change default distribution to feisty.

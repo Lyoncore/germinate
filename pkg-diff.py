@@ -29,7 +29,7 @@ import Germinate.Archive
 import Germinate.seeds
 
 # TODO: cloned from germinate.py; should be common
-SEEDS = "http://people.ubuntu.com/~cjwatson/seeds/"
+SEEDS = "http://people.ubuntu.com/~ubuntu-archive/seeds/"
 RELEASE = "ubuntu.feisty"
 MIRROR = "http://archive.ubuntu.com/ubuntu/"
 DIST = ["feisty"]
