@@ -375,7 +375,11 @@ class Germinator:
                 if pkg.endswith("]"):
                     archspec = pkg[startarchspec + 1:-1].split()
                     pkg = pkg[:startarchspec - 1]
-                    if arch not in archspec:
+                    posarch = [x for x in archspec if not x.startswith('!')]
+                    negarch = [x[1:] for x in archspec if x.startswith('!')]
+                    if arch in negarch:
+                        continue
+                    if posarch and arch not in posarch:
                         continue
 
             pkg = pkg.split()[0]

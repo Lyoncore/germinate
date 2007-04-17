@@ -1,3 +1,9 @@
+germinate (0.27) UNRELEASED; urgency=low
+
+  * Add support for negative architecture specifications, e.g. [!powerpc].
+
+ -- Colin Watson <cjwatson@debian.org>  Tue, 17 Apr 2007 12:10:20 +0100
+
 germinate (0.26) unstable; urgency=low
 
   * Change default non-bzr seed location to
