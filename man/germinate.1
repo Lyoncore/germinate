@@ -72,6 +72,15 @@ Seeds are stored in text files downloaded from a given URL.
 Lines not beginning with
 .Sq "\ *\ "
 (wiki-style list markup) are ignored.
+Seed entries beginning with
+.Sq %
+expand to all binaries from the given source package.
+Seed entries may be followed with
+.Sq " [" Ns Ar arch1 Ar arch2 ... Ns \&]
+to indicate that they should only be used on the given architectures, or with
+.Sq " [!" Ns Ar arch1 No ! Ns Ar arch2 ... Ns \&]
+to indicate that they should not be used on the given architectures.
+.Pp
 A
 .Pa STRUCTURE
 file alongside the seeds lists their inheritance relationships.
