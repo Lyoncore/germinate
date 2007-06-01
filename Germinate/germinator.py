@@ -495,18 +495,40 @@ class Germinator:
                 if self.is_pruned(pkg, seed):
                     self.pruned[pkg].add(seed)
 
+    def weedBlacklist(self, pkgs, seedname, why):
+        """Weed out blacklisted seed entries from a list."""
+        white = []
+        for pkg in pkgs:
+            for outerseed in self.outerSeeds(seedname):
+                if pkg in self.seedblacklist[outerseed]:
+                    self.error("Package %s blacklisted in %s but seeded in "
+                               "%s (%s)", pkg, outerseed, seedname, why)
+                    break
+            else:
+                white.append(pkg)
+        return white
+
     def grow(self):
         """Grow the seeds."""
         for seedname in self.seeds:
             self.progress("Resolving %s dependencies ...", seedname)
+            if self.seedrelease[seedname] is None:
+                why = "%s seed" % seedname.title()
+            else:
+                why = ("%s %s seed" %
+                       (self.seedrelease[seedname].title(), seedname))
+
+            # Check for blacklisted seed entries.
+            self.seed[seedname] = self.weedBlacklist(
+                self.seed[seedname], seedname, why)
+            self.seedrecommends[seedname] = self.weedBlacklist(
+                self.seedrecommends[seedname], seedname, why)
+
             for pkg in self.seed[seedname] + self.seedrecommends[seedname]:
-                if self.seedrelease[seedname] is None:
-                    self.addPackage(seedname, pkg, "%s seed" %
-                        seedname.title())
-                else:
-                    self.addPackage(seedname, pkg, "%s %s seed" %
-                        (self.seedrelease[seedname].title(), seedname))
+                self.addPackage(seedname, pkg, why)
+
             self.rescueExtras(seedname, build_tree=False)
+
         self.rescueExtras("supported", build_tree=True)
 
     def addExtras(self, seedrelease=None):
@@ -708,16 +730,7 @@ class Germinator:
         else:
             why = pkg
 
-        dependlist_noblacklist = []
-        for dep in dependlist:
-            for outerseed in self.outerSeeds(seedname):
-                if dep in self.seedblacklist[outerseed]:
-                    self.error("Attempted to add blacklisted package %s to %s "
-                               "(%s)", dep, seedname, why)
-                    break
-            else:
-                dependlist_noblacklist.append(dep)
-        dependlist = dependlist_noblacklist
+        dependlist = self.weedBlacklist(dependlist, seedname, why)
         if not dependlist:
             return False
 
@@ -778,8 +791,8 @@ class Germinator:
             return
         for outerseed in self.outerSeeds(seedname):
             if pkg in self.seedblacklist[outerseed]:
-                self.error("Attempted to add blacklisted package %s to %s "
-                           "(%s)", pkg, seedname, why)
+                self.error("Package %s blacklisted in %s but seeded in %s "
+                           "(%s)", pkg, outerseed, seedname, why)
                 return
         if build_tree: second_class=True
 

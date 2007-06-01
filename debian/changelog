@@ -1,6 +1,7 @@
 germinate (0.28) UNRELEASED; urgency=low
 
   * Try to fall back to alternative dependencies if one is blacklisted.
+  * Honour blacklist entries even if they're explicitly seeded.
 
  -- Colin Watson <cjwatson@debian.org>  Fri, 01 Jun 2007 14:05:51 +0100
 
