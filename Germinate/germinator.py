@@ -718,6 +718,8 @@ class Germinator:
             else:
                 dependlist_noblacklist.append(dep)
         dependlist = dependlist_noblacklist
+        if not dependlist:
+            return False
 
         if build_tree:
             for dep in dependlist:
