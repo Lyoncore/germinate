@@ -495,11 +495,15 @@ class Germinator:
                 if self.is_pruned(pkg, seed):
                     self.pruned[pkg].add(seed)
 
-    def weedBlacklist(self, pkgs, seedname, why):
+    def weedBlacklist(self, pkgs, seedname, build_tree, why):
         """Weed out blacklisted seed entries from a list."""
         white = []
+        if build_tree:
+            outerseeds = ["supported"]
+        else:
+            outerseeds = self.outerSeeds(seedname)
         for pkg in pkgs:
-            for outerseed in self.outerSeeds(seedname):
+            for outerseed in outerseeds:
                 if pkg in self.seedblacklist[outerseed]:
                     self.error("Package %s blacklisted in %s but seeded in "
                                "%s (%s)", pkg, outerseed, seedname, why)
@@ -520,9 +524,9 @@ class Germinator:
 
             # Check for blacklisted seed entries.
             self.seed[seedname] = self.weedBlacklist(
-                self.seed[seedname], seedname, why)
+                self.seed[seedname], seedname, False, why)
             self.seedrecommends[seedname] = self.weedBlacklist(
-                self.seedrecommends[seedname], seedname, why)
+                self.seedrecommends[seedname], seedname, False, why)
 
             for pkg in self.seed[seedname] + self.seedrecommends[seedname]:
                 self.addPackage(seedname, pkg, why)
@@ -730,7 +734,7 @@ class Germinator:
         else:
             why = pkg
 
-        dependlist = self.weedBlacklist(dependlist, seedname, why)
+        dependlist = self.weedBlacklist(dependlist, seedname, build_tree, why)
         if not dependlist:
             return False
 
@@ -789,7 +793,11 @@ class Germinator:
         if seedname in self.pruned[pkg]:
             self.warning("Pruned %s from %s", pkg, seedname)
             return
-        for outerseed in self.outerSeeds(seedname):
+        if build_tree:
+            outerseeds = ["supported"]
+        else:
+            outerseeds = self.outerSeeds(seedname)
+        for outerseed in outerseeds:
             if pkg in self.seedblacklist[outerseed]:
                 self.error("Package %s blacklisted in %s but seeded in %s "
                            "(%s)", pkg, outerseed, seedname, why)
