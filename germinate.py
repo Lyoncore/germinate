@@ -45,13 +45,13 @@ except NameError:
 # Where do we get up-to-date seeds from?
 SEEDS = "http://people.ubuntu.com/~ubuntu-archive/seeds/"
 SEEDS_BZR = "http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/"
-RELEASE = "ubuntu.feisty"
+RELEASE = "ubuntu.gutsy"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
 # them from?
 MIRROR = "http://archive.ubuntu.com/ubuntu/"
 SOURCE_MIRROR = None
-DIST = ["feisty"]
+DIST = ["gutsy"]
 COMPONENTS = ["main", "restricted"]
 ARCH = "i386"
 

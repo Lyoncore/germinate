@@ -6,6 +6,7 @@ germinate (0.27) UNRELEASED; urgency=low
     packages from the containing seed and any of its inner seeds. For
     example, this allows a package to be in Ubuntu main but blacklisted from
     being shipped on CDs.
+  * Change default distribution to gutsy.
 
  -- Colin Watson <cjwatson@debian.org>  Tue, 17 Apr 2007 12:10:20 +0100
 
