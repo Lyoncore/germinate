@@ -4,6 +4,7 @@ germinate (0.28) UNRELEASED; urgency=low
   * Honour blacklist entries even if they're explicitly seeded.
   * Don't apply blacklists (apart from the "supported" blacklist) to
     build-dependencies.
+  * Be a little more verbose when blacklisting packages.
 
  -- Colin Watson <cjwatson@debian.org>  Fri, 01 Jun 2007 14:05:51 +0100
 

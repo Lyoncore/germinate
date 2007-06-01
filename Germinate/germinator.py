@@ -426,7 +426,7 @@ class Germinator:
 
             if is_blacklist:
                 for pkg in pkgs:
-                    self.info("Blacklisting %s", pkg)
+                    self.info("Blacklisting %s from %s", pkg, seedname)
                     self.seedblacklist[seedname].update(
                         self.substituteSeedVars(pkg))
             else:
