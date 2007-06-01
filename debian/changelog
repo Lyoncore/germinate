@@ -1,4 +1,4 @@
-germinate (0.27) UNRELEASED; urgency=low
+germinate (0.27) unstable; urgency=low
 
   * Add support for negative architecture specifications, e.g. [!powerpc].
   * Document % and [arch] seed syntaxes in germinate(1).
@@ -8,7 +8,7 @@ germinate (0.27) UNRELEASED; urgency=low
     being shipped on CDs.
   * Change default distribution to gutsy.
 
- -- Colin Watson <cjwatson@debian.org>  Tue, 17 Apr 2007 12:10:20 +0100
+ -- Colin Watson <cjwatson@debian.org>  Fri, 01 Jun 2007 12:54:27 +0100
 
 germinate (0.26) unstable; urgency=low
 
