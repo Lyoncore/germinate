@@ -81,6 +81,15 @@ to indicate that they should only be used on the given architectures, or with
 .Sq " [!" Ns Ar arch1 No ! Ns Ar arch2 ... Ns \&]
 to indicate that they should not be used on the given architectures.
 .Pp
+Seed entries beginning with
+.Sq \&!
+cause the given package to be blacklisted from the given seed and any seeds
+from which it inherits; this may be followed by
+.Sq %
+as above to blacklist all binaries from the given source package.
+Note that this may result in uninstallable packages whose dependencies have
+been blacklisted, so use this feature sparingly.
+.Pp
 A
 .Pa STRUCTURE
 file alongside the seeds lists their inheritance relationships.

@@ -69,6 +69,7 @@ class Germinator:
 
         self.blacklist = {}
         self.blacklisted = set()
+        self.seedblacklist = {}
 
         self.di_kernel_versions = {}
         self.extra_includes = {}
@@ -245,6 +246,7 @@ class Germinator:
         self.build_srcs[seedname] = set()
         self.not_build_srcs[seedname] = set()
         self.why[seedname] = {}
+        self.seedblacklist[seedname] = set()
         self.di_kernel_versions[seedname] = set()
         self.extra_includes[seedname] = []
         self.extra_excludes[seedname] = []
@@ -319,6 +321,12 @@ class Germinator:
                 outerseeds.append(seed)
         return outerseeds
 
+    def outerSeeds(self, seedname):
+        """Return this seed and the seeds that inherit from it."""
+        outerseeds = [seedname]
+        outerseeds.extend(self.strictlyOuterSeeds(seedname))
+        return outerseeds
+
     def alreadySeeded(self, seedname, pkg):
         """Has pkg already been seeded in this seed or in one from
         which we inherit?"""
@@ -384,6 +392,15 @@ class Germinator:
 
             pkg = pkg.split()[0]
 
+            # a leading ! indicates a per-seed blacklist; never include this
+            # package in the given seed or any of its inner seeds, no matter
+            # what
+            if pkg.startswith('!'):
+                pkg = pkg[1:]
+                is_blacklist = True
+            else:
+                is_blacklist = False
+
             # a (pkgname) indicates that this is a recommend
             # and not a depends
             if pkg.startswith('(') and pkg.endswith(')'):
@@ -407,8 +424,14 @@ class Germinator:
                 if not pkgs:
                     pkgs = [pkg] # virtual or expanded; check again later
 
-            for pkg in pkgs:
-                seedpkgs.extend(self.substituteSeedVars(pkg))
+            if is_blacklist:
+                for pkg in pkgs:
+                    self.info("Blacklisting %s", pkg)
+                    self.seedblacklist[seedname].update(
+                        self.substituteSeedVars(pkg))
+            else:
+                for pkg in pkgs:
+                    seedpkgs.extend(self.substituteSeedVars(pkg))
 
         for pkg in seedpkgs:
             if pkg in self.hints and self.hints[pkg] != seedname:
@@ -680,17 +703,28 @@ class Germinator:
                            virtual, pkg)
                 return False
 
+        if build_tree and build_depend:
+            why = self.packages[pkg]["Source"] + " (Build-Depend)"
+        else:
+            why = pkg
+
+        dependlist_noblacklist = []
+        for dep in dependlist:
+            for outerseed in self.outerSeeds(seedname):
+                if dep in self.seedblacklist[outerseed]:
+                    self.error("Attempted to add blacklisted package %s to %s "
+                               "(%s)", dep, seedname, why)
+                    break
+            else:
+                dependlist_noblacklist.append(dep)
+        dependlist = dependlist_noblacklist
+
         if build_tree:
             for dep in dependlist:
                 self.build_depends[seedname].add(dep)
-            if build_depend:
-                why = self.packages[pkg]["Source"] + " (Build-Depend)"
-            else:
-                why = pkg
         else:
             for dep in dependlist:
                 self.depends[seedname].add(dep)
-            why = pkg
 
         for dep in dependlist:
             self.addPackage(seedname, dep, why, build_tree, second_class)
@@ -740,6 +774,11 @@ class Germinator:
         if seedname in self.pruned[pkg]:
             self.warning("Pruned %s from %s", pkg, seedname)
             return
+        for outerseed in self.outerSeeds(seedname):
+            if pkg in self.seedblacklist[outerseed]:
+                self.error("Attempted to add blacklisted package %s to %s "
+                           "(%s)", pkg, seedname, why)
+                return
         if build_tree: second_class=True
 
         if pkg not in self.all:

@@ -2,6 +2,10 @@ germinate (0.27) UNRELEASED; urgency=low
 
   * Add support for negative architecture specifications, e.g. [!powerpc].
   * Document % and [arch] seed syntaxes in germinate(1).
+  * Add support for prefixing seed entries with "!" to enforce blacklisting
+    packages from the containing seed and any of its inner seeds. For
+    example, this allows a package to be in Ubuntu main but blacklisted from
+    being shipped on CDs.
 
  -- Colin Watson <cjwatson@debian.org>  Tue, 17 Apr 2007 12:10:20 +0100
 
