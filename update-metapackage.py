@@ -130,6 +130,16 @@ seed_base += seed_dist
 seed_entry = re.compile(' *\* *(?P<package>\S+) *(\[(?P<arches>[^]]*)\])? *(#.*)?')
 components = config.get(dist, 'components').split()
 
+def seed_packages(germinator_list, seed):
+    if config.has_option(dist, "seed_map/%s" % seed):
+        mapped_seeds = config.get(dist, "seed_map/%s" % seed).split()
+    else:
+        mapped_seeds = [seed]
+    packages = []
+    for mapped_seed in mapped_seeds:
+        packages.extend(germinator_list[mapped_seed])
+    return packages
+
 debootstrap_version_file = 'debootstrap-version'
 metapackages = map(lambda seed: '%s-%s' % (metapackage, seed), seeds)
 seed_package_blacklist = set(metapackages)
@@ -208,7 +218,7 @@ for architecture in architectures:
 
         # work on the depends
         new_list = []
-        for package in germinator.seed[seed_name]:
+        for package in seed_packages(germinator.seed, seed_name):
             if package in seed_package_blacklist:
                 continue
             if seed_name == 'minimal' and package not in debootstrap_base:
@@ -226,7 +236,7 @@ for architecture in architectures:
         # work on the recommends
         old_recommends_list = None
         new_recommends_list = []
-        for package in germinator.seedrecommends[seed_name]:
+        for package in seed_packages(germinator.seedrecommends, seed_name):
             if package in seed_package_blacklist:
                 continue
             if seed_name == 'minimal' and package not in debootstrap_base:

@@ -5,6 +5,9 @@ germinate (0.28) UNRELEASED; urgency=low
   * Don't apply blacklists (apart from the "supported" blacklist) to
     build-dependencies.
   * Be a little more verbose when blacklisting packages.
+  * Allow "seed_map/SEED" configuration file entries in update-metapackage
+    to have an output metapackage read its package list from multiple seeds
+    (needed for the required/minimal split).
 
  -- Colin Watson <cjwatson@debian.org>  Fri, 01 Jun 2007 14:05:51 +0100
 
