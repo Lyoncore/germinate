@@ -1,4 +1,4 @@
-germinate (0.28) UNRELEASED; urgency=low
+germinate (0.28) unstable; urgency=low
 
   * Try to fall back to alternative dependencies if one is blacklisted.
   * Honour blacklist entries even if they're explicitly seeded.
@@ -9,7 +9,7 @@ germinate (0.28) UNRELEASED; urgency=low
     to have an output metapackage read its package list from multiple seeds
     (needed for splitting required and minimal in the Ubuntu seeds).
 
- -- Colin Watson <cjwatson@debian.org>  Fri, 01 Jun 2007 14:05:51 +0100
+ -- Colin Watson <cjwatson@debian.org>  Sat, 23 Jun 2007 20:56:11 +0100
 
 germinate (0.27) unstable; urgency=low
 
