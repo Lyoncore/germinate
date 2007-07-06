@@ -30,6 +30,7 @@ import apt_pkg
 from Germinate import Germinator
 import Germinate.Archive
 import Germinate.seeds
+import Germinate.version
 
 # TODO: cloned from germinate.py; should be common
 SEEDS = "http://people.ubuntu.com/~ubuntu-archive/seeds/"
@@ -146,7 +147,8 @@ def usage(f):
 
 Options:
 
-  -h, --help            Print this help message.
+  -h, --help            Print this help message and exit.
+  --version             Output version information and exit.
   -l, --list=FILE       Read list of packages from this file
                         (default: read from dpkg --get-selections)
   -m, --mode=[i|r|d]    Show packages to install/remove/diff (default: d).
@@ -161,6 +163,7 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hl:m:",
                                    ["help",
+                                    "version",
                                     "list=",
                                     "mode="])
     except getopt.GetoptError:
@@ -171,6 +174,10 @@ def main():
     for option, value in opts:
         if option in ("-h", "--help"):
             usage(sys.stdout)
+            sys.exit()
+        elif option == "--version":
+            print "%s %s" % (os.path.basename(sys.argv[0]),
+                             Germinate.version.VERSION)
             sys.exit()
         elif option in ("-l", "--list"):
             dpkgFile = value

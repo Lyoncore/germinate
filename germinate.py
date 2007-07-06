@@ -40,6 +40,7 @@ import apt_pkg
 from Germinate import Germinator
 import Germinate.Archive
 import Germinate.seeds
+import Germinate.version
 
 
 # Where do we get up-to-date seeds from?
@@ -254,7 +255,8 @@ def usage(f):
 
 Options:
 
-  -h, --help            Print this help message.
+  -h, --help            Print this help message and exit.
+  --version             Output version information and exit.
   -v, --verbose         Be more verbose when processing seeds.
   -S, --seed-source=SOURCE
                         Fetch seeds from SOURCE
@@ -294,6 +296,7 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hvS:s:m:d:c:a:i",
                                    ["help",
+                                    "version",
                                     "verbose",
                                     "seed-source=",
                                     "seed-dist=",
@@ -314,6 +317,10 @@ def main():
     for option, value in opts:
         if option in ("-h", "--help"):
             usage(sys.stdout)
+            sys.exit()
+        elif option == "--version":
+            print "%s %s" % (os.path.basename(sys.argv[0]),
+                             Germinate.version.VERSION)
             sys.exit()
         elif option in ("-v", "--verbose"):
             verbose = True

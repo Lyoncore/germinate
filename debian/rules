@@ -1,6 +1,7 @@
 #! /usr/bin/make -f
 
 tmp = $(CURDIR)/debian/germinate
+version = $(shell dpkg-parsechangelog | awk '/Version:/ { print $$2 }')
 
 build:
 
@@ -18,6 +19,8 @@ install: build
 
 	# TODO: use distutils
 	dh_install Germinate/*.py usr/lib/germinate/Germinate/
+	sed -i 's/@VERSION@/$(version)/g' \
+		$(tmp)/usr/lib/germinate/Germinate/version.py
 	dh_install Germinate/Archive/*.py usr/lib/germinate/Germinate/Archive/
 	install -m755 *.py $(tmp)/usr/lib/germinate/
 
