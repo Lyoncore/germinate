@@ -4,6 +4,7 @@ germinate (0.29) UNRELEASED; urgency=low
   * Use dch -U if available.
   * Document meaning of seed entries in parentheses.
   * Remove old arch-tag lines.
+  * PEP-8 import ordering.
 
  -- Colin Watson <cjwatson@debian.org>  Tue, 26 Jun 2007 10:14:16 +0100
 

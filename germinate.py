@@ -19,7 +19,6 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-import apt_pkg
 import gzip
 import os
 import shutil
@@ -29,15 +28,18 @@ import getopt
 import logging
 import codecs
 import cStringIO
-from Germinate import Germinator
-import Germinate.Archive
-import Germinate.seeds
 
 try:
     set # introduced in 2.4
 except NameError:
     import sets
     set = sets.Set
+
+import apt_pkg
+
+from Germinate import Germinator
+import Germinate.Archive
+import Germinate.seeds
 
 
 # Where do we get up-to-date seeds from?

@@ -20,9 +20,13 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-import os, sys, getopt
+import os
+import sys
+import getopt
 import logging
+
 import apt_pkg
+
 from Germinate import Germinator
 import Germinate.Archive
 import Germinate.seeds

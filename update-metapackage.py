@@ -30,16 +30,18 @@ import os
 import getopt
 import logging
 import ConfigParser
-import apt_pkg
-from Germinate import Germinator
-import Germinate.Archive
-import Germinate.seeds
 
 try:
     set # introduced in 2.4
 except NameError:
     import sets
     set = sets.Set
+
+import apt_pkg
+
+from Germinate import Germinator
+import Germinate.Archive
+import Germinate.seeds
 
 def usage(f):
     print >>f, """Usage: update-metapackage.py [options]
