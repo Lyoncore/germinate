@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# arch-tag:
 
 # Copyright (c) 2004 Canonical Ltd.
 #

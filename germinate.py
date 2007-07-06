@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# arch-tag: e7f7b26b-95bc-4432-86e6-832a7cc5ac01
-"""Update list files from the Wiki.
-"""
+"""Update list files from the Wiki."""
 
 # Copyright (c) 2004, 2005 Canonical Ltd.
 #
