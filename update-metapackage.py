@@ -301,7 +301,13 @@ for architecture in architectures:
 
 
 if additions or removals:
-    os.system("dch -i 'Refreshed dependencies'")
+    dch_help = os.popen('dch --help')
+    have_U = '-U' in dch_help.read()
+    dch_help.close()
+    if have_U:
+        os.system("dch -U 'Refreshed dependencies'")
+    else:
+        os.system("dch -i 'Refreshed dependencies'")
     changes = []
     addition_keys = additions.keys()
     addition_keys.sort()
