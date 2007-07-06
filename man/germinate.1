@@ -81,6 +81,10 @@ to indicate that they should only be used on the given architectures, or with
 .Sq " [!" Ns Ar arch1 No ! Ns Ar arch2 ... Ns \&]
 to indicate that they should not be used on the given architectures.
 .Pp
+Seed entries in parentheses indicate that the seed should be treated as a
+recommendation of metapackages generated from this seed, rather than as a
+dependency.
+.Pp
 Seed entries beginning with
 .Sq \&!
 cause the given package to be blacklisted from the given seed and any seeds
