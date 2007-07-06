@@ -1,4 +1,4 @@
-germinate (0.29) UNRELEASED; urgency=low
+germinate (0.29) unstable; urgency=low
 
   * Add Vcs-Bzr control field.
   * Use dch -U if available.
@@ -7,7 +7,7 @@ germinate (0.29) UNRELEASED; urgency=low
   * PEP-8 import ordering.
   * Add --version option to all programs.
 
- -- Colin Watson <cjwatson@debian.org>  Tue, 26 Jun 2007 10:14:16 +0100
+ -- Colin Watson <cjwatson@debian.org>  Fri, 06 Jul 2007 12:26:52 +0100
 
 germinate (0.28) unstable; urgency=low
 
