@@ -1,11 +1,11 @@
-germinate (0.30) UNRELEASED; urgency=low
+germinate (0.30) unstable; urgency=low
 
   * Generalise Extra-Include and Extra-Exclude to allow rescuing packages
     from any seed, not just extra. For example, Mobile-Include: *-dev will
     rescue all packages from sources that generate binaries named *-dev in
     the mobile output.
 
- -- Colin Watson <cjwatson@debian.org>  Tue, 10 Jul 2007 17:32:08 +0100
+ -- Colin Watson <cjwatson@debian.org>  Tue, 10 Jul 2007 17:43:30 +0100
 
 germinate (0.29) unstable; urgency=low
 
