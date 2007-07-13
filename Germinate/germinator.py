@@ -378,7 +378,7 @@ class Germinator:
                         if included_seed not in self.includes[seedname]:
                             self.includes[seedname][included_seed] = []
                         self.includes[seedname][included_seed].extend(values)
-                elif name == "extra-exclude":
+                elif name.endswith("-exclude"):
                     excluded_seed = name[:-8]
                     if (excluded_seed not in self.seeds and
                         excluded_seed != "extra"):
