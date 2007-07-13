@@ -1,8 +1,8 @@
-germinate (0.31) UNRELEASED; urgency=low
+germinate (0.31) unstable; urgency=low
 
   * Fix excluding packages from seeds other than extra.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Fri, 13 Jul 2007 10:04:58 +0100
+ -- Colin Watson <cjwatson@debian.org>  Fri, 13 Jul 2007 10:08:24 +0100
 
 germinate (0.30) unstable; urgency=low
 
