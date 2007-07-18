@@ -522,7 +522,8 @@ class Germinator:
             outerseeds = self.outerSeeds(seedname)
         for pkg in pkgs:
             for outerseed in outerseeds:
-                if pkg in self.seedblacklist[outerseed]:
+                if (outerseed in self.seedblacklist and
+                    pkg in self.seedblacklist[outerseed]):
                     self.error("Package %s blacklisted in %s but seeded in "
                                "%s (%s)", pkg, outerseed, seedname, why)
                     break
@@ -823,7 +824,8 @@ class Germinator:
         else:
             outerseeds = self.outerSeeds(seedname)
         for outerseed in outerseeds:
-            if pkg in self.seedblacklist[outerseed]:
+            if (outerseed in self.seedblacklist and
+                pkg in self.seedblacklist[outerseed]):
                 self.error("Package %s blacklisted in %s but seeded in %s "
                            "(%s)", pkg, outerseed, seedname, why)
                 return
@@ -908,6 +910,9 @@ class Germinator:
     def rescueIncludes(self, seedname, rescue_seedname, build_tree):
         """Automatically rescue packages matching certain patterns from
         other seeds."""
+
+        if seedname not in self.seeds or rescue_seedname not in self.seeds:
+            return
 
         # Find all the source packages.
         rescue_srcs = set()

@@ -5,6 +5,8 @@ germinate (0.32) UNRELEASED; urgency=low
   * Add required to default list of seeds compared by germinate-pkg-diff.
   * Fix germinate-pkg-diff --mode option (was incorrectly --mirror, contrary
     to its meaning and the documentation).
+  * Make germinate-pkg-diff work again even if supported is not in its list
+    of seeds.
 
  -- Colin Watson <cjwatson@debian.org>  Wed, 18 Jul 2007 11:45:08 +0100
 
