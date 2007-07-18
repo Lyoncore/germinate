@@ -104,13 +104,19 @@ class Globals:
 
         (seednames, seedinherit) = g.parseStructure(
             Germinate.seeds.open_seed(SEEDS + RELEASE, "STRUCTURE"))
+        needed_seeds = []
         for seedname in self.seeds:
+            for inherit in seedinherit[seedname]:
+                if inherit not in needed_seeds:
+                    needed_seeds.append(inherit)
+            needed_seeds.append(seedname)
+        for seedname in needed_seeds:
             g.plantSeed(Germinate.seeds.open_seed(SEEDS + RELEASE, seedname),
                         ARCH, seedname, list(seedinherit[seedname]), RELEASE)
         g.prune()
         g.grow()
 
-        for seedname in self.seeds:
+        for seedname in needed_seeds:
             for pkg in g.seed[seedname]:
                 self.package.setdefault(pkg, Package(pkg))
                 self.package[pkg].setSeed(seedname + ".seed")
@@ -154,7 +160,8 @@ Options:
   -m, --mode=[i|r|d]    Show packages to install/remove/diff (default: d).
 
 A list of seeds against which to compare may be supplied as non-option
-arguments. The default is 'required minimal standard desktop'.
+arguments. Seeds from which they inherit will be added automatically. The
+default is 'desktop'.
 """
 
 def main():
@@ -187,7 +194,7 @@ def main():
 
     g.parseDpkg(dpkgFile)
     if not len(args):
-        args = ["required", "minimal", "standard", "desktop"]
+        args = ["desktop"]
     g.setSeeds(args)
     g.output()
 
