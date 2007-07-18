@@ -1,3 +1,10 @@
+germinate (0.32) UNRELEASED; urgency=low
+
+  * Use dch -iU rather than dch -U. (I use
+    DEBCHANGE_RELEASE_HEURISTIC=changelog so never noticed the problem.)
+
+ -- Colin Watson <cjwatson@debian.org>  Wed, 18 Jul 2007 11:45:08 +0100
+
 germinate (0.31) unstable; urgency=low
 
   * Fix excluding packages from seeds other than extra.

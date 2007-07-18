@@ -313,7 +313,7 @@ if additions or removals:
     have_U = '-U' in dch_help.read()
     dch_help.close()
     if have_U:
-        os.system("dch -U 'Refreshed dependencies'")
+        os.system("dch -iU 'Refreshed dependencies'")
     else:
         os.system("dch -i 'Refreshed dependencies'")
     changes = []
