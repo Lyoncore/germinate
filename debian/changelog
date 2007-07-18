@@ -1,4 +1,4 @@
-germinate (0.32) UNRELEASED; urgency=low
+germinate (0.32) unstable; urgency=low
 
   * Use dch -iU rather than dch -U. (I use
     DEBCHANGE_RELEASE_HEURISTIC=changelog so never noticed the problem.)
@@ -16,7 +16,7 @@ germinate (0.32) UNRELEASED; urgency=low
   * Add manual pages for germinate-pkg-diff and
     germinate-update-metapackage.
 
- -- Colin Watson <cjwatson@debian.org>  Wed, 18 Jul 2007 11:45:08 +0100
+ -- Colin Watson <cjwatson@debian.org>  Wed, 18 Jul 2007 14:00:50 +0100
 
 germinate (0.31) unstable; urgency=low
 
