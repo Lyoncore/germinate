@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2004 Canonical Ltd.
+# Copyright (c) 2004, 2005, 2006, 2007 Canonical Ltd.
 #
 # This file is part of Germinate.
 #

@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 """Update list files from the Wiki."""
 
-# Copyright (c) 2004, 2005 Canonical Ltd.
+# Copyright (c) 2004, 2005, 2006, 2007 Canonical Ltd.
 #
 # Germinate is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
