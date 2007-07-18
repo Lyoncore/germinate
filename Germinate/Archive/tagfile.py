@@ -22,6 +22,8 @@ import os
 import urllib2
 import cStringIO
 import gzip
+import tempfile
+import shutil
 
 class TagFile:
     def __init__(self, mirror, source_mirror=None):
@@ -31,10 +33,12 @@ class TagFile:
         else:
             self.source_mirror = mirror
 
-    def open_tag_file(self, mirror, filename, dist, component, ftppath):
+    def open_tag_file(self, mirror, dirname, filename,
+                      dist, component, ftppath):
         """Download an apt tag file if needed, then open it."""
-        if os.path.exists(filename):
-            return open(filename, "r")
+        fullname = os.path.join(dirname, filename)
+        if os.path.exists(fullname):
+            return open(fullname, "r")
 
         print "Downloading", filename, "file ..."
         url = mirror + "dists/" + dist + "/" + component + "/" + ftppath
@@ -44,49 +48,48 @@ class TagFile:
         # apt_pkg is weird and won't accept GzipFile
         print "Decompressing", filename, "file ..."
         gzip_f = gzip.GzipFile(fileobj=url_data)
-        f = open(filename, "w")
+        f = open(fullname, "w")
         for line in gzip_f:
             print >>f, line,
         f.close()
         gzip_f.close()
         url_data.close()
 
-        return open(filename, "r")
+        return open(fullname, "r")
 
     def feed(self, g, dists, components, arch, cleanup=False):
+        if cleanup:
+            dirname = tempfile.mkdtemp(prefix="germinate-")
+        else:
+            dirname = '.'
+
         for dist in dists:
             for component in components:
+                filename = "%s_%s_Packages" % (dist, component)
                 g.parsePackages(
                     self.open_tag_file(
-                        self.mirror,
-                        "%s_%s_Packages" % (dist, component),
-                        dist, component,
+                        self.mirror, dirname, filename, dist, component,
                         "binary-" + arch + "/Packages.gz"),
                     "deb")
-                if cleanup:
-                    os.unlink("%s_%s_Packages" % (dist, component))
 
+                filename = "%s_%s_Sources" % (dist, component)
                 g.parseSources(
                     self.open_tag_file(
-                        self.source_mirror,
-                        "%s_%s_Sources" % (dist, component),
-                        dist, component,
+                        self.source_mirror, dirname, filename, dist, component,
                         "source/Sources.gz"))
-                if cleanup:
-                    os.unlink("%s_%s_Sources" % (dist, component))
 
                 instpackages = ""
                 try:
+                    filename = "%s_%s_InstallerPackages" % (dist, component)
                     instpackages = self.open_tag_file(
-                        self.mirror,
-                        "%s_%s_InstallerPackages" % (dist, component),
-                        dist, component,
+                        self.mirror, dirname, filename, dist, component,
                         "debian-installer/binary-" + arch + "/Packages.gz")
-                    if cleanup:
-                        os.unlink("%s_%s_InstallerPackages" % (dist, component))
                 except IOError:
                     # can live without these
                     print "Missing installer Packages file for", component, \
                           "(ignoring)"
                 else:
                     g.parsePackages(instpackages, "udeb")
+
+        if cleanup:
+            shutil.rmtree(dirname)

@@ -8,6 +8,8 @@ germinate (0.32) UNRELEASED; urgency=low
     of seeds.
   * germinate-pkg-diff now automatically adds inherited seeds as necessary.
     Thus, the default list of seeds is reduced to simply 'desktop'.
+  * Download package index files to a temporary directory if they aren't
+    going to be saved.
 
  -- Colin Watson <cjwatson@debian.org>  Wed, 18 Jul 2007 11:45:08 +0100
 
