@@ -181,7 +181,7 @@ def main():
             sys.exit()
         elif option in ("-l", "--list"):
             dpkgFile = value
-        elif option in ("-m", "--mirror"):
+        elif option in ("-m", "--mode"):
             # one of 'i' (install), 'r' (remove), or 'd' (default)
             g.setOutput(value)
 
