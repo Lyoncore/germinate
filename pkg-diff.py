@@ -156,7 +156,7 @@ Options:
   -h, --help            Print this help message and exit.
   --version             Output version information and exit.
   -l, --list=FILE       Read list of packages from this file
-                        (default: read from dpkg --get-selections)
+                        (default: read from dpkg --get-selections).
   -m, --mode=[i|r|d]    Show packages to install/remove/diff (default: d).
   -a, --arch=ARCH       Operate on architecture ARCH (default: %s).
 
