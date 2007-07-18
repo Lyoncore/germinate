@@ -13,6 +13,8 @@ germinate (0.32) UNRELEASED; urgency=low
   * Clean up package index files downloaded for germinate-pkg-diff.
   * Add germinate-pkg-diff -a/--arch option.
   * Update copyright dates.
+  * Add manual pages for germinate-pkg-diff and
+    germinate-update-metapackage.
 
  -- Colin Watson <cjwatson@debian.org>  Wed, 18 Jul 2007 11:45:08 +0100
 
