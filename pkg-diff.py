@@ -158,21 +158,24 @@ Options:
   -l, --list=FILE       Read list of packages from this file
                         (default: read from dpkg --get-selections)
   -m, --mode=[i|r|d]    Show packages to install/remove/diff (default: d).
+  -a, --arch=ARCH       Operate on architecture ARCH (default: %s).
 
 A list of seeds against which to compare may be supplied as non-option
 arguments. Seeds from which they inherit will be added automatically. The
 default is 'desktop'.
-"""
+""" % ARCH
 
 def main():
+    global ARCH
     g = Globals()
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hl:m:",
+        opts, args = getopt.getopt(sys.argv[1:], "hl:m:a:",
                                    ["help",
                                     "version",
                                     "list=",
-                                    "mode="])
+                                    "mode=",
+                                    "arch="])
     except getopt.GetoptError:
         usage(sys.stderr)
         sys.exit(2)
@@ -191,6 +194,8 @@ def main():
         elif option in ("-m", "--mode"):
             # one of 'i' (install), 'r' (remove), or 'd' (default)
             g.setOutput(value)
+        elif option in ("-a", "--arch"):
+            ARCH = value
 
     g.parseDpkg(dpkgFile)
     if not len(args):
