@@ -100,7 +100,7 @@ class Globals:
         apt_pkg.InitConfig()
         apt_pkg.Config.Set("APT::Architecture", ARCH)
 
-        Germinate.Archive.TagFile(MIRROR).feed(g, DIST, COMPONENTS, ARCH)
+        Germinate.Archive.TagFile(MIRROR).feed(g, DIST, COMPONENTS, ARCH, True)
 
         (seednames, seedinherit) = g.parseStructure(
             Germinate.seeds.open_seed(SEEDS + RELEASE, "STRUCTURE"))

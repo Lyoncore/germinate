@@ -10,6 +10,7 @@ germinate (0.32) UNRELEASED; urgency=low
     Thus, the default list of seeds is reduced to simply 'desktop'.
   * Download package index files to a temporary directory if they aren't
     going to be saved.
+  * Clean up package index files downloaded for germinate-pkg-diff.
 
  -- Colin Watson <cjwatson@debian.org>  Wed, 18 Jul 2007 11:45:08 +0100
 
