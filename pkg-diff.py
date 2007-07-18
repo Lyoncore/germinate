@@ -154,7 +154,7 @@ Options:
   -m, --mode=[i|r|d]    Show packages to install/remove/diff (default: d).
 
 A list of seeds against which to compare may be supplied as non-option
-arguments. The default is 'minimal standard desktop'.
+arguments. The default is 'required minimal standard desktop'.
 """
 
 def main():
@@ -187,7 +187,7 @@ def main():
 
     g.parseDpkg(dpkgFile)
     if not len(args):
-        args = ["minimal", "standard", "desktop"]
+        args = ["required", "minimal", "standard", "desktop"]
     g.setSeeds(args)
     g.output()
 
