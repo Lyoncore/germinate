@@ -1,8 +1,8 @@
-germinate (0.33) UNRELEASED; urgency=low
+germinate (0.33) unstable; urgency=low
 
   * Honour recommends in germinate-pkg-diff.
 
- -- Colin Watson <cjwatson@debian.org>  Thu, 19 Jul 2007 09:04:10 +0100
+ -- Colin Watson <cjwatson@debian.org>  Thu, 19 Jul 2007 09:07:16 +0100
 
 germinate (0.32) unstable; urgency=low
 
