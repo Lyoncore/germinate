@@ -122,7 +122,7 @@ class Globals:
                 self.package[pkg].setSeed(seedname + ".seed")
             for pkg in g.seedrecommends[seedname]:
                 self.package.setdefault(pkg, Package(pkg))
-                self.package[pkg].setSeed(seedname + ".seedrecommends")
+                self.package[pkg].setSeed(seedname + ".seed-recommends")
             for pkg in g.depends[seedname]:
                 self.package.setdefault(pkg, Package(pkg))
                 self.package[pkg].setSeed(seedname + ".depends")
