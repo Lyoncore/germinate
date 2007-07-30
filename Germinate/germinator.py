@@ -145,6 +145,9 @@ class Germinator:
             self.packagetype[pkg] = pkgtype
             self.pruned[pkg] = set()
 
+            self.packages[pkg]["Section"] = \
+                p.Section.get("Section", "").split('/')[-1]
+
             self.packages[pkg]["Maintainer"] = \
                 unicode(p.Section.get("Maintainer", ""), "utf8", "replace")
 
@@ -634,7 +637,10 @@ class Germinator:
     def reverseDepends(self):
         """Calculate the reverse dependency relationships."""
         for pkg in self.all:
-            for field in "Pre-Depends", "Depends":
+            fields = ["Pre-Depends", "Depends"]
+            if self.packages[pkg]["Section"] == "metapackages":
+                fields.append("Recommends")
+            for field in fields:
                 for deplist in self.packages[pkg][field]:
                     for dep in deplist:
                         if dep[0] in self.all and \
@@ -653,8 +659,11 @@ class Germinator:
             if "Reverse-Depends" not in self.packages[pkg]:
                 continue
 
-            for field in ("Pre-Depends", "Depends",
-                          "Build-Depends", "Build-Depends-Indep"):
+            fields = ["Pre-Depends", "Depends"]
+            if self.packages[pkg]["Section"] == "metapackages":
+                fields.append("Recommends")
+            fields.extend(["Build-Depends", "Build-Depends-Indep"])
+            for field in fields:
                 if field not in self.packages[pkg]["Reverse-Depends"]:
                     continue
 
@@ -869,6 +878,12 @@ class Germinator:
         self.addDependencyTree(seedname, pkg, self.packages[pkg]["Depends"],
                                second_class=second_class,
                                build_tree=build_tree)
+
+        if self.packages[pkg]["Section"] == "metapackages":
+            self.addDependencyTree(seedname, pkg,
+                                   self.packages[pkg]["Recommends"],
+                                   second_class=second_class,
+                                   build_tree=build_tree)
 
         src = self.packages[pkg]["Source"]
         if src not in self.sources:
