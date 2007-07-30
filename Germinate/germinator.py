@@ -114,6 +114,8 @@ class Germinator:
             line = line.strip()
             if not line:
                 continue
+            if line.startswith('#'):
+                continue
             lines.append(line)
             words = line.split()
             if words[0].endswith(':'):
