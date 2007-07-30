@@ -111,6 +111,9 @@ class Germinator:
         seedinherit = {}
 
         for line in f:
+            line = line.strip()
+            if not line:
+                continue
             lines.append(line)
             words = line.split()
             if words[0].endswith(':'):
