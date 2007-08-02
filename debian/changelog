@@ -1,11 +1,11 @@
-germinate (0.34) UNRELEASED; urgency=low
+germinate (0.34) unstable; urgency=low
 
   * Follow Recommends in Section: metapackages as if they were Depends.
   * Ignore leading and trailing whitespace and blank lines in STRUCTURE
     files.
   * Allow comments (starting with #) in STRUCTURE files.
 
- -- Colin Watson <cjwatson@debian.org>  Mon, 30 Jul 2007 09:28:59 +0100
+ -- Colin Watson <cjwatson@debian.org>  Thu, 02 Aug 2007 12:05:40 +0100
 
 germinate (0.33) unstable; urgency=low
 
