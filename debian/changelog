@@ -1,3 +1,10 @@
+germinate (0.35) UNRELEASED; urgency=low
+
+  * Make germinate-update-metapackage only blacklist the metapackage being
+    generated, not all metapackages. See LP #148075.
+
+ -- Colin Watson <cjwatson@debian.org>  Wed, 03 Oct 2007 14:51:13 +0100
+
 germinate (0.34) unstable; urgency=low
 
   * Follow Recommends in Section: metapackages as if they were Depends.

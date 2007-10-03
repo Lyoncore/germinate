@@ -149,8 +149,6 @@ def seed_packages(germinator_list, seed):
     return packages
 
 debootstrap_version_file = 'debootstrap-version'
-metapackages = map(lambda seed: '%s-%s' % (metapackage, seed), seeds)
-seed_package_blacklist = set(metapackages)
 
 def get_debootstrap_version():
     version = os.popen("dpkg-query -W --showformat '${Version}' debootstrap").read()
@@ -227,7 +225,8 @@ for architecture in architectures:
         # work on the depends
         new_list = []
         for package in seed_packages(germinator.seed, seed_name):
-            if package in seed_package_blacklist:
+            if package == '%s-%s' % (metapackage, seed_name):
+                print "%s/%s: Skipping package %s (metapackage)" % (seed_name,architecture,package)
                 continue
             if seed_name == 'minimal' and package not in debootstrap_base:
                 print "%s/%s: Skipping package %s (package not in debootstrap)" % (seed_name,architecture,package)
@@ -245,7 +244,8 @@ for architecture in architectures:
         old_recommends_list = None
         new_recommends_list = []
         for package in seed_packages(germinator.seedrecommends, seed_name):
-            if package in seed_package_blacklist:
+            if package == '%s-%s' % (metapackage, seed_name):
+                print "%s/%s: Skipping package %s (metapackage)" % (seed_name,architecture,package)
                 continue
             if seed_name == 'minimal' and package not in debootstrap_base:
                 print "%s/%s: Skipping package %s (package not in debootstrap)" % (seed_name,architecture,package)
