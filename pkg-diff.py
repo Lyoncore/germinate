@@ -34,9 +34,9 @@ import Germinate.version
 
 # TODO: cloned from germinate.py; should be common
 SEEDS = "http://people.ubuntu.com/~ubuntu-archive/seeds/"
-RELEASE = "ubuntu.gutsy"
+RELEASE = "ubuntu.hardy"
 MIRROR = "http://archive.ubuntu.com/ubuntu/"
-DIST = ["gutsy"]
+DIST = ["hardy"]
 COMPONENTS = ["main"]
 ARCH = "i386"
 

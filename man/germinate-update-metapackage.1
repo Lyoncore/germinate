@@ -126,9 +126,9 @@ the
 source package in the Ubuntu archive:
 .Bd -literal -offset indent
 [DEFAULT]
-dist: gutsy
+dist: hardy
 
-[gutsy]
+[hardy]
 seeds: required minimal standard desktop
 output_seeds: desktop
 architectures: i386 amd64 powerpc ia64 sparc hppa
@@ -141,7 +141,7 @@ archive_base/ia64: %(archive_base/ports)s
 archive_base/powerpc: %(archive_base/ports)s
 components: main restricted
 
-[gutsy/bzr]
+[hardy/bzr]
 seed_base: sftp://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/
 seed_dist: kubuntu.%(dist)s
 .Ed

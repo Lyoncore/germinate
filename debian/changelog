@@ -2,6 +2,7 @@ germinate (0.35) UNRELEASED; urgency=low
 
   * Make germinate-update-metapackage only blacklist the metapackage being
     generated, not all metapackages. See LP #148075.
+  * Change default distribution to hardy.
 
  -- Colin Watson <cjwatson@debian.org>  Wed, 03 Oct 2007 14:51:13 +0100
 

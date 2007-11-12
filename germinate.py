@@ -46,13 +46,13 @@ import Germinate.version
 # Where do we get up-to-date seeds from?
 SEEDS = "http://people.ubuntu.com/~ubuntu-archive/seeds/"
 SEEDS_BZR = "http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/"
-RELEASE = "ubuntu.gutsy"
+RELEASE = "ubuntu.hardy"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
 # them from?
 MIRROR = "http://archive.ubuntu.com/ubuntu/"
 SOURCE_MIRROR = None
-DIST = ["gutsy"]
+DIST = ["hardy"]
 COMPONENTS = ["main", "restricted"]
 ARCH = "i386"
 
