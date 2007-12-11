@@ -5,7 +5,7 @@ Maintainer: Colin Watson <cjwatson@debian.org>
 Standards-Version: 3.7.2
 Build-Depends: debhelper (>= 5.0.37.2)
 Build-Depends-Indep: python, python-support (>= 0.3)
-XS-Vcs-Bzr: http://people.ubuntu.com/~cjwatson/bzr/germinate/mainline
+Vcs-Bzr: http://people.ubuntu.com/~cjwatson/bzr/germinate/mainline
 
 Package: germinate
 Architecture: all
