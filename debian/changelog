@@ -4,6 +4,8 @@ germinate (0.35) UNRELEASED; urgency=low
     generated, not all metapackages. See LP #148075.
   * Change default distribution to hardy.
   * Vcs-Bzr is now an official field.
+  * Fix 'structure' output file; records were being separated by the empty
+    string rather than by newlines, which made it rather useless.
 
  -- Colin Watson <cjwatson@debian.org>  Wed, 03 Oct 2007 14:51:13 +0100
 

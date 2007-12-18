@@ -246,7 +246,8 @@ def write_prov_list(filename, provdict):
 
 def write_structure(filename, structure):
     f = open(filename, "w")
-    print >>f, structure,
+    for line in structure:
+        print >>f, line
     f.close()
 
 

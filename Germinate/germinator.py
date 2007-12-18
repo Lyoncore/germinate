@@ -39,7 +39,7 @@ class Germinator:
         self.sources = {}
         self.pruned = {}
 
-        self.structure = ''
+        self.structure = []
         self.seeds = []
         self.seed = {}
         self.seedrecommends = {}
@@ -126,7 +126,7 @@ class Germinator:
                 self.error("Unparseable seed structure entry: %s", line)
         f.close()
 
-        self.structure = ''.join(lines)
+        self.structure = lines
         return (seednames, seedinherit)
 
     def parseHints(self, f):
