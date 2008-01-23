@@ -188,8 +188,6 @@ class Germinator:
         # later branches can override seeds from earlier branches
         all_branches.reverse()
 
-        logging.info("pre-expansion: %s" % repr(all_inherit))
-
         # Expand out incomplete inheritance lists
         order = Germinate.tsort.topo_sort(all_inherit)
         for name in order:
@@ -204,8 +202,6 @@ class Germinator:
                     new_inherit.append(inheritee)
                     seen.add(inheritee)
             all_inherit[name] = new_inherit
-
-        logging.info("post-expansion: %s" % repr(all_inherit))
 
         return all_names, all_inherit, all_branches
 
