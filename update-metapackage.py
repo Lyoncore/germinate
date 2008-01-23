@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2004, 2005, 2006, 2007 Canonical Ltd.
+# Copyright (c) 2004, 2005, 2006, 2007, 2008 Canonical Ltd.
 # Copyright (c) 2006 Gustavo Franco
 #
 # This file is part of Germinate.
@@ -126,15 +126,12 @@ if bzr and config.has_option("%s/bzr" % dist, 'seed_base'):
     seed_base = config.get("%s/bzr" % dist, 'seed_base')
 else:
     seed_base = config.get(dist, 'seed_base')
-if not seed_base.endswith('/'):
-    seed_base += '/'
 if bzr and config.has_option("%s/bzr" % dist, 'seed_dist'):
     seed_dist = config.get("%s/bzr" % dist, 'seed_dist')
 elif config.has_option(dist, 'seed_dist'):
     seed_dist = config.get(dist, 'seed_dist')
 else:
     seed_dist = dist
-seed_base += seed_dist
 seed_entry = re.compile(' *\* *(?P<package>\S+) *(\[(?P<arches>[^]]*)\])? *(#.*)?')
 components = config.get(dist, 'components').split()
 
@@ -206,13 +203,13 @@ for architecture in architectures:
     debootstrap_base = set(debootstrap_packages(architecture))
 
     print "[%s] Loading seed lists..." % architecture
-    (seed_names, seed_inherit) = germinator.parseStructure(
-        Germinate.seeds.open_seed(seed_base, "STRUCTURE", bzr))
+    seed_names, seed_inherit, seed_branches = germinator.parseStructure(
+        seed_base, seed_dist, bzr)
     for seed_name in seeds:
-        germinator.plantSeed(Germinate.seeds.open_seed(seed_base, seed_name,
-                                                       bzr),
-                             architecture, seed_name,
-                             list(seed_inherit[seed_name]))
+        germinator.plantSeed(
+            Germinate.seeds.open_seed(seed_base, seed_branches, seed_name,
+                                      bzr),
+            architecture, seed_name, list(seed_inherit[seed_name]))
 
     print "[%s] Merging seeds with available package lists..." % architecture
     for seed_name in output_seeds:

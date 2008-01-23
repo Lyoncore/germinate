@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 """Update list files from the Wiki."""
 
-# Copyright (c) 2004, 2005, 2006, 2007 Canonical Ltd.
+# Copyright (c) 2004, 2005, 2006, 2007, 2008 Canonical Ltd.
 #
 # Germinate is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -380,15 +380,16 @@ def main():
     if os.path.isfile("hints"):
         g.parseHints(open("hints"))
 
-    blacklist = Germinate.seeds.open_seed(SEEDS + RELEASE, "blacklist", bzr)
+    blacklist = Germinate.seeds.open_seed(SEEDS, RELEASE, "blacklist", bzr)
     if blacklist is not None:
         g.parseBlacklist(blacklist)
 
-    (seednames, seedinherit) = g.parseStructure(
-        Germinate.seeds.open_seed(SEEDS + RELEASE, "STRUCTURE", bzr))
+    seednames, seedinherit, seedbranches = g.parseStructure(
+        SEEDS, RELEASE, bzr)
     for seedname in seednames:
-        g.plantSeed(Germinate.seeds.open_seed(SEEDS + RELEASE, seedname, bzr),
-                    ARCH, seedname, list(seedinherit[seedname]), RELEASE)
+        g.plantSeed(
+            Germinate.seeds.open_seed(SEEDS, seedbranches, seedname, bzr),
+            ARCH, seedname, list(seedinherit[seedname]), RELEASE)
     for seed_package in seed_packages:
         (parent, pkg) = seed_package.split('/')
         g.plantSeed([" * " + pkg], ARCH, pkg,

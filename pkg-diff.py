@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2004, 2005, 2006, 2007 Canonical Ltd.
+# Copyright (c) 2004, 2005, 2006, 2007, 2008 Canonical Ltd.
 #
 # This file is part of Germinate.
 #
@@ -102,8 +102,7 @@ class Globals:
 
         Germinate.Archive.TagFile(MIRROR).feed(g, DIST, COMPONENTS, ARCH, True)
 
-        (seednames, seedinherit) = g.parseStructure(
-            Germinate.seeds.open_seed(SEEDS + RELEASE, "STRUCTURE"))
+        seednames, seedinherit, seedbranches = g.parseStructure(SEEDS, RELEASE)
         needed_seeds = []
         for seedname in self.seeds:
             for inherit in seedinherit[seedname]:
@@ -111,8 +110,9 @@ class Globals:
                     needed_seeds.append(inherit)
             needed_seeds.append(seedname)
         for seedname in needed_seeds:
-            g.plantSeed(Germinate.seeds.open_seed(SEEDS + RELEASE, seedname),
-                        ARCH, seedname, list(seedinherit[seedname]), RELEASE)
+            g.plantSeed(
+                Germinate.seeds.open_seed(SEEDS, seedbranches, seedname),
+                ARCH, seedname, list(seedinherit[seedname]), RELEASE)
         g.prune()
         g.grow()
 

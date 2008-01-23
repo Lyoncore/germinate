@@ -6,6 +6,15 @@ germinate (0.35) UNRELEASED; urgency=low
   * Vcs-Bzr is now an official field.
   * Fix 'structure' output file; records were being separated by the empty
     string rather than by newlines, which made it rather useless.
+  * Add an 'include' facility to the STRUCTURE file to allow seeds from one
+    branch to inherit from seeds in another branch.
+  * Automatically compute the transitive closure of inheritance
+    relationships in the STRUCTURE file, rather than requiring them to be
+    written out by hand. In other words, if you have 'minimal: required'
+    then you can simply write 'standard: minimal' rather than 'standard:
+    required minimal'. This is a requirement for sane use of 'include',
+    since it may not be straightforward to hardcode the inheritance
+    relationships among seeds in another branch.
 
  -- Colin Watson <cjwatson@debian.org>  Wed, 03 Oct 2007 14:51:13 +0100
 

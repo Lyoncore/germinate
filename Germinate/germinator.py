@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 """Expand seeds into dependency-closed lists of packages."""
 
-# Copyright (c) 2004, 2005, 2006, 2007 Canonical Ltd.
+# Copyright (c) 2004, 2005, 2006, 2007, 2008 Canonical Ltd.
 #
 # Germinate is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -28,6 +28,9 @@ try:
 except NameError:
     import sets
     set = sets.Set
+
+import Germinate.seeds
+import Germinate.tsort
 
 class Germinator:
     PROGRESS = 15
@@ -90,7 +93,7 @@ class Germinator:
     def error(self, msg, *args, **kwargs):
         logging.error(msg, *args, **kwargs)
 
-    def parseStructure(self, f):
+    def parseStructureFile(self, f):
         """Parse a seed structure file. This is an ordered sequence of lines
         as follows:
 
@@ -105,10 +108,20 @@ class Germinator:
         The lines should be topologically sorted with respect to
         inheritance, with inherited-from seeds at the start.
 
-        Returns (ordered list of seed names, dict of SEED -> INHERITED)."""
+        Any line as follows:
+
+        include BRANCH
+
+        causes another seed branch to be included. Seed names will be
+        resolved in included branches if they cannot be found in the current
+        branch.
+
+        Returns (ordered list of seed names, dict of SEED -> INHERITED,
+        branches)."""
         lines = []
         seednames = []
         seedinherit = {}
+        seedbranches = []
 
         for line in f:
             line = line.strip()
@@ -122,12 +135,79 @@ class Germinator:
                 seed = words[0][:-1]
                 seednames.append(seed)
                 seedinherit[seed] = list(words[1:])
+            elif words[0] == 'include':
+                seedbranches.extend(words[1:])
             else:
                 self.error("Unparseable seed structure entry: %s", line)
         f.close()
 
         self.structure = lines
-        return (seednames, seedinherit)
+        return (seednames, seedinherit, seedbranches)
+
+    def parseStructure(self, seed_base, branch, bzr=False, got_branches=None):
+        """Like parseStructureFile, but deals with acquiring the seed
+        structure files and recursively acquiring any seed structure files
+        it includes. got_branches is for internal use only."""
+        if got_branches is None:
+            got_branches = set()
+        all_names = []
+        all_inherit = {}
+        all_branches = []
+
+        if branch in got_branches:
+            return all_names, all_inherit, all_branches
+
+        # Fetch this one
+        seed = Germinate.seeds.open_seed(seed_base, branch, "STRUCTURE", bzr)
+        names, inherit, branches = self.parseStructureFile(seed)
+        branches.insert(0, branch)
+        got_branches.add(branch)
+
+        # Recursively expand included branches
+        for child_branch in branches:
+            child_names, child_inherit, child_branches = \
+                self.parseStructure(seed_base, child_branch, bzr, got_branches)
+            for grandchild_name in child_names:
+                if grandchild_name not in all_names:
+                    all_names.append(grandchild_name)
+            all_inherit.update(child_inherit)
+            for grandchild_branch in child_branches:
+                if grandchild_branch not in all_branches:
+                    all_branches.append(grandchild_branch)
+
+        # Attach the main branch's data to the end
+        for child_name in names:
+            if child_name not in all_names:
+                all_names.append(child_name)
+        all_inherit.update(inherit)
+        for child_branch in branches:
+            if child_branch not in all_branches:
+                all_branches.append(child_branch)
+
+        # We generally want to process branches in reverse order, so that
+        # later branches can override seeds from earlier branches
+        all_branches.reverse()
+
+        logging.info("pre-expansion: %s" % repr(all_inherit))
+
+        # Expand out incomplete inheritance lists
+        order = Germinate.tsort.topo_sort(all_inherit)
+        for name in order:
+            seen = set()
+            new_inherit = []
+            for inheritee in all_inherit[name]:
+                for expanded in all_inherit[inheritee]:
+                    if expanded not in seen:
+                        new_inherit.append(expanded)
+                        seen.add(expanded)
+                if inheritee not in seen:
+                    new_inherit.append(inheritee)
+                    seen.add(inheritee)
+            all_inherit[name] = new_inherit
+
+        logging.info("post-expansion: %s" % repr(all_inherit))
+
+        return all_names, all_inherit, all_branches
 
     def parseHints(self, f):
         """Parse a hints file."""

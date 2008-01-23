@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 """Fetch seeds from a URL collection or from bzr."""
 
-# Copyright (c) 2004, 2005, 2006 Canonical Ltd.
+# Copyright (c) 2004, 2005, 2006, 2008 Canonical Ltd.
 #
 # Germinate is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -31,23 +31,24 @@ bzr_cache_dir = None
 def _cleanup_bzr_cache(directory):
     shutil.rmtree(directory, ignore_errors=True)
 
-def open_seed(seed_base, seed_file, bzr=False):
-    if not seed_base.endswith('/'):
-        seed_base += '/'
+def _open_seed_internal(seed_base, seed_branch, seed_file, bzr=False):
+    seed_path = os.path.join(seed_base, seed_branch)
+    if not seed_path.endswith('/'):
+        seed_path += '/'
     if bzr:
         global bzr_cache_dir
         if bzr_cache_dir is None:
             bzr_cache_dir = tempfile.mkdtemp(prefix='germinate-')
             atexit.register(_cleanup_bzr_cache, bzr_cache_dir)
             # https://launchpad.net/products/bzr/+bug/39542
-            if seed_base.startswith('http:'):
+            if seed_path.startswith('http:'):
                 operation = 'get'
-                logging.info("Fetching branch of %s", seed_base)
+                logging.info("Fetching branch of %s", seed_path)
             else:
                 operation = 'checkout'
-                logging.info("Checking out %s", seed_base)
+                logging.info("Checking out %s", seed_path)
             command = ('bzr %s %s %s' %
-                       (operation, seed_base,
+                       (operation, seed_path,
                         os.path.join(bzr_cache_dir, 'checkout')))
             status = os.system(command)
             if status != 0:
@@ -57,10 +58,10 @@ def open_seed(seed_base, seed_file, bzr=False):
             return open(os.path.join(bzr_cache_dir, 'checkout', seed_file))
         except IOError:
             logging.warning("Could not open %s from checkout of %s",
-                            seed_file, seed_base)
+                            seed_file, seed_path)
             return None
     else:
-        url = urlparse.urljoin(seed_base, seed_file)
+        url = urlparse.urljoin(seed_path, seed_file)
         logging.info("Downloading %s", url)
         try:
             req = urllib2.Request(url)
@@ -70,3 +71,29 @@ def open_seed(seed_base, seed_file, bzr=False):
         except urllib2.URLError:
             logging.warning("Could not open %s", url)
             return None
+
+def open_seed(seed_base, seed_branches, seed_file, bzr=False):
+    if isinstance(seed_branches, str) or isinstance(seed_branches, unicode):
+        branches_desc = seed_branches
+        seed_branches = [seed_branches]
+    else:
+        branches_desc = '{%s}' % ','.join(seed_branches)
+
+    fd = None
+    for branch in seed_branches:
+        try:
+            fd = _open_seed_internal(seed_base, branch, seed_file, bzr)
+            break
+        except (OSError, IOError):
+            pass
+
+    if fd is None:
+        seed_path = os.path.join(seed_base, branches_desc)
+        if bzr:
+            logging.warning("Could not open %s from checkout of (any of) %s",
+                            seed_file, seed_path)
+        else:
+            logging.warning("Could not open (any of) %s",
+                            urlparse.urljoin(seed_path, seed_file))
+
+    return fd
