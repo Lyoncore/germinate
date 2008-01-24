@@ -117,11 +117,11 @@ class Germinator:
         branch.
 
         Returns (ordered list of seed names, dict of SEED -> INHERITED,
-        branches)."""
-        lines = []
+        branches, structure)."""
         seednames = []
         seedinherit = {}
         seedbranches = []
+        lines = []
 
         for line in f:
             line = line.strip()
@@ -129,43 +129,46 @@ class Germinator:
                 continue
             if line.startswith('#'):
                 continue
-            lines.append(line)
             words = line.split()
             if words[0].endswith(':'):
                 seed = words[0][:-1]
                 seednames.append(seed)
                 seedinherit[seed] = list(words[1:])
+                lines.append(line)
             elif words[0] == 'include':
                 seedbranches.extend(words[1:])
             else:
                 self.error("Unparseable seed structure entry: %s", line)
         f.close()
 
-        self.structure = lines
-        return (seednames, seedinherit, seedbranches)
+        return (seednames, seedinherit, seedbranches, lines)
 
     def parseStructure(self, seed_base, branch, bzr=False, got_branches=None):
         """Like parseStructureFile, but deals with acquiring the seed
         structure files and recursively acquiring any seed structure files
         it includes. got_branches is for internal use only."""
         if got_branches is None:
+            top_level = True
             got_branches = set()
+        else:
+            top_level = False
         all_names = []
         all_inherit = {}
         all_branches = []
+        all_structure = []
 
         if branch in got_branches:
-            return all_names, all_inherit, all_branches
+            return all_names, all_inherit, all_branches, all_structure
 
         # Fetch this one
         seed = Germinate.seeds.open_seed(seed_base, branch, "STRUCTURE", bzr)
-        names, inherit, branches = self.parseStructureFile(seed)
+        names, inherit, branches, structure = self.parseStructureFile(seed)
         branches.insert(0, branch)
         got_branches.add(branch)
 
         # Recursively expand included branches
         for child_branch in branches:
-            child_names, child_inherit, child_branches = \
+            child_names, child_inherit, child_branches, child_structure = \
                 self.parseStructure(seed_base, child_branch, bzr, got_branches)
             for grandchild_name in child_names:
                 if grandchild_name not in all_names:
@@ -174,6 +177,7 @@ class Germinator:
             for grandchild_branch in child_branches:
                 if grandchild_branch not in all_branches:
                     all_branches.append(grandchild_branch)
+            all_structure.extend(child_structure)
 
         # Attach the main branch's data to the end
         for child_name in names:
@@ -183,6 +187,7 @@ class Germinator:
         for child_branch in branches:
             if child_branch not in all_branches:
                 all_branches.append(child_branch)
+        all_structure.extend(structure)
 
         # We generally want to process branches in reverse order, so that
         # later branches can override seeds from earlier branches
@@ -203,7 +208,11 @@ class Germinator:
                     seen.add(inheritee)
             all_inherit[name] = new_inherit
 
-        return all_names, all_inherit, all_branches
+        if top_level:
+            self.structure = all_structure
+            return all_names, all_inherit, all_branches
+        else:
+            return all_names, all_inherit, all_branches, all_structure
 
     def parseHints(self, f):
         """Parse a hints file."""
