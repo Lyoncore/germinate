@@ -17,6 +17,7 @@ germinate (0.35) UNRELEASED; urgency=low
     relationships among seeds in another branch.
   * Unhardcode the 'supported' seed. The last seed in the STRUCTURE file is
     now used for build-depends calculations.
+  * Policy version 3.7.3: no changes required.
 
  -- Colin Watson <cjwatson@debian.org>  Wed, 03 Oct 2007 14:51:13 +0100
 
