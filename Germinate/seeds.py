@@ -54,23 +54,14 @@ def _open_seed_internal(seed_base, seed_branch, seed_file, bzr=False):
             if status != 0:
                 raise RuntimeError("Command failed with exit status %d:\n"
                                    "  '%s'" % (status, command))
-        try:
-            return open(os.path.join(bzr_cache_dir, 'checkout', seed_file))
-        except IOError:
-            logging.warning("Could not open %s from checkout of %s",
-                            seed_file, seed_path)
-            return None
+        return open(os.path.join(bzr_cache_dir, 'checkout', seed_file))
     else:
         url = urlparse.urljoin(seed_path, seed_file)
         logging.info("Downloading %s", url)
-        try:
-            req = urllib2.Request(url)
-            req.add_header('Cache-Control', 'no-cache')
-            req.add_header('Pragma', 'no-cache')
-            return urllib2.urlopen(req)
-        except urllib2.URLError:
-            logging.warning("Could not open %s", url)
-            return None
+        req = urllib2.Request(url)
+        req.add_header('Cache-Control', 'no-cache')
+        req.add_header('Pragma', 'no-cache')
+        return urllib2.urlopen(req)
 
 def open_seed(seed_base, seed_branches, seed_file, bzr=False):
     if isinstance(seed_branches, str) or isinstance(seed_branches, unicode):
@@ -84,7 +75,7 @@ def open_seed(seed_base, seed_branches, seed_file, bzr=False):
         try:
             fd = _open_seed_internal(seed_base, branch, seed_file, bzr)
             break
-        except (OSError, IOError):
+        except (OSError, IOError, urllib2.URLError):
             pass
 
     if fd is None:
