@@ -110,9 +110,10 @@ therefore does not add all the packages that result from following
 build-dependencies of seed packages and of their dependencies (the
 .Dq build-dependency tree )
 to every output, unless they are also in the seed or in the dependency list.
-Instead, it adds them to the special
-.Li supported
-seed.
+Instead, it adds them to the output for the last seed in the
+.Pa STRUCTURE
+file, conventionally called
+.Li supported .
 .Pp
 Like any other seed, the supported seed may contain its own list of
 packages.
@@ -227,8 +228,6 @@ Explicit entries in seeds may be required to work around this.
 Handling of installer packages (udebs) is complicated, poorly documented,
 and doesn't always work quite right: in particular, packages aren't demoted
 to the supported seed when they should be.
-.Pp
-The supported seed is more hard-coded than it should be.
 .Sh AUTHORS
 .An Scott James Remnant Aq scott@canonical.com
 .An Colin Watson Aq cjwatson@canonical.com
