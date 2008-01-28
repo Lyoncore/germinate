@@ -33,7 +33,7 @@ import Germinate.seeds
 import Germinate.version
 
 # TODO: cloned from germinate.py; should be common
-SEEDS = "http://people.ubuntu.com/~ubuntu-archive/seeds/"
+SEEDS = ["http://people.ubuntu.com/~ubuntu-archive/seeds/"]
 RELEASE = "ubuntu.hardy"
 MIRROR = "http://archive.ubuntu.com/ubuntu/"
 DIST = ["hardy"]
@@ -191,7 +191,7 @@ Options:
 A list of seeds against which to compare may be supplied as non-option
 arguments. Seeds from which they inherit will be added automatically. The
 default is 'desktop'.
-""" % (SEEDS, RELEASE, ",".join(DIST), ARCH)
+""" % (",".join(SEEDS), RELEASE, ",".join(DIST), ARCH)
 
 def main():
     global SEEDS, RELEASE, DIST, ARCH
@@ -226,9 +226,7 @@ def main():
             # one of 'i' (install), 'r' (remove), or 'd' (default)
             g.setOutput(value)
         elif option in ("-S", "--seed-source"):
-            SEEDS = value
-            if not SEEDS.endswith("/"):
-                SEEDS += "/"
+            SEEDS = value.split(",")
         elif option in ("-s", "--seed-dist"):
             RELEASE = value
         elif option in ("-d", "--dist"):

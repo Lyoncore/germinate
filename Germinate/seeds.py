@@ -40,6 +40,8 @@ def _open_seed_internal(seed_base, seed_branch, seed_file, bzr=False):
         if bzr_cache_dir is None:
             bzr_cache_dir = tempfile.mkdtemp(prefix='germinate-')
             atexit.register(_cleanup_bzr_cache, bzr_cache_dir)
+        seed_checkout = os.path.join(bzr_cache_dir, seed_branch)
+        if not os.path.isdir(seed_checkout):
             # https://launchpad.net/products/bzr/+bug/39542
             if seed_path.startswith('http:'):
                 operation = 'get'
@@ -47,14 +49,12 @@ def _open_seed_internal(seed_base, seed_branch, seed_file, bzr=False):
             else:
                 operation = 'checkout'
                 logging.info("Checking out %s", seed_path)
-            command = ('bzr %s %s %s' %
-                       (operation, seed_path,
-                        os.path.join(bzr_cache_dir, 'checkout')))
+            command = ('bzr %s %s %s' % (operation, seed_path, seed_checkout))
             status = os.system(command)
             if status != 0:
                 raise RuntimeError("Command failed with exit status %d:\n"
                                    "  '%s'" % (status, command))
-        return open(os.path.join(bzr_cache_dir, 'checkout', seed_file))
+        return open(os.path.join(seed_checkout, seed_file))
     else:
         url = urlparse.urljoin(seed_path, seed_file)
         logging.info("Downloading %s", url)
@@ -63,7 +63,7 @@ def _open_seed_internal(seed_base, seed_branch, seed_file, bzr=False):
         req.add_header('Pragma', 'no-cache')
         return urllib2.urlopen(req)
 
-def open_seed(seed_base, seed_branches, seed_file, bzr=False):
+def open_seed(seed_bases, seed_branches, seed_file, bzr=False):
     if isinstance(seed_branches, str) or isinstance(seed_branches, unicode):
         branches_desc = seed_branches
         seed_branches = [seed_branches]
@@ -71,20 +71,28 @@ def open_seed(seed_base, seed_branches, seed_file, bzr=False):
         branches_desc = '{%s}' % ','.join(seed_branches)
 
     fd = None
-    for branch in seed_branches:
-        try:
-            fd = _open_seed_internal(seed_base, branch, seed_file, bzr)
+    for base in seed_bases:
+        for branch in seed_branches:
+            try:
+                fd = _open_seed_internal(base, branch, seed_file, bzr)
+                break
+            except (OSError, IOError, urllib2.URLError):
+                pass
+        if fd is not None:
             break
-        except (OSError, IOError, urllib2.URLError):
-            pass
 
     if fd is None:
-        seed_path = os.path.join(seed_base, branches_desc)
         if bzr:
-            logging.warning("Could not open %s from checkout of (any of) %s",
-                            seed_file, seed_path)
+            logging.warning("Could not open %s from checkout of (any of):",
+                            seed_file)
+            for base in seed_bases:
+                for branch in seed_branches:
+                    logging.warning('  %s' % os.path.join(base, branch))
         else:
-            logging.warning("Could not open (any of) %s",
-                            urlparse.urljoin(seed_path, seed_file))
+            logging.warning("Could not open (any of):")
+            for base in seed_bases:
+                for branch in seed_branches:
+                    path = os.path.join(base, branch)
+                    logging.warning('  %s' % urlparse.urljoin(path, seed_file))
 
     return fd

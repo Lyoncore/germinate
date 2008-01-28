@@ -44,8 +44,8 @@ import Germinate.version
 
 
 # Where do we get up-to-date seeds from?
-SEEDS = "http://people.ubuntu.com/~ubuntu-archive/seeds/"
-SEEDS_BZR = "http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/"
+SEEDS = ["http://people.ubuntu.com/~ubuntu-archive/seeds/"]
+SEEDS_BZR = ["http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/"]
 RELEASE = "ubuntu.hardy"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
@@ -279,7 +279,8 @@ Options:
   --seed-packages=PARENT/PKG,PARENT/PKG,...
                         Treat each PKG as a seed by itself, inheriting from
                         PARENT.
-""" % (SEEDS, RELEASE, MIRROR, ",".join(DIST), ARCH, ",".join(COMPONENTS))
+""" % (",".join(SEEDS), RELEASE, MIRROR, ",".join(DIST), ARCH,
+       ",".join(COMPONENTS))
 
 
 def main():
@@ -326,9 +327,7 @@ def main():
         elif option in ("-v", "--verbose"):
             verbose = True
         elif option in ("-S", "--seed-source"):
-            SEEDS = value
-            if not SEEDS.endswith("/"):
-                SEEDS += "/"
+            SEEDS = value.split(",")
             seeds_set = True
         elif option in ("-s", "--seed-dist"):
             RELEASE = value

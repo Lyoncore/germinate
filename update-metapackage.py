@@ -126,6 +126,7 @@ if bzr and config.has_option("%s/bzr" % dist, 'seed_base'):
     seed_base = config.get("%s/bzr" % dist, 'seed_base')
 else:
     seed_base = config.get(dist, 'seed_base')
+seed_base = re.split(r'[, ]+', seed_base)
 if bzr and config.has_option("%s/bzr" % dist, 'seed_dist'):
     seed_dist = config.get("%s/bzr" % dist, 'seed_dist')
 elif config.has_option(dist, 'seed_dist'):

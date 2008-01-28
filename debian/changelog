@@ -4,6 +4,9 @@ germinate (0.36) UNRELEASED; urgency=low
     germinate-pkg-diff.
   * Add -S/--seed-source, -s/--seed-dist, and -d/--dist options to
     germinate-pkg-diff.
+  * Add support for germinating from multiple seed sources as well as
+    multiple branches. This is needed to support "third-party" seed branches
+    that are stored in a different location from branches they include.
 
  -- Colin Watson <cjwatson@debian.org>  Mon, 28 Jan 2008 14:45:21 +0000
 
