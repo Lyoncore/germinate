@@ -58,6 +58,28 @@ list of installed packages, in a somewhat
 .Ic diff Ns -like
 format.
 .El
+.It Xo Fl S ,
+.Fl Fl seed\-source Ar source
+.Xc
+Fetch seeds from
+.Ar source .
+The default is
+.Pa http://people.ubuntu.com/~ubuntu-archive/seeds/ .
+.It Xo Fl s ,
+.Fl Fl seed\-dist Ar dist
+.Xc
+Fetch seeds for distribution
+.Ar dist .
+The default is
+.Li ubuntu.hardy .
+.It Xo Fl d ,
+.Fl Fl dist Ar dist Ns \&,...
+.Xc
+Operate on the specified distributions.
+The default is
+.Li hardy .
+Listing multiple distributions may be useful, for example, when examining
+both a released distribution and its security updates.
 .It Xo Fl a ,
 .Fl Fl arch Ar arch
 .Xc
