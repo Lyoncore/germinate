@@ -1,3 +1,10 @@
+germinate (0.36) UNRELEASED; urgency=low
+
+  * Add special-case handling of supported+build-depends to
+    germinate-pkg-diff.
+
+ -- Colin Watson <cjwatson@debian.org>  Mon, 28 Jan 2008 14:45:21 +0000
+
 germinate (0.35) unstable; urgency=low
 
   * Make germinate-update-metapackage only blacklist the metapackage being
