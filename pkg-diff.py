@@ -181,23 +181,31 @@ Options:
   -l, --list=FILE       Read list of packages from this file
                         (default: read from dpkg --get-selections).
   -m, --mode=[i|r|d]    Show packages to install/remove/diff (default: d).
+  -S, --seed-source=SOURCE
+                        Fetch seeds from SOURCE
+                        (default: %s).
+  -s, --seed-dist=DIST  Fetch seeds for distribution DIST (default: %s).
+  -d, --dist=DIST       Operate on distribution DIST (default: %s).
   -a, --arch=ARCH       Operate on architecture ARCH (default: %s).
 
 A list of seeds against which to compare may be supplied as non-option
 arguments. Seeds from which they inherit will be added automatically. The
 default is 'desktop'.
-""" % ARCH
+""" % (SEEDS, RELEASE, ",".join(DIST), ARCH)
 
 def main():
-    global ARCH
+    global SEEDS, RELEASE, DIST, ARCH
     g = Globals()
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hl:m:a:",
+        opts, args = getopt.getopt(sys.argv[1:], "hl:m:S:s:d:a:",
                                    ["help",
                                     "version",
                                     "list=",
                                     "mode=",
+                                    "seed-source=",
+                                    "seed-dist=",
+                                    "dist=",
                                     "arch="])
     except getopt.GetoptError:
         usage(sys.stderr)
@@ -217,6 +225,14 @@ def main():
         elif option in ("-m", "--mode"):
             # one of 'i' (install), 'r' (remove), or 'd' (default)
             g.setOutput(value)
+        elif option in ("-S", "--seed-source"):
+            SEEDS = value
+            if not SEEDS.endswith("/"):
+                SEEDS += "/"
+        elif option in ("-s", "--seed-dist"):
+            RELEASE = value
+        elif option in ("-d", "--dist"):
+            DIST = value.split(",")
         elif option in ("-a", "--arch"):
             ARCH = value
 
