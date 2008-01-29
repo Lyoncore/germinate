@@ -1024,7 +1024,9 @@ class Germinator:
         """Automatically rescue packages matching certain patterns from
         other seeds."""
 
-        if seedname not in self.seeds or rescue_seedname not in self.seeds:
+        if seedname not in self.seeds and seedname != "extra":
+            return
+        if rescue_seedname not in self.seeds and rescue_seedname != "extra":
             return
 
         # Find all the source packages.
