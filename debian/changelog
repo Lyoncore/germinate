@@ -1,4 +1,4 @@
-germinate (0.36) UNRELEASED; urgency=low
+germinate (0.36) unstable; urgency=low
 
   * Add special-case handling of supported+build-depends to
     germinate-pkg-diff.
@@ -9,7 +9,7 @@ germinate (0.36) UNRELEASED; urgency=low
     that are stored in a different location from branches they include.
   * Fix rescuing of packages from extra, broken in 0.32.
 
- -- Colin Watson <cjwatson@debian.org>  Mon, 28 Jan 2008 14:45:21 +0000
+ -- Colin Watson <cjwatson@debian.org>  Tue, 29 Jan 2008 21:53:30 +0000
 
 germinate (0.35) unstable; urgency=low
 
