@@ -250,6 +250,11 @@ def write_structure(filename, structure):
         print >>f, line
     f.close()
 
+def write_seedtext(filename, seedtext):
+    f = open(filename, "w")
+    for line in seedtext:
+        print >>f, line.rstrip('\n')
+
 
 def usage(f):
     print >>f, """Usage: germinate.py [options]
@@ -385,10 +390,13 @@ def main():
 
     seednames, seedinherit, seedbranches = g.parseStructure(
         SEEDS, RELEASE, bzr)
+    seedtexts = {}
     for seedname in seednames:
-        g.plantSeed(
-            Germinate.seeds.open_seed(SEEDS, seedbranches, seedname, bzr),
-            ARCH, seedname, list(seedinherit[seedname]), RELEASE)
+        seed_fd = Germinate.seeds.open_seed(SEEDS, seedbranches, seedname, bzr)
+        seedtexts[seedname] = seed_fd.readlines()
+        seed_fd.close()
+        g.plantSeed(seedtexts[seedname],
+                    ARCH, seedname, list(seedinherit[seedname]), RELEASE)
     for seed_package in seed_packages:
         (parent, pkg) = seed_package.split('/')
         g.plantSeed([" * " + pkg], ARCH, pkg,
@@ -416,6 +424,7 @@ def main():
                    g, g.build_depends[seedname])
 
         if seedname != "extra":
+            write_seedtext(seedname + ".seedtext", seedtexts[seedname])
             write_source_list(seedname + ".sources",
                               g, g.sourcepkgs[seedname])
         write_source_list(seedname + ".build-sources",
