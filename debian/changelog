@@ -1,9 +1,9 @@
-germinate (0.37) UNRELEASED; urgency=low
+germinate (0.37) unstable; urgency=low
 
   * Output a .seedtext file for each seed, containing the verbatim text of
     the seed.
 
- -- Colin Watson <cjwatson@debian.org>  Thu, 07 Feb 2008 11:29:25 +0000
+ -- Colin Watson <cjwatson@debian.org>  Thu, 07 Feb 2008 11:30:39 +0000
 
 germinate (0.36) unstable; urgency=low
 
