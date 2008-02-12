@@ -67,13 +67,14 @@ The following keys are recognised in distribution sections:
 .Bl -tag -width 4n
 .It Li seeds No (mandatory)
 Pass these seeds to the germinator for processing.
-This list is not automatically expanded for seed inheritance, so you must
-list all seeds from which the seeds you care about inherit.
-.It Li output_seeds No (optional)
+.It Li output_seeds No (optional, deprecated)
 Generate metapackages for these seeds.
 If not specified, the value of
 .Li seeds
 is used.
+This option is usually no longer necessary now that the value of
+.Li seeds
+is automatically expanded for seed inheritance.
 .It Li architectures No (mandatory)
 Generate metapackages for these architectures.
 .It Li archive_base/default No (optional)
@@ -131,8 +132,7 @@ source package in the Ubuntu archive:
 dist: hardy
 
 [hardy]
-seeds: required minimal standard desktop
-output_seeds: desktop
+seeds: desktop
 architectures: i386 amd64 powerpc ia64 sparc hppa
 seed_base: http://people.ubuntu.com/~ubuntu-archive/seeds/
 seed_dist: kubuntu.%(dist)s
@@ -148,11 +148,9 @@ seed_base: sftp://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/
 seed_dist: kubuntu.%(dist)s
 .Ed
 .Sh BUGS
-.Li output_seeds
-and
 .Li seed_map
-are awkward warts, and should be replaced by code to follow seed inheritance
-automatically as necessary.
+is an awkward wart, and should be replaced by code to follow seed
+inheritance automatically as necessary.
 .Sh AUTHORS
 .An Gustavo Franco Aq stratus@debian.org
 .An Colin Watson Aq cjwatson@canonical.com

@@ -206,7 +206,14 @@ for architecture in architectures:
     print "[%s] Loading seed lists..." % architecture
     seed_names, seed_inherit, seed_branches = germinator.parseStructure(
         seed_base, seed_dist, bzr)
+    needed_seeds = []
     for seed_name in seeds:
+        for inherit in seed_inherit[seed_name]:
+            if inherit not in needed_seeds:
+                needed_seeds.append(inherit)
+        if seed_name not in needed_seeds:
+            needed_seeds.append(seed_name)
+    for seed_name in needed_seeds:
         germinator.plantSeed(
             Germinate.seeds.open_seed(seed_base, seed_branches, seed_name,
                                       bzr),

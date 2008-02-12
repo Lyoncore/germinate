@@ -1,6 +1,9 @@
 germinate (0.38) UNRELEASED; urgency=low
 
   * Fix germination from multiple seed sources in bzr mode.
+  * germinate-update-metapackage now automatically expands the seeds option
+    for seed inheritance, so you no longer usually need to have separate
+    seeds and output_seeds options in update.cfg.
 
  -- Colin Watson <cjwatson@debian.org>  Tue, 12 Feb 2008 10:15:30 +0000
 
