@@ -28,6 +28,9 @@ import shutil
 
 bzr_cache_dir = None
 
+class SeedError(RuntimeError):
+    pass
+
 def _cleanup_bzr_cache(directory):
     shutil.rmtree(directory, ignore_errors=True)
 
@@ -52,8 +55,8 @@ def _open_seed_internal(seed_base, seed_branch, seed_file, bzr=False):
             command = ('bzr %s %s %s' % (operation, seed_path, seed_checkout))
             status = os.system(command)
             if status != 0:
-                raise RuntimeError("Command failed with exit status %d:\n"
-                                   "  '%s'" % (status, command))
+                raise SeedError("Command failed with exit status %d:\n"
+                                "  '%s'" % (status, command))
         return open(os.path.join(seed_checkout, seed_file))
     else:
         url = urlparse.urljoin(seed_path, seed_file)
@@ -76,7 +79,7 @@ def open_seed(seed_bases, seed_branches, seed_file, bzr=False):
             try:
                 fd = _open_seed_internal(base, branch, seed_file, bzr)
                 break
-            except (OSError, IOError, urllib2.URLError):
+            except (OSError, IOError, SeedError, urllib2.URLError):
                 pass
         if fd is not None:
             break
