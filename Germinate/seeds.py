@@ -50,7 +50,7 @@ def _open_seed_internal(seed_base, seed_branch, seed_file, bzr=False):
                 operation = 'get'
                 logging.info("Fetching branch of %s", seed_path)
             else:
-                operation = 'checkout'
+                operation = 'checkout --lightweight'
                 logging.info("Checking out %s", seed_path)
             command = ('bzr %s %s %s' % (operation, seed_path, seed_checkout))
             status = os.system(command)

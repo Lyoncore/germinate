@@ -1,3 +1,10 @@
+germinate (0.39) UNRELEASED; urgency=low
+
+  [ Jonathan Riddell ]
+  * Use 'bzr checkout --lightweight' to speed up seed checkouts.
+
+ -- Colin Watson <cjwatson@debian.org>  Wed, 13 Feb 2008 13:54:46 +0000
+
 germinate (0.38) unstable; urgency=low
 
   * Fix germination from multiple seed sources in bzr mode.
