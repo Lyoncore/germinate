@@ -1,4 +1,4 @@
-germinate (0.39) UNRELEASED; urgency=low
+germinate (0.39) unstable; urgency=low
 
   [ Jonathan Riddell ]
   * Use 'bzr checkout --lightweight' to speed up seed checkouts.
@@ -8,7 +8,7 @@ germinate (0.39) UNRELEASED; urgency=low
     update-metapackage, which can be used to generate output metapackages
     whose names do not match the generating seed names.
 
- -- Colin Watson <cjwatson@debian.org>  Wed, 13 Feb 2008 13:54:46 +0000
+ -- Colin Watson <cjwatson@debian.org>  Thu, 14 Feb 2008 14:38:56 +0000
 
 germinate (0.38) unstable; urgency=low
 
