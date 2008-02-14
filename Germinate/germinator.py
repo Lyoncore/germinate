@@ -171,8 +171,9 @@ class Germinator:
             child_names, child_inherit, child_branches, child_structure = \
                 self.parseStructure(seed_base, child_branch, bzr, got_branches)
             for grandchild_name in child_names:
-                if grandchild_name not in all_names:
-                    all_names.append(grandchild_name)
+                if grandchild_name in all_names:
+                    all_names.remove(grandchild_name)
+                all_names.append(grandchild_name)
             all_inherit.update(child_inherit)
             for grandchild_branch in child_branches:
                 if grandchild_branch not in all_branches:
@@ -181,8 +182,9 @@ class Germinator:
 
         # Attach the main branch's data to the end
         for child_name in names:
-            if child_name not in all_names:
-                all_names.append(child_name)
+            if child_name in all_names:
+                all_names.remove(child_name)
+            all_names.append(child_name)
         all_inherit.update(inherit)
         for child_branch in branches:
             if child_branch not in all_branches:
