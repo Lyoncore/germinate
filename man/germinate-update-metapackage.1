@@ -121,6 +121,13 @@ If specified, this will typically be the list of seeds from which
 inherits, plus
 .Ar seed
 itself.
+.It Li metapackage_map/ Ns Ar seed No (optional)
+The metapackage name to output for
+.Ar seed .
+If not specified,
+.Nm
+will look for the name of the source package in which it is being run,
+remove "meta" from the end, and append the seed name.
 .El
 .Sh EXAMPLE
 At the time of writing, the following configuration file is used to generate

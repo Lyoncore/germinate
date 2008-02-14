@@ -146,6 +146,12 @@ def seed_packages(germinator_list, seed):
         packages.extend(germinator_list[mapped_seed])
     return packages
 
+def metapackage_name(seed):
+    if config.has_option(dist, "metapackage_map/%s" % seed):
+        return config.get(dist, "metapackage_map/%s" % seed)
+    else:
+        return "%s-%s" % (metapackage, seed)
+
 debootstrap_version_file = 'debootstrap-version'
 
 def get_debootstrap_version():
@@ -221,6 +227,8 @@ for architecture in architectures:
 
     print "[%s] Merging seeds with available package lists..." % architecture
     for seed_name in output_seeds:
+        meta_name = metapackage_name(seed_name)
+
         output_filename = '%s-%s' % (seed_name,architecture)
         old_list = None
         if os.path.exists(output_filename):
@@ -230,7 +238,7 @@ for architecture in architectures:
         # work on the depends
         new_list = []
         for package in seed_packages(germinator.seed, seed_name):
-            if package == '%s-%s' % (metapackage, seed_name):
+            if package == meta_name:
                 print "%s/%s: Skipping package %s (metapackage)" % (seed_name,architecture,package)
                 continue
             if seed_name == 'minimal' and package not in debootstrap_base:
@@ -249,7 +257,7 @@ for architecture in architectures:
         old_recommends_list = None
         new_recommends_list = []
         for package in seed_packages(germinator.seedrecommends, seed_name):
-            if package == '%s-%s' % (metapackage, seed_name):
+            if package == meta_name:
                 print "%s/%s: Skipping package %s (metapackage)" % (seed_name,architecture,package)
                 continue
             if seed_name == 'minimal' and package not in debootstrap_base:
