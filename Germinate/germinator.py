@@ -183,8 +183,6 @@ class Germinator:
 
         # Attach the main branch's data to the end
         for child_name in names:
-            if child_name in all_names:
-                all_names.remove(child_name)
             all_names.append(child_name)
         all_inherit.update(inherit)
         for child_branch in branches:
