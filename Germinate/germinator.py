@@ -105,9 +105,6 @@ class Germinator:
         seeds without requiring those packages to appear in the "ship"
         output. INHERITED may be empty.
 
-        The lines should be topologically sorted with respect to
-        inheritance, with inherited-from seeds at the start.
-
         Any line as follows:
 
         include BRANCH
@@ -116,9 +113,7 @@ class Germinator:
         resolved in included branches if they cannot be found in the current
         branch.
 
-        Returns (ordered list of seed names, dict of SEED -> INHERITED,
-        branches, structure)."""
-        seednames = []
+        Returns (dict of SEED -> INHERITED, branches, structure)."""
         seedinherit = {}
         seedbranches = []
         lines = []
@@ -132,7 +127,6 @@ class Germinator:
             words = line.split()
             if words[0].endswith(':'):
                 seed = words[0][:-1]
-                seednames.append(seed)
                 seedinherit[seed] = list(words[1:])
                 lines.append(line)
             elif words[0] == 'include':
@@ -141,39 +135,36 @@ class Germinator:
                 self.error("Unparseable seed structure entry: %s", line)
         f.close()
 
-        return (seednames, seedinherit, seedbranches, lines)
+        return (seedinherit, seedbranches, lines)
 
     def parseStructure(self, seed_base, branch, bzr=False, got_branches=None):
         """Like parseStructureFile, but deals with acquiring the seed
         structure files and recursively acquiring any seed structure files
         it includes. got_branches is for internal use only."""
+        # TODO: this method's signature is awful; it returns different types
+        # depending on whether it is called recursively or at the top level.
         if got_branches is None:
             top_level = True
             got_branches = set()
         else:
             top_level = False
-        all_names = []
         all_inherit = {}
         all_branches = []
         all_structure = []
 
         if branch in got_branches:
-            return all_names, all_inherit, all_branches, all_structure
+            return all_inherit, all_branches, all_structure
 
         # Fetch this one
         seed = Germinate.seeds.open_seed(seed_base, branch, "STRUCTURE", bzr)
-        names, inherit, branches, structure = self.parseStructureFile(seed)
+        inherit, branches, structure = self.parseStructureFile(seed)
         branches.insert(0, branch)
         got_branches.add(branch)
 
         # Recursively expand included branches
         for child_branch in branches:
-            child_names, child_inherit, child_branches, child_structure = \
+            child_inherit, child_branches, child_structure = \
                 self.parseStructure(seed_base, child_branch, bzr, got_branches)
-            for grandchild_name in child_names:
-                if grandchild_name in all_names:
-                    all_names.remove(grandchild_name)
-                all_names.append(grandchild_name)
             all_inherit.update(child_inherit)
             for grandchild_branch in child_branches:
                 if grandchild_branch not in all_branches:
@@ -181,10 +172,6 @@ class Germinator:
             all_structure.extend(child_structure)
 
         # Attach the main branch's data to the end
-        for child_name in names:
-            if child_name in all_names:
-                all_names.remove(child_name)
-            all_names.append(child_name)
         all_inherit.update(inherit)
         for child_branch in branches:
             if child_branch not in all_branches:
@@ -212,9 +199,9 @@ class Germinator:
 
         if top_level:
             self.structure = all_structure
-            return all_names, all_inherit, all_branches
+            return order, all_inherit, all_branches
         else:
-            return all_names, all_inherit, all_branches, all_structure
+            return all_inherit, all_branches, all_structure
 
     def parseHints(self, f):
         """Parse a hints file."""

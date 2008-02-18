@@ -1,3 +1,12 @@
+germinate (0.41) UNRELEASED; urgency=low
+
+  * Plant seeds in topologically-sorted order. The intent of this change is
+    the same as that in 0.40, only this time it should actually work in the
+    face of seeds that inherit from other seeds that are overridden in a
+    different branch.
+
+ -- Colin Watson <cjwatson@debian.org>  Mon, 18 Feb 2008 12:54:38 +0000
+
 germinate (0.40) unstable; urgency=low
 
   * Fix ordering of seed planting in the event that a seed in an included
