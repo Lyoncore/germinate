@@ -430,7 +430,6 @@ def main():
         write_source_list(seedname + ".build-sources",
                           g, g.build_sourcepkgs[seedname])
 
-    supported = g.supportedSeed()
     all = set()
     sup = set()
     all_srcs = set()
@@ -443,7 +442,7 @@ def main():
         all_srcs.update(g.sourcepkgs[seedname])
         all_srcs.update(g.build_sourcepkgs[seedname])
 
-        if seedname == supported:
+        if seedname == g.supported:
             sup.update(g.seed[seedname])
             sup.update(g.seedrecommends[seedname])
             sup.update(g.depends[seedname])
@@ -455,7 +454,7 @@ def main():
         # output.
         build_depends = dict.fromkeys(g.build_depends[seedname], True)
         build_sourcepkgs = dict.fromkeys(g.build_sourcepkgs[seedname], True)
-        for seed in g.innerSeeds(supported):
+        for seed in g.innerSeeds(g.supported):
             build_depends.update(dict.fromkeys(g.seed[seed], False))
             build_depends.update(dict.fromkeys(g.seedrecommends[seed], False))
             build_depends.update(dict.fromkeys(g.depends[seed], False))
@@ -466,8 +465,8 @@ def main():
     write_list("all", "all", g, all)
     write_source_list("all.sources", g, all_srcs)
 
-    write_list("all", "%s+build-depends" % supported, g, sup)
-    write_source_list("%s+build-depends.sources" % supported, g, sup_srcs)
+    write_list("all", "%s+build-depends" % g.supported, g, sup)
+    write_source_list("%s+build-depends.sources" % g.supported, g, sup_srcs)
 
     write_list("all", "all+extra", g, g.all)
     write_source_list("all+extra.sources", g, g.all_srcs)

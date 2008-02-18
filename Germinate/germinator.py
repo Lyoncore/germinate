@@ -51,6 +51,7 @@ class Germinator:
         self.substvars = {}
         self.depends = {}
         self.build_depends = {}
+        self.supported = None
 
         self.sourcepkgs = {}
         self.build_sourcepkgs = {}
@@ -105,6 +106,9 @@ class Germinator:
         seeds without requiring those packages to appear in the "ship"
         output. INHERITED may be empty.
 
+        The lines should be topologically sorted with respect to
+        inheritance, with inherited-from seeds at the start.
+
         Any line as follows:
 
         include BRANCH
@@ -113,7 +117,9 @@ class Germinator:
         resolved in included branches if they cannot be found in the current
         branch.
 
-        Returns (dict of SEED -> INHERITED, branches, structure)."""
+        Returns (ordered list of seed names, dict of SEED -> INHERITED,
+        branches, structure)."""
+        seednames = []
         seedinherit = {}
         seedbranches = []
         lines = []
@@ -127,6 +133,7 @@ class Germinator:
             words = line.split()
             if words[0].endswith(':'):
                 seed = words[0][:-1]
+                seednames.append(seed)
                 seedinherit[seed] = list(words[1:])
                 lines.append(line)
             elif words[0] == 'include':
@@ -135,7 +142,7 @@ class Germinator:
                 self.error("Unparseable seed structure entry: %s", line)
         f.close()
 
-        return (seedinherit, seedbranches, lines)
+        return (seednames, seedinherit, seedbranches, lines)
 
     def parseStructure(self, seed_base, branch, bzr=False, got_branches=None):
         """Like parseStructureFile, but deals with acquiring the seed
@@ -148,23 +155,26 @@ class Germinator:
             got_branches = set()
         else:
             top_level = False
+        all_names = []
         all_inherit = {}
         all_branches = []
         all_structure = []
 
         if branch in got_branches:
-            return all_inherit, all_branches, all_structure
+            return all_names, all_inherit, all_branches, all_structure
 
         # Fetch this one
         seed = Germinate.seeds.open_seed(seed_base, branch, "STRUCTURE", bzr)
-        inherit, branches, structure = self.parseStructureFile(seed)
+        names, inherit, branches, structure = self.parseStructureFile(seed)
         branches.insert(0, branch)
         got_branches.add(branch)
 
         # Recursively expand included branches
         for child_branch in branches:
-            child_inherit, child_branches, child_structure = \
+            child_names, child_inherit, child_branches, child_structure = \
                 self.parseStructure(seed_base, child_branch, bzr, got_branches)
+            for grandchild_name in child_names:
+                all_names.append(grandchild_name)
             all_inherit.update(child_inherit)
             for grandchild_branch in child_branches:
                 if grandchild_branch not in all_branches:
@@ -172,6 +182,10 @@ class Germinator:
             all_structure.extend(child_structure)
 
         # Attach the main branch's data to the end
+        for child_name in names:
+            if child_name in all_names:
+                all_names.remove(child_name)
+            all_names.append(child_name)
         all_inherit.update(inherit)
         for child_branch in branches:
             if child_branch not in all_branches:
@@ -199,9 +213,10 @@ class Germinator:
 
         if top_level:
             self.structure = all_structure
+            self.supported = all_names[-1]
             return order, all_inherit, all_branches
         else:
-            return all_inherit, all_branches, all_structure
+            return all_names, all_inherit, all_branches, all_structure
 
     def parseHints(self, f):
         """Parse a hints file."""
@@ -409,14 +424,6 @@ class Germinator:
         outerseeds.extend(self.strictlyOuterSeeds(seedname))
         return outerseeds
 
-    def supportedSeed(self):
-        """The last seed, other than extra, is considered the "supported"
-        seed; build-dependencies are handled in its output."""
-        for i in range(len(self.seeds) - 1, -1, -1):
-            if self.seeds[i] != 'extra':
-                return self.seeds[i]
-        return None # should never happen
-
     def alreadySeeded(self, seedname, pkg):
         """Has pkg already been seeded in this seed or in one from
         which we inherit?"""
@@ -607,7 +614,7 @@ class Germinator:
         """Weed out blacklisted seed entries from a list."""
         white = []
         if build_tree:
-            outerseeds = [self.supportedSeed()]
+            outerseeds = [self.supported]
         else:
             outerseeds = self.outerSeeds(seedname)
         for pkg in pkgs:
@@ -649,7 +656,7 @@ class Germinator:
                     break
             self.rescueIncludes(seedname, "extra", build_tree=False)
 
-        self.rescueIncludes(self.supportedSeed(), "extra", build_tree=True)
+        self.rescueIncludes(self.supported, "extra", build_tree=True)
 
     def addExtras(self, seedrelease=None):
         """Add packages generated by the sources but not in any seed."""
@@ -916,7 +923,7 @@ class Germinator:
             self.warning("Pruned %s from %s", pkg, seedname)
             return
         if build_tree:
-            outerseeds = [self.supportedSeed()]
+            outerseeds = [self.supported]
         else:
             outerseeds = self.outerSeeds(seedname)
         for outerseed in outerseeds:

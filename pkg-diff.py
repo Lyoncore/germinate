@@ -105,11 +105,9 @@ class Globals:
         seednames, seedinherit, seedbranches = g.parseStructure(SEEDS, RELEASE)
         needed_seeds = []
         build_tree = False
-        # g.supportedSeed() is not usable until after planting
-        supported = seednames[-1]
         for seedname in self.seeds:
-            if seedname == ('%s+build-depends' % supported):
-                seedname = supported
+            if seedname == ('%s+build-depends' % g.supported):
+                seedname = g.supported
                 build_tree = True
             for inherit in seedinherit[seedname]:
                 if inherit not in needed_seeds:
@@ -136,7 +134,7 @@ class Globals:
 
             if build_tree:
                 build_depends = dict.fromkeys(g.build_depends[seedname], True)
-                for inner in g.innerSeeds(supported):
+                for inner in g.innerSeeds(g.supported):
                     build_depends.update(dict.fromkeys(g.seed[inner], False))
                     build_depends.update(dict.fromkeys(g.seedrecommends[inner],
                                                        False))
@@ -145,7 +143,7 @@ class Globals:
                 for (pkg, use) in build_depends.iteritems():
                     if use:
                         self.package.setdefault(pkg, Package(pkg))
-                        self.package[pkg].setSeed(supported + ".build-depends")
+                        self.package[pkg].setSeed(g.supported + ".build-depends")
 
     def parseDpkg(self, fname):
         if fname == None:
