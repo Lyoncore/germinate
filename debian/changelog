@@ -1,4 +1,4 @@
-germinate (0.41) UNRELEASED; urgency=low
+germinate (0.41) unstable; urgency=low
 
   * Plant seeds in topologically-sorted order. The intent of this change is
     the same as that in 0.40, only this time it should actually work in the
@@ -10,7 +10,7 @@ germinate (0.41) UNRELEASED; urgency=low
     supported.
   * Remove overridden entries from 'structure' output file.
 
- -- Colin Watson <cjwatson@debian.org>  Mon, 18 Feb 2008 12:54:38 +0000
+ -- Colin Watson <cjwatson@debian.org>  Mon, 18 Feb 2008 15:06:24 +0000
 
 germinate (0.40) unstable; urgency=low
 
