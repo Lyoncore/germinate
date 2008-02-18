@@ -8,6 +8,7 @@ germinate (0.41) UNRELEASED; urgency=low
     STRUCTURE file as the supported seed. It may not be topologically last
     if there are seeds in included branches that are not inherited by
     supported.
+  * Remove overridden entries from 'structure' output file.
 
  -- Colin Watson <cjwatson@debian.org>  Mon, 18 Feb 2008 12:54:38 +0000
 

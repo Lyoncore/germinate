@@ -179,7 +179,13 @@ class Germinator:
             for grandchild_branch in child_branches:
                 if grandchild_branch not in all_branches:
                     all_branches.append(grandchild_branch)
-            all_structure.extend(child_structure)
+            for child_structure_line in child_structure:
+                child_structure_name = child_structure_line.split()[0][:-1]
+                for i in range(len(all_structure)):
+                    if all_structure[i].split()[0][:-1] == child_structure_name:
+                        del all_structure[i]
+                        break
+                all_structure.append(child_structure_line)
 
         # Attach the main branch's data to the end
         for child_name in names:
@@ -188,7 +194,13 @@ class Germinator:
         for child_branch in branches:
             if child_branch not in all_branches:
                 all_branches.append(child_branch)
-        all_structure.extend(structure)
+        for structure_line in structure:
+            structure_name = structure_line.split()[0][:-1]
+            for i in range(len(all_structure)):
+                if all_structure[i].split()[0][:-1] == structure_name:
+                    del all_structure[i]
+                    break
+            all_structure.append(structure_line)
 
         # We generally want to process branches in reverse order, so that
         # later branches can override seeds from earlier branches
