@@ -1,7 +1,7 @@
 Source: germinate
 Section: utils
 Priority: optional
-Maintainer: Colin Watson <cjwatson@debian.org>
+Maintainer: Colin Watson <cjwatson@ubuntu.com>
 Standards-Version: 3.7.3
 Build-Depends: debhelper (>= 5.0.37.2)
 Build-Depends-Indep: python, python-support (>= 0.3)

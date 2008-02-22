@@ -1,3 +1,10 @@
+germinate (0.42) UNRELEASED; urgency=low
+
+  * Change Maintainer address back to cjwatson@ubuntu.com; I generally work
+    on this package on work time.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Fri, 22 Feb 2008 13:32:59 +0000
+
 germinate (0.41) unstable; urgency=low
 
   * Plant seeds in topologically-sorted order. The intent of this change is
