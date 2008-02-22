@@ -6,6 +6,7 @@ germinate (0.42) UNRELEASED; urgency=low
     seed headers, replacing previous seed_map/* and metapackage_map/*
     entries in update.cfg.
   * Fix error message on failing to download non-bzr seeds.
+  * Update kubuntu-meta example in germinate-update-metapackage(1).
 
  -- Colin Watson <cjwatson@ubuntu.com>  Fri, 22 Feb 2008 13:32:59 +0000
 
