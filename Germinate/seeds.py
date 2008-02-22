@@ -96,6 +96,8 @@ def open_seed(seed_bases, seed_branches, seed_file, bzr=False):
             for base in seed_bases:
                 for branch in seed_branches:
                     path = os.path.join(base, branch)
+                    if not path.endswith('/'):
+                        path += '/'
                     logging.warning('  %s' % urlparse.urljoin(path, seed_file))
 
     return fd

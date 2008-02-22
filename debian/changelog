@@ -5,6 +5,7 @@ germinate (0.42) UNRELEASED; urgency=low
   * germinate-update-metapackage honours new Task-Seeds and Task-Metapackage
     seed headers, replacing previous seed_map/* and metapackage_map/*
     entries in update.cfg.
+  * Fix error message on failing to download non-bzr seeds.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Fri, 22 Feb 2008 13:32:59 +0000
 
