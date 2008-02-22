@@ -136,20 +136,33 @@ else:
 seed_entry = re.compile(' *\* *(?P<package>\S+) *(\[(?P<arches>[^]]*)\])? *(#.*)?')
 components = config.get(dist, 'components').split()
 
-def seed_packages(germinator_list, seed):
+def seed_packages(germinator_list, seed, seed_text):
     if config.has_option(dist, "seed_map/%s" % seed):
         mapped_seeds = config.get(dist, "seed_map/%s" % seed).split()
     else:
-        mapped_seeds = [seed]
+        mapped_seeds = []
+        task_seeds_re = re.compile('^Task-Seeds:\s*(.*)', re.I)
+        for line in seed_text:
+            task_seeds_match = task_seeds_re.match(line)
+            if task_seeds_match is not None:
+                mapped_seeds = task_seeds_match.group(1).split()
+                break
+        if seed not in mapped_seeds:
+            mapped_seeds.append(seed)
     packages = []
     for mapped_seed in mapped_seeds:
         packages.extend(germinator_list[mapped_seed])
     return packages
 
-def metapackage_name(seed):
+def metapackage_name(seed, seed_text):
     if config.has_option(dist, "metapackage_map/%s" % seed):
         return config.get(dist, "metapackage_map/%s" % seed)
     else:
+        task_meta_re = re.compile('^Task-Metapackage:\s*(.*)', re.I)
+        for line in seed_text:
+            task_meta_match = task_meta_re.match(line)
+            if task_meta_match is not None:
+                return task_meta_match.group(1)
         return "%s-%s" % (metapackage, seed)
 
 debootstrap_version_file = 'debootstrap-version'
@@ -219,15 +232,18 @@ for architecture in architectures:
                 needed_seeds.append(inherit)
         if seed_name not in needed_seeds:
             needed_seeds.append(seed_name)
+    seed_texts = {}
     for seed_name in needed_seeds:
-        germinator.plantSeed(
-            Germinate.seeds.open_seed(seed_base, seed_branches, seed_name,
-                                      bzr),
-            architecture, seed_name, list(seed_inherit[seed_name]))
+        seed_fd = Germinate.seeds.open_seed(seed_base, seed_branches,
+                                            seed_name, bzr)
+        seed_texts[seed_name] = seed_fd.readlines()
+        seed_fd.close()
+        germinator.plantSeed(seed_texts[seed_name], architecture, seed_name,
+                             list(seed_inherit[seed_name]))
 
     print "[%s] Merging seeds with available package lists..." % architecture
     for seed_name in output_seeds:
-        meta_name = metapackage_name(seed_name)
+        meta_name = metapackage_name(seed_name, seed_texts[seed_name])
 
         output_filename = '%s-%s' % (seed_name,architecture)
         old_list = None
@@ -237,7 +253,8 @@ for architecture in architectures:
 
         # work on the depends
         new_list = []
-        for package in seed_packages(germinator.seed, seed_name):
+        for package in seed_packages(germinator.seed, seed_name,
+                                     seed_texts[seed_name]):
             if package == meta_name:
                 print "%s/%s: Skipping package %s (metapackage)" % (seed_name,architecture,package)
                 continue
@@ -256,7 +273,8 @@ for architecture in architectures:
         # work on the recommends
         old_recommends_list = None
         new_recommends_list = []
-        for package in seed_packages(germinator.seedrecommends, seed_name):
+        for package in seed_packages(germinator.seedrecommends, seed_name,
+                                     seed_texts[seed_name]):
             if package == meta_name:
                 print "%s/%s: Skipping package %s (metapackage)" % (seed_name,architecture,package)
                 continue

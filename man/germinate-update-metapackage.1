@@ -113,7 +113,7 @@ If not specified, the value of
 is used.
 .It Li components No (mandatory)
 The archive components from which to fetch package indices.
-.It Li seed_map/ Ns Ar seed No (optional)
+.It Li seed_map/ Ns Ar seed No (optional, deprecated)
 The seeds to be used as input for the metapackage corresponding to
 .Ar seed .
 If specified, this will typically be the list of seeds from which
@@ -121,13 +121,19 @@ If specified, this will typically be the list of seeds from which
 inherits, plus
 .Ar seed
 itself.
-.It Li metapackage_map/ Ns Ar seed No (optional)
+This option is usually no longer necessary; use a
+.Li Task\-Seeds
+header in the seed file instead.
+.It Li metapackage_map/ Ns Ar seed No (optional, deprecated)
 The metapackage name to output for
 .Ar seed .
 If not specified,
 .Nm
 will look for the name of the source package in which it is being run,
 remove "meta" from the end, and append the seed name.
+This option is usually no longer necessary; use a
+.Li Task\-Metapackage
+header in the seed file instead.
 .El
 .Sh EXAMPLE
 At the time of writing, the following configuration file is used to generate
@@ -154,10 +160,6 @@ components: main restricted
 seed_base: sftp://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/
 seed_dist: kubuntu.%(dist)s
 .Ed
-.Sh BUGS
-.Li seed_map
-is an awkward wart, and should be replaced by code to follow seed
-inheritance automatically as necessary.
 .Sh AUTHORS
 .An Gustavo Franco Aq stratus@debian.org
 .An Colin Watson Aq cjwatson@canonical.com
