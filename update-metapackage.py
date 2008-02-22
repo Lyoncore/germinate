@@ -213,6 +213,7 @@ check_debootstrap_version()
 
 additions = {}
 removals = {}
+moves = {}
 apt_pkg.InitConfig()
 for architecture in architectures:
     print "[%s] Downloading available package lists..." % architecture
@@ -297,29 +298,16 @@ for architecture in architectures:
 
 
         # Calculate deltas
+        merged = {}
+        recommends_merged = {}
         if old_list is not None:
-            merged = {}
             for package in new_list:
                 merged.setdefault(package, 0)
                 merged[package] += 1
             for package in old_list:
                 merged.setdefault(package, 0)
                 merged[package] -= 1
-
-            mergeditems = merged.items()
-            mergeditems.sort()
-            for package, value in mergeditems:
-                #print package, value
-                if value == 1:
-                    additions.setdefault(package,[])
-                    additions[package].append(output_filename)
-                elif value == -1:
-                    removals.setdefault(package,[])
-                    removals[package].append(output_filename)
-
-        # now the recommends
         if old_recommends_list is not None:
-            recommends_merged = {}
             for package in new_recommends_list:
                 recommends_merged.setdefault(package, 0)
                 recommends_merged[package] += 1
@@ -327,16 +315,37 @@ for architecture in architectures:
                 recommends_merged.setdefault(package, 0)
                 recommends_merged[package] -= 1
 
-            mergedrecitems = recommends_merged.items()
-            mergedrecitems.sort()
-            for package, value in mergedrecitems:
-                #print package, value
-                if value == 1:
+        mergeditems = merged.items()
+        mergeditems.sort()
+        for package, value in mergeditems:
+            #print package, value
+            if value == 1:
+                if recommends_merged.get(package, 0) == -1:
+                    moves.setdefault(package,[])
+                    moves[package].append(output_filename)
+                    recommends_merged[package] += 1
+                else:
                     additions.setdefault(package,[])
-                    additions[package].append(output_recommends_filename)
-                elif value == -1:
+                    additions[package].append(output_filename)
+            elif value == -1:
+                if recommends_merged.get(package, 0) == 1:
+                    moves.setdefault(package,[])
+                    moves[package].append(output_recommends_filename)
+                    recommends_merged[package] -= 1
+                else:
                     removals.setdefault(package,[])
-                    removals[package].append(output_recommends_filename)
+                    removals[package].append(output_filename)
+
+        mergedrecitems = recommends_merged.items()
+        mergedrecitems.sort()
+        for package, value in mergedrecitems:
+            #print package, value
+            if value == 1:
+                additions.setdefault(package,[])
+                additions[package].append(output_recommends_filename)
+            elif value == -1:
+                removals.setdefault(package,[])
+                removals[package].append(output_recommends_filename)
 
 
 if additions or removals:
@@ -358,6 +367,15 @@ if additions or removals:
     for package in removal_keys:
         changes.append('Removed %s from %s' %
                        (package, ', '.join(removals[package])))
+    move_keys = moves.keys()
+    move_keys.sort()
+    for package in move_keys:
+        # TODO: We should really list where it moved from as well, but that
+        # gets wordy very quickly, and at the moment this is only
+        # implemented for depends->recommends or vice versa. In future,
+        # using this for moves between seeds might also be useful.
+        changes.append('Moved %s to %s' %
+                       (package, ', '.join(moves[package])))
     for change in changes:
         print change
         os.system("dch -a '%s'" % change)

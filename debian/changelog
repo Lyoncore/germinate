@@ -7,6 +7,8 @@ germinate (0.42) UNRELEASED; urgency=low
     entries in update.cfg.
   * Fix error message on failing to download non-bzr seeds.
   * Update kubuntu-meta example in germinate-update-metapackage(1).
+  * Simplify germinate-update-metapackage changelog output when a package
+    moves from depends to recommends or vice versa.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Fri, 22 Feb 2008 13:32:59 +0000
 
