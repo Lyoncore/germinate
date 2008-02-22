@@ -9,6 +9,7 @@ germinate (0.42) UNRELEASED; urgency=low
   * Update kubuntu-meta example in germinate-update-metapackage(1).
   * Simplify germinate-update-metapackage changelog output when a package
     moves from depends to recommends or vice versa.
+  * Remove obsolete dh_python call from debian/rules.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Fri, 22 Feb 2008 13:32:59 +0000
 
