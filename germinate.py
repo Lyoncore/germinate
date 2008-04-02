@@ -423,7 +423,7 @@ def main():
         write_list(seedname, seedname + ".build-depends",
                    g, g.build_depends[seedname])
 
-        if seedname != "extra":
+        if seedname != "extra" and seedname in seedtexts:
             write_seedtext(seedname + ".seedtext", seedtexts[seedname])
             write_source_list(seedname + ".sources",
                               g, g.sourcepkgs[seedname])
