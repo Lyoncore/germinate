@@ -342,11 +342,11 @@ def main():
         elif option in ("-m", "--mirror"):
             if not value.endswith("/"):
                 value += "/"
-            MIRRORS += [value]
+            MIRRORS.append(value)
         elif option == "--source-mirror":
             if not value.endswith("/"):
                 value += "/"
-            SOURCE_MIRRORS += [value]
+            SOURCE_MIRRORS.append(value)
         elif option in ("-d", "--dist"):
             DIST = value.split(",")
         elif option in ("-c", "--components"):
@@ -367,7 +367,7 @@ def main():
             seed_packages = value.split(',')
 
     if not MIRRORS:
-        MIRRORS += [DEFAULT_MIRROR]
+        MIRRORS.append(DEFAULT_MIRROR)
 
     logger = logging.getLogger()
     if verbose:
