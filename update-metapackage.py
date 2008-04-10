@@ -109,6 +109,7 @@ except ConfigParser.NoOptionError:
 architectures = config.get(dist, 'architectures').split()
 try:
     archive_base_default = config.get(dist, 'archive_base/default')
+    archive_base_default = re.split(r'[, ]+', archive_base_default)
 except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
     archive_base_default = None
 
@@ -116,6 +117,7 @@ archive_base = {}
 for arch in architectures:
     try:
         archive_base[arch] = config.get(dist, 'archive_base/%s' % arch)
+        archive_base[arch] = re.split(r'[, ]+', archive_base[arch])
     except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
         if archive_base_default is not None:
             archive_base[arch] = archive_base_default
@@ -175,7 +177,7 @@ def get_debootstrap_version():
     return version
 
 def debootstrap_packages(arch):
-    debootstrap = os.popen('debootstrap --arch %s --print-debs %s debootstrap-dir %s' % (arch,dist,archive_base[arch]))
+    debootstrap = os.popen('debootstrap --arch %s --print-debs %s debootstrap-dir %s' % (arch,dist,archive_base[arch][0]))
     packages = debootstrap.read().split()
     if debootstrap.close():
         raise RuntimeError('Unable to retrieve package list from debootstrap')

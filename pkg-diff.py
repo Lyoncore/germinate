@@ -35,7 +35,7 @@ import Germinate.version
 # TODO: cloned from germinate.py; should be common
 SEEDS = ["http://people.ubuntu.com/~ubuntu-archive/seeds/"]
 RELEASE = "ubuntu.hardy"
-MIRROR = "http://archive.ubuntu.com/ubuntu/"
+MIRRORS = ["http://archive.ubuntu.com/ubuntu/"]
 DIST = ["hardy"]
 COMPONENTS = ["main"]
 ARCH = "i386"
@@ -94,13 +94,14 @@ class Globals:
         # Suppress most log information
         logging.getLogger().setLevel(logging.CRITICAL)
 
-        global RELEASE, MIRROR, DIST, COMPONENTS, ARCH
+        global RELEASE, MIRRORS, DIST, COMPONENTS, ARCH
         print "Germinating"
         g = Germinator()
         apt_pkg.InitConfig()
         apt_pkg.Config.Set("APT::Architecture", ARCH)
 
-        Germinate.Archive.TagFile(MIRROR).feed(g, DIST, COMPONENTS, ARCH, True)
+        Germinate.Archive.TagFile(MIRRORS).feed(
+            g, DIST, COMPONENTS, ARCH, True)
 
         seednames, seedinherit, seedbranches = g.parseStructure(SEEDS, RELEASE)
         needed_seeds = []

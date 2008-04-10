@@ -1,3 +1,10 @@
+germinate (0.44) UNRELEASED; urgency=low
+
+  * Support multiple archives (LP: #182915). Patch mostly from
+    Francois-Denis Gonthier, adjusted and extended by me.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Thu, 10 Apr 2008 08:37:45 +0100
+
 germinate (0.43) unstable; urgency=low
 
   * Fix crash when using --seed-packages option.

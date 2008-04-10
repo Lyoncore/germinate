@@ -26,36 +26,49 @@ import tempfile
 import shutil
 
 class TagFile:
-    def __init__(self, mirror, source_mirror=None):
-        self.mirror = mirror
-        if source_mirror is not None:
-            self.source_mirror = source_mirror
+    def __init__(self, mirrors, source_mirrors=None):
+        self.mirrors = mirrors
+        if source_mirrors:
+            self.source_mirrors = source_mirrors
         else:
-            self.source_mirror = mirror
+            self.source_mirrors = mirrors
 
-    def open_tag_file(self, mirror, dirname, filename,
-                      dist, component, ftppath):
-        """Download an apt tag file if needed, then open it."""
-        fullname = os.path.join(dirname, filename)
-        if os.path.exists(fullname):
+    def open_tag_files(self, mirrors, dirname, tagfile_type,
+                       dist, component, ftppath):
+        def open_tag_file(mirror):
+            """Download an apt tag file if needed, then open it."""
+            url = mirror + "dists/" + dist + "/" + component + "/" + ftppath
+            req = urllib2.Request(url)
+            filename = None
+            
+            if req.get_type() != "file":
+                filename = "%s_%s_%s_%s" % (req.get_host(), dist, component, tagfile_type)
+            else:
+                # Make a more or less dummy filename for local URLs.
+                filename = os.path.split(req.get_selector())[0].replace(os.sep, "_")
+            
+            fullname = os.path.join(dirname, filename)
+            if not os.path.exists(fullname):
+                print "Downloading", req.get_full_url(), "file ..."
+
+                url_f = urllib2.urlopen(req)
+                url_data = cStringIO.StringIO(url_f.read())
+                url_f.close()
+
+                # apt_pkg is weird and won't accept GzipFile
+                print "Decompressing", req.get_full_url(), "file ..."
+                gzip_f = gzip.GzipFile(fileobj=url_data)
+                f = open(fullname, "w")
+                for line in gzip_f:
+                    print >>f, line,
+
+                f.close()
+                gzip_f.close()
+                url_data.close()
+
             return open(fullname, "r")
-
-        print "Downloading", filename, "file ..."
-        url = mirror + "dists/" + dist + "/" + component + "/" + ftppath
-        url_f = urllib2.urlopen(url)
-        url_data = cStringIO.StringIO(url_f.read())
-        url_f.close()
-        # apt_pkg is weird and won't accept GzipFile
-        print "Decompressing", filename, "file ..."
-        gzip_f = gzip.GzipFile(fileobj=url_data)
-        f = open(fullname, "w")
-        for line in gzip_f:
-            print >>f, line,
-        f.close()
-        gzip_f.close()
-        url_data.close()
-
-        return open(fullname, "r")
+        
+        return map(open_tag_file, mirrors)
 
     def feed(self, g, dists, components, arch, cleanup=False):
         if cleanup:
@@ -65,24 +78,21 @@ class TagFile:
 
         for dist in dists:
             for component in components:
-                filename = "%s_%s_Packages" % (dist, component)
                 g.parsePackages(
-                    self.open_tag_file(
-                        self.mirror, dirname, filename, dist, component,
+                    self.open_tag_files(
+                        self.mirrors, dirname, "Packages", dist, component,
                         "binary-" + arch + "/Packages.gz"),
                     "deb")
 
-                filename = "%s_%s_Sources" % (dist, component)
                 g.parseSources(
-                    self.open_tag_file(
-                        self.source_mirror, dirname, filename, dist, component,
+                    self.open_tag_files(
+                        self.source_mirrors, dirname, "Sources", dist, component,
                         "source/Sources.gz"))
 
                 instpackages = ""
                 try:
-                    filename = "%s_%s_InstallerPackages" % (dist, component)
-                    instpackages = self.open_tag_file(
-                        self.mirror, dirname, filename, dist, component,
+                    instpackages = self.open_tag_files(
+                        self.mirrors, dirname, "InstallerPackages", dist, component,
                         "debian-installer/binary-" + arch + "/Packages.gz")
                 except IOError:
                     # can live without these
