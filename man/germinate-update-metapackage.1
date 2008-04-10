@@ -95,6 +95,11 @@ For each architecture being processed, at least one of
 and
 .Li archive_base/ Ns Ar arch
 must be present.
+To try multiple URLs, separate them with commas or spaces;
+the newest version of each package across all archives will win.
+Note that
+.Xr debootstrap 8
+will only use the first archive.
 .It Li seed_base No (mandatory)
 The base URL for fetching seeds.
 To try multiple URLs (for example if a seed branch includes another branch
