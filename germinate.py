@@ -366,7 +366,7 @@ def main():
         elif option == "--seed-packages":
             seed_packages = value.split(',')
 
-    if len(MIRRORS) == 0:
+    if not MIRRORS:
         MIRRORS += [DEFAULT_MIRROR]
 
     logger = logging.getLogger()

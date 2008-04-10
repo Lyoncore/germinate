@@ -28,7 +28,7 @@ import shutil
 class TagFile:
     def __init__(self, mirrors, source_mirrors=None):
         self.mirrors = mirrors
-        if source_mirrors is not None and len(source_mirrors) > 0:
+        if source_mirrors:
             self.source_mirrors = source_mirrors
         else:
             self.source_mirrors = mirrors
