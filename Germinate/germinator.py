@@ -22,7 +22,6 @@ import apt_pkg
 import re
 import fnmatch
 import logging
-from debian_bundle import debian_support
 
 try:
     set # introduced in 2.4
@@ -249,18 +248,17 @@ class Germinator:
                 pkg_name = p.Section["Package"]
                 pkg_ver = p.Section["Version"]
                 last_ver = None
-                new_ver = None
 
                 # If there is a previous package info stored, fetch
                 # the version to compare them.
                 if self.packages.has_key(pkg_name):
-                    last_ver = debian_support.Version(self.packages[pkg_name]["Version"])
-                    new_ver = debian_support.Version(pkg_ver)
+                    last_ver = self.packages[pkg_name]["Version"]
 
                 # If this is a new package, or if the stored version
                 # is older than the new version, store the new
                 # package.
-                if not self.packages.has_key(pkg_name) or (last_ver < new_ver):
+                if (not self.packages.has_key(pkg_name) or
+                    apt_pkg.VersionCompare(last_ver, pkg_ver) < 0):
                     self.packages[pkg_name] = {}
                     self.packagetype[pkg_name] = pkgtype
                     self.pruned[pkg_name] = set()
@@ -310,13 +308,12 @@ class Germinator:
                 src_name = p.Section["Package"]
                 src_ver = p.Section["Version"]
                 last_ver = None
-                new_ver = None
 
                 if self.sources.has_key(src_name):
-                    last_ver = debian_support.Version(self.sources[src_name]["Version"])
-                    new_ver = debian_support.Version(src_ver)
+                    last_ver = self.sources[src_name]["Version"]
 
-                if not self.sources.has_key(src_name) or (last_ver < new_ver):
+                if (not self.sources.has_key(src_name) or
+                    apt_pkg.VersionCompare(last_ver, src_ver) < 0):
                     self.sources[src_name] = {}
 
                     self.sources[src_name]["Maintainer"] = \
