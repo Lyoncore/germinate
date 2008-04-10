@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: UTF-8 -*-
 """Fetch package lists from a Debian-format archive as apt tag files."""
 
 # Copyright (c) 2004, 2005, 2006, 2007 Canonical Ltd.

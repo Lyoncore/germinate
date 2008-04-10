@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- coding: UTF-8 -*-
 """Update list files from the Wiki."""
 
 # Copyright (c) 2004, 2005, 2006, 2007, 2008 Canonical Ltd.
