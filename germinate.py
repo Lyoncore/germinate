@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 """Update list files from the Wiki."""
 
 # Copyright (c) 2004, 2005, 2006, 2007, 2008 Canonical Ltd.
@@ -50,8 +50,10 @@ RELEASE = "ubuntu.hardy"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
 # them from?
-MIRROR = "http://archive.ubuntu.com/ubuntu/"
-SOURCE_MIRROR = None
+MIRRORS = []
+SOURCE_MIRRORS = []
+DEFAULT_MIRROR = "http://archive.ubuntu.com/ubuntu/"
+DEFAULT_SOURCE_MIRROR = None
 DIST = ["hardy"]
 COMPONENTS = ["main", "restricted"]
 ARCH = "i386"
@@ -284,12 +286,13 @@ Options:
   --seed-packages=PARENT/PKG,PARENT/PKG,...
                         Treat each PKG as a seed by itself, inheriting from
                         PARENT.
-""" % (",".join(SEEDS), RELEASE, MIRROR, ",".join(DIST), ARCH,
+""" % (",".join(SEEDS), RELEASE, DEFAULT_MIRROR, ",".join(DIST), ARCH,
        ",".join(COMPONENTS))
 
 
 def main():
-    global SEEDS, SEEDS_BZR, RELEASE, MIRROR, SOURCE_MIRROR
+    global SEEDS, SEEDS_BZR, RELEASE
+    global DEFAULT_MIRROR, DEFAULT_SOURCE_MIRROR, SOURCE_MIRRORS, MIRRORS
     global DIST, ARCH, COMPONENTS, CHECK_IPV6
     verbose = False
     bzr = False
@@ -337,13 +340,13 @@ def main():
         elif option in ("-s", "--seed-dist"):
             RELEASE = value
         elif option in ("-m", "--mirror"):
-            MIRROR = value
-            if not MIRROR.endswith("/"):
-                MIRROR += "/"
+            if not value.endswith("/"):
+                value += "/"
+            MIRRORS += [value]
         elif option == "--source-mirror":
-            SOURCE_MIRROR = value
-            if not SOURCE_MIRROR.endswith("/"):
-                SOURCE_MIRROR += "/"
+            if not value.endswith("/"):
+                value += "/"
+            SOURCE_MIRRORS += [value]
         elif option in ("-d", "--dist"):
             DIST = value.split(",")
         elif option in ("-c", "--components"):
@@ -363,6 +366,9 @@ def main():
         elif option == "--seed-packages":
             seed_packages = value.split(',')
 
+    if len(MIRRORS) == 0:
+        MIRRORS += [DEFAULT_MIRROR]
+
     logger = logging.getLogger()
     if verbose:
         logger.setLevel(logging.DEBUG)
@@ -375,7 +381,7 @@ def main():
     apt_pkg.InitConfig()
     apt_pkg.Config.Set("APT::Architecture", ARCH)
 
-    Germinate.Archive.TagFile(MIRROR, SOURCE_MIRROR).feed(
+    Germinate.Archive.TagFile(MIRRORS, SOURCE_MIRRORS).feed(
         g, DIST, COMPONENTS, ARCH, cleanup)
 
     if CHECK_IPV6:
