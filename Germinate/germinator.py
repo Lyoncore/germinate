@@ -242,7 +242,7 @@ class Germinator:
         f.close()
 
     def parsePackages(self, tag_files, pkgtype):
-        """Parse a Packages file and get the information we need."""      
+        """Parse a Packages file and get the information we need."""
         for f in tag_files:
             p = apt_pkg.ParseTagFile(f)
             while p.Step() == 1:
@@ -261,7 +261,7 @@ class Germinator:
                 # is older than the new version, store the new
                 # package.
                 if not self.packages.has_key(pkg_name) or (last_ver < new_ver):
-                    self.packages[pkg_name] = {}                    
+                    self.packages[pkg_name] = {}
                     self.packagetype[pkg_name] = pkgtype
                     self.pruned[pkg_name] = set()
 
@@ -306,7 +306,7 @@ class Germinator:
         """Parse a Sources file and get the information we need."""
         for f in tag_files:
             p = apt_pkg.ParseTagFile(f)
-            while p.Step() == 1:              
+            while p.Step() == 1:
                 src_name = p.Section["Package"]
                 src_ver = p.Section["Version"]
                 last_ver = None
