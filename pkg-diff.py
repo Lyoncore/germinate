@@ -99,6 +99,7 @@ class Globals:
         g = Germinator()
         apt_pkg.InitConfig()
         apt_pkg.Config.Set("APT::Architecture", ARCH)
+        apt_pkg.InitSystem()
 
         Germinate.Archive.TagFile(MIRRORS).feed(
             g, DIST, COMPONENTS, ARCH, True)

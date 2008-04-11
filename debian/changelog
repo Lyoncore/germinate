@@ -1,3 +1,9 @@
+germinate (0.45) UNRELEASED; urgency=low
+
+  * Add missing apt_pkg.InitSystem() calls (LP: #215625).
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Fri, 11 Apr 2008 12:18:40 +0100
+
 germinate (0.44) unstable; urgency=low
 
   * Support multiple archives (LP: #182915). Patch mostly from

@@ -217,6 +217,7 @@ additions = {}
 removals = {}
 moves = {}
 apt_pkg.InitConfig()
+apt_pkg.InitSystem()
 for architecture in architectures:
     print "[%s] Downloading available package lists..." % architecture
     apt_pkg.Config.Set("APT::Architecture", architecture)

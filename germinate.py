@@ -380,6 +380,7 @@ def main():
 
     apt_pkg.InitConfig()
     apt_pkg.Config.Set("APT::Architecture", ARCH)
+    apt_pkg.InitSystem()
 
     Germinate.Archive.TagFile(MIRRORS, SOURCE_MIRRORS).feed(
         g, DIST, COMPONENTS, ARCH, cleanup)
