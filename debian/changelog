@@ -1,8 +1,8 @@
-germinate (0.45) UNRELEASED; urgency=low
+germinate (0.45) unstable; urgency=low
 
   * Add missing apt_pkg.InitSystem() calls (LP: #215625).
 
- -- Colin Watson <cjwatson@ubuntu.com>  Fri, 11 Apr 2008 12:18:40 +0100
+ -- Colin Watson <cjwatson@ubuntu.com>  Fri, 11 Apr 2008 12:19:47 +0100
 
 germinate (0.44) unstable; urgency=low
 
