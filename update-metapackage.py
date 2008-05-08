@@ -205,6 +205,25 @@ def check_debootstrap_version():
 def update_debootstrap_version():
     open(debootstrap_version_file, 'w').write(get_debootstrap_version() + '\n')
 
+def format_changes(items):
+    by_arch = {}
+    for (pkg, arch) in items:
+        by_arch.setdefault(pkg, [])
+        by_arch[pkg].append(arch)
+    all_pkgs = by_arch.keys()
+    all_pkgs.sort()
+    chunks = []
+    for pkg in all_pkgs:
+        arches = by_arch[pkg]
+        if set(architectures) - set(arches):
+            # only some architectures
+            arches.sort()
+            chunks.append('%s [%s]' % (pkg, ' '.join(arches)))
+        else:
+            # all architectures
+            chunks.append(pkg)
+    return ', '.join(chunks)
+
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler(sys.stdout)
@@ -289,7 +308,8 @@ for architecture in architectures:
                 new_recommends_list.append(package)
 
         new_recommends_list.sort()
-        output_recommends_filename = '%s-recommends-%s' % (seed_name,architecture)
+        seed_name_recommends = '%s-recommends' % seed_name
+        output_recommends_filename = '%s-%s' % (seed_name_recommends,architecture)
         if os.path.exists(output_recommends_filename):
             old_recommends_list = set(map(str.strip,open(output_recommends_filename).readlines()))
             os.rename(output_recommends_filename, output_recommends_filename + '.old')
@@ -326,19 +346,19 @@ for architecture in architectures:
             if value == 1:
                 if recommends_merged.get(package, 0) == -1:
                     moves.setdefault(package,[])
-                    moves[package].append(output_filename)
+                    moves[package].append([seed_name, architecture])
                     recommends_merged[package] += 1
                 else:
                     additions.setdefault(package,[])
-                    additions[package].append(output_filename)
+                    additions[package].append([seed_name, architecture])
             elif value == -1:
                 if recommends_merged.get(package, 0) == 1:
                     moves.setdefault(package,[])
-                    moves[package].append(output_recommends_filename)
+                    moves[package].append([seed_name_recommends, architecture])
                     recommends_merged[package] -= 1
                 else:
                     removals.setdefault(package,[])
-                    removals[package].append(output_filename)
+                    removals[package].append([seed_name, architecture])
 
         mergedrecitems = recommends_merged.items()
         mergedrecitems.sort()
@@ -346,10 +366,10 @@ for architecture in architectures:
             #print package, value
             if value == 1:
                 additions.setdefault(package,[])
-                additions[package].append(output_recommends_filename)
+                additions[package].append([seed_name_recommends, architecture])
             elif value == -1:
                 removals.setdefault(package,[])
-                removals[package].append(output_recommends_filename)
+                removals[package].append([seed_name_recommends, architecture])
 
 
 if additions or removals:
@@ -365,12 +385,12 @@ if additions or removals:
     addition_keys.sort()
     for package in addition_keys:
         changes.append('Added %s to %s' %
-                       (package, ', '.join(additions[package])))
+                       (package, format_changes(additions[package])))
     removal_keys = removals.keys()
     removal_keys.sort()
     for package in removal_keys:
         changes.append('Removed %s from %s' %
-                       (package, ', '.join(removals[package])))
+                       (package, format_changes(removals[package])))
     move_keys = moves.keys()
     move_keys.sort()
     for package in move_keys:
@@ -379,7 +399,7 @@ if additions or removals:
         # implemented for depends->recommends or vice versa. In future,
         # using this for moves between seeds might also be useful.
         changes.append('Moved %s to %s' %
-                       (package, ', '.join(moves[package])))
+                       (package, format_changes(moves[package])))
     for change in changes:
         print change
         os.system("dch -a '%s'" % change)
