@@ -755,6 +755,39 @@ class Germinator:
         else:
             return False
 
+    def checkVersionedDependency(self, depname, depver, deptype):
+        """Can this versioned dependency be satisfied with the current set
+           of packages?"""
+        if depname not in self.packages:
+            return False
+        if deptype == "":
+            return True
+
+        ver = self.packages[depname]["Version"]
+        compare = apt_pkg.VersionCompare(ver, depver)
+        if deptype == "<=":
+            return compare <= 0
+        elif deptype == ">=":
+            return compare >= 0
+        elif deptype == "<<":
+            return compare < 0
+        elif deptype == ">>":
+            return compare > 0
+        elif deptype == "=":
+            return compare == 0
+        elif deptype == "!=":
+            return compare != 0
+        else:
+            self.error("Unknown dependency comparator: %s" % deptype)
+            return False
+
+    def unparseDependency(self, depname, depver, deptype):
+        """Return a string representation of a dependency."""
+        if deptype == "":
+            return depname
+        else:
+            return "%s (%s %s)" % (depname, deptype, depver)
+
     def addReverse(self, pkg, field, rdep):
         """Add a reverse dependency entry."""
         if "Reverse-Depends" not in self.packages[pkg]:
@@ -805,8 +838,8 @@ class Germinator:
         if self.allowedVirtualDependency(pkg, deptype) and depname in self.provides:
             trylist = [ d for d in self.provides[depname]
                         if d in self.packages and self.allowedDependency(pkg, d, seedname, build_depend) ]
-        elif depname in self.packages and \
-             self.allowedDependency(pkg, depname, seedname, build_depend):
+        elif (self.checkVersionedDependency(depname, depver, deptype) and
+              self.allowedDependency(pkg, depname, seedname, build_depend)):
             trylist = [ depname ]
         else:
             return False
@@ -831,8 +864,8 @@ class Germinator:
         """Add a single dependency. Returns True if a dependency was added,
            otherwise False."""
         (depname, depver, deptype) = depend
-        if depname in self.packages and \
-           self.allowedDependency(pkg, depname, seedname, build_depend):
+        if (self.checkVersionedDependency(depname, depver, deptype) and
+            self.allowedDependency(pkg, depname, seedname, build_depend)):
             virtual = None
             trylist = [ depname ]
         elif self.allowedVirtualDependency(pkg, deptype) and depname in self.provides:
@@ -840,7 +873,8 @@ class Germinator:
             trylist = [ d for d in self.provides[depname]
                         if d in self.packages and self.allowedDependency(pkg, d, seedname, build_depend) ]
         else:
-            self.error("Unknown dependency %s by %s", depname, pkg)
+            self.error("Unknown dependency %s by %s",
+                       self.unparseDependency(depname, depver, deptype), pkg)
             return False
 
         # Last ditch effort to satisfy this by promoting lesser seeds to
