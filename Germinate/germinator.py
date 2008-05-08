@@ -271,6 +271,8 @@ class Germinator:
                     self.packages[pkg]["Maintainer"] = \
                         unicode(p.Section.get("Maintainer", ""), "utf8", "replace")
 
+                    self.packages[pkg]["Essential"] = p.Section.get("Essential", "")
+
                     for field in "Pre-Depends", "Depends", "Recommends", "Suggests":
                         value = p.Section.get(field, "")
                         self.packages[pkg][field] = apt_pkg.ParseDepends(value)

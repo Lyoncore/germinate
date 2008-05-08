@@ -261,9 +261,10 @@ for architecture in architectures:
                                      seed_texts[seed_name]):
             if package == meta_name:
                 print "%s/%s: Skipping package %s (metapackage)" % (seed_name,architecture,package)
-                continue
-            if seed_name == 'minimal' and package not in debootstrap_base:
+            elif seed_name == 'minimal' and package not in debootstrap_base:
                 print "%s/%s: Skipping package %s (package not in debootstrap)" % (seed_name,architecture,package)
+            elif germinator.packages[package]["Essential"]:
+                print "%s/%s: Skipping package %s (essential)" % (seed_name,architecture,package)
             else:
                 new_list.append(package)
 
