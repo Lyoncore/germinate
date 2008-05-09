@@ -104,7 +104,11 @@ class Globals:
         Germinate.Archive.TagFile(MIRRORS).feed(
             g, DIST, COMPONENTS, ARCH, True)
 
-        seednames, seedinherit, seedbranches = g.parseStructure(SEEDS, RELEASE)
+        try:
+            seednames, seedinherit, seedbranches = g.parseStructure(SEEDS,
+                                                                    RELEASE)
+        except Germinate.seeds.SeedError:
+            sys.exit(1)
         needed_seeds = []
         build_tree = False
         for seedname in self.seeds:
@@ -117,9 +121,14 @@ class Globals:
             if seedname not in needed_seeds:
                 needed_seeds.append(seedname)
         for seedname in needed_seeds:
-            g.plantSeed(
-                Germinate.seeds.open_seed(SEEDS, seedbranches, seedname),
-                ARCH, seedname, list(seedinherit[seedname]), RELEASE)
+            try:
+                seed_fd = Germinate.seeds.open_seed(SEEDS, seedbranches,
+                                                    seedname)
+            except Germinate.seeds.SeedError:
+                sys.exit(1)
+            g.plantSeed(seed_fd,
+                        ARCH, seedname, list(seedinherit[seedname]), RELEASE)
+            seed_fd.close()
         g.prune()
         g.grow()
 

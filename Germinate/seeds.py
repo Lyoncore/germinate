@@ -25,6 +25,7 @@ import logging
 import urlparse
 import urllib2
 import shutil
+import re
 
 bzr_cache_dir = None
 
@@ -79,7 +80,19 @@ def open_seed(seed_bases, seed_branches, seed_file, bzr=False):
             try:
                 fd = _open_seed_internal(base, branch, seed_file, bzr)
                 break
-            except (OSError, IOError, SeedError, urllib2.URLError):
+            except SeedError:
+                ssh_match = re.match(r'bzr\+ssh://(?:[^/]*?@)?(.*?)(?:/|$)',
+                                     base)
+                if ssh_match:
+                    ssh_host = ssh_match.group(1)
+                    logging.error("Do you need to set your user name on %s?",
+                                  ssh_host)
+                    logging.error("Try a section such as this in ~/.ssh/config:")
+                    logging.error("")
+                    logging.error("Host %s", ssh_host)
+                    logging.error("        User YOUR_USER_NAME")
+                raise
+            except (OSError, IOError, urllib2.URLError):
                 pass
         if fd is not None:
             break

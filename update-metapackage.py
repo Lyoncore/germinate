@@ -246,8 +246,11 @@ for architecture in architectures:
     debootstrap_base = set(debootstrap_packages(architecture))
 
     print "[%s] Loading seed lists..." % architecture
-    seed_names, seed_inherit, seed_branches = germinator.parseStructure(
-        seed_base, seed_dist, bzr)
+    try:
+        seed_names, seed_inherit, seed_branches = germinator.parseStructure(
+            seed_base, seed_dist, bzr)
+    except Germinate.seeds.SeedError:
+        sys.exit(1)
     needed_seeds = []
     for seed_name in seeds:
         for inherit in seed_inherit[seed_name]:
@@ -257,8 +260,11 @@ for architecture in architectures:
             needed_seeds.append(seed_name)
     seed_texts = {}
     for seed_name in needed_seeds:
-        seed_fd = Germinate.seeds.open_seed(seed_base, seed_branches,
-                                            seed_name, bzr)
+        try:
+            seed_fd = Germinate.seeds.open_seed(seed_base, seed_branches,
+                                                seed_name, bzr)
+        except Germinate.seeds.SeedError:
+            sys.exit(1)
         seed_texts[seed_name] = seed_fd.readlines()
         seed_fd.close()
         germinator.plantSeed(seed_texts[seed_name], architecture, seed_name,

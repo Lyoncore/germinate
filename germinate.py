@@ -391,15 +391,25 @@ def main():
     if os.path.isfile("hints"):
         g.parseHints(open("hints"))
 
-    blacklist = Germinate.seeds.open_seed(SEEDS, RELEASE, "blacklist", bzr)
+    try:
+        blacklist = Germinate.seeds.open_seed(SEEDS, RELEASE, "blacklist", bzr)
+    except Germinate.seeds.SeedError:
+        sys.exit(1)
     if blacklist is not None:
         g.parseBlacklist(blacklist)
 
-    seednames, seedinherit, seedbranches = g.parseStructure(
-        SEEDS, RELEASE, bzr)
+    try:
+        seednames, seedinherit, seedbranches = g.parseStructure(
+            SEEDS, RELEASE, bzr)
+    except Germinate.seeds.SeedError:
+        sys.exit(1)
     seedtexts = {}
     for seedname in seednames:
-        seed_fd = Germinate.seeds.open_seed(SEEDS, seedbranches, seedname, bzr)
+        try:
+            seed_fd = Germinate.seeds.open_seed(SEEDS, seedbranches, seedname,
+                                                bzr)
+        except Germinate.seeds.SeedError:
+            sys.exit(1)
         seedtexts[seedname] = seed_fd.readlines()
         seed_fd.close()
         g.plantSeed(seedtexts[seedname],
