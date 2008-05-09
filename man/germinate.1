@@ -224,6 +224,15 @@ seed are already installed while calculating the additional dependencies of
 This allows the use of
 .Nm
 to calculate the dependencies of individual extra packages.
+For example,
+.Fl Fl seed\-packages Ar desktop Ns / Ns Ar epiphany\-browser
+will create an
+.Pa epiphany\-browser
+output file listing the additional packages that need to be installed over
+and above the
+.Ar desktop
+seed in order to install
+.Ar epiphany\-browser .
 .El
 .Sh BUGS
 The wiki-style markup in seeds was inherited from an early implementation,

@@ -7,6 +7,7 @@ germinate (0.46) UNRELEASED; urgency=low
   * Print a helpful error message if an ssh connection fails, on the
     assumption that it's often due to an incorrect username (LP: #99123).
   * Document fetching seeds from the local file system (closes: #363536).
+  * Add an example of using --seed-packages.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Thu, 08 May 2008 14:18:59 +0100
 
