@@ -91,7 +91,7 @@ def open_seed(seed_bases, seed_branches, seed_file, bzr=False):
                     logging.error("")
                     logging.error("Host %s", ssh_host)
                     logging.error("        User YOUR_USER_NAME")
-                raise
+                    raise
             except (OSError, IOError, urllib2.URLError):
                 pass
         if fd is not None:
@@ -112,5 +112,6 @@ def open_seed(seed_bases, seed_branches, seed_file, bzr=False):
                     if not path.endswith('/'):
                         path += '/'
                     logging.warning('  %s' % urlparse.urljoin(path, seed_file))
+        raise SeedError("Could not open %s" % seed_file)
 
     return fd
