@@ -1,9 +1,9 @@
-germinate (1.1) UNRELEASED; urgency=low
+germinate (1.1) unstable; urgency=low
 
   * Only raise SeedError from open_seed if all attempts to open the seed
     failed; otherwise using multiple seed sources breaks.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Thu, 29 May 2008 16:24:47 +0100
+ -- Colin Watson <cjwatson@ubuntu.com>  Thu, 29 May 2008 16:27:37 +0100
 
 germinate (1.0) unstable; urgency=low
 
