@@ -94,7 +94,7 @@ class Germinator:
     def error(self, msg, *args, **kwargs):
         logging.error(msg, *args, **kwargs)
 
-    def parseStructureFile(self, f):
+    def parseStructureFile(self, f, dotfile):
         """Parse a seed structure file. This is an ordered sequence of lines
         as follows:
 
@@ -135,6 +135,8 @@ class Germinator:
                 seed = words[0][:-1]
                 seednames.append(seed)
                 seedinherit[seed] = list(words[1:])
+                for inherit in seedinherit[seed]:
+                    print >>dotfile, "    \"%s\" -> \"%s\";" % (inherit, seed) 
                 lines.append(line)
             elif words[0] == 'include':
                 seedbranches.extend(words[1:])
@@ -144,7 +146,7 @@ class Germinator:
 
         return (seednames, seedinherit, seedbranches, lines)
 
-    def parseStructure(self, seed_base, branch, bzr=False, got_branches=None):
+    def parseStructure(self, seed_base, branch, dotfile, bzr=False, got_branches=None):
         """Like parseStructureFile, but deals with acquiring the seed
         structure files and recursively acquiring any seed structure files
         it includes. got_branches is for internal use only."""
@@ -165,14 +167,14 @@ class Germinator:
 
         # Fetch this one
         seed = Germinate.seeds.open_seed(seed_base, branch, "STRUCTURE", bzr)
-        names, inherit, branches, structure = self.parseStructureFile(seed)
+        names, inherit, branches, structure = self.parseStructureFile(seed, dotfile)
         branches.insert(0, branch)
         got_branches.add(branch)
-
+            
         # Recursively expand included branches
         for child_branch in branches:
             child_names, child_inherit, child_branches, child_structure = \
-                self.parseStructure(seed_base, child_branch, bzr, got_branches)
+                self.parseStructure(seed_base, child_branch, dotfile, bzr, got_branches)
             for grandchild_name in child_names:
                 all_names.append(grandchild_name)
             all_inherit.update(child_inherit)

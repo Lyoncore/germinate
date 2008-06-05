@@ -397,12 +397,21 @@ def main():
         sys.exit(1)
     if blacklist is not None:
         g.parseBlacklist(blacklist)
+    
+    #Initialize dot document
+    dotfile = codecs.open("seedstructure.dot", "w", "utf8", "replace")
+    print >>dotfile, "digraph seedstructure {"
+    print >>dotfile, "    node [color=lightblue2, style=filled];"
 
     try:
         seednames, seedinherit, seedbranches = g.parseStructure(
-            SEEDS, RELEASE, bzr)
+            SEEDS, RELEASE, dotfile, bzr)
     except Germinate.seeds.SeedError:
         sys.exit(1)
+    
+    print >>dotfile, "}"
+    dotfile.close()
+    
     seedtexts = {}
     for seedname in seednames:
         try:
