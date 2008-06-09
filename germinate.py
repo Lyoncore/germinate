@@ -257,6 +257,22 @@ def write_seedtext(filename, seedtext):
     for line in seedtext:
         print >>f, line.rstrip('\n')
 
+def write_dot(filename, seednames, seedinherit):
+    """Write a dot file to represent the structure of the seeds"""
+
+    #Initialize dot document
+    dotfile = codecs.open(filename, "w", "utf8", "replace")
+    print >>dotfile, "digraph seedstructure {"
+    print >>dotfile, "    node [color=lightblue2, style=filled];"
+
+    heritage = []
+
+    for seed in seednames:
+        for inherit in seedinherit[seed]:
+            print >>dotfile, "    \"%s\" -> \"%s\";" % (inherit, seed)
+
+    print >>dotfile, "}"
+    dotfile.close()
 
 def usage(f):
     print >>f, """Usage: germinate.py [options]
@@ -288,7 +304,6 @@ Options:
                         PARENT.
 """ % (",".join(SEEDS), RELEASE, DEFAULT_MIRROR, ",".join(DIST), ARCH,
        ",".join(COMPONENTS))
-
 
 def main():
     global SEEDS, SEEDS_BZR, RELEASE
@@ -398,20 +413,17 @@ def main():
     if blacklist is not None:
         g.parseBlacklist(blacklist)
     
-    #Initialize dot document
-    dotfile = codecs.open("seedstructure.dot", "w", "utf8", "replace")
-    print >>dotfile, "digraph seedstructure {"
-    print >>dotfile, "    node [color=lightblue2, style=filled];"
-
     try:
         seednames, seedinherit, seedbranches = g.parseStructure(
-            SEEDS, RELEASE, dotfile, bzr)
+            SEEDS, RELEASE, bzr)
     except Germinate.seeds.SeedError:
         sys.exit(1)
-    
-    print >>dotfile, "}"
-    dotfile.close()
-    
+   
+    write_dot ("seedstructure.dot", seednames, seedinherit)
+
+    seednames, seedinherit, seedbranches = g.expandInheritance(
+        seednames, seedinherit, seedbranches)
+
     seedtexts = {}
     for seedname in seednames:
         try:
