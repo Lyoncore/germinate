@@ -1,4 +1,4 @@
 debian/files
 debian/germinate
-debian/*.debhelper
+debian/*.debhelper*
 debian/*.substvars
