@@ -305,6 +305,7 @@ Options:
 """ % (",".join(SEEDS), RELEASE, DEFAULT_MIRROR, ",".join(DIST), ARCH,
        ",".join(COMPONENTS))
 
+
 def main():
     global SEEDS, SEEDS_BZR, RELEASE
     global DEFAULT_MIRROR, DEFAULT_SOURCE_MIRROR, SOURCE_MIRRORS, MIRRORS
@@ -412,13 +413,13 @@ def main():
         sys.exit(1)
     if blacklist is not None:
         g.parseBlacklist(blacklist)
-    
+
     try:
         seednames, seedinherit, seedbranches = g.parseStructure(
             SEEDS, RELEASE, bzr)
     except Germinate.seeds.SeedError:
         sys.exit(1)
-   
+
     write_dot ("seedstructure.dot", seednames, seedinherit)
 
     seednames, seedinherit, seedbranches = g.expandInheritance(

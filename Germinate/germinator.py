@@ -168,7 +168,7 @@ class Germinator:
         names, inherit, branches, structure = self.parseStructureFile(seed)
         branches.insert(0, branch)
         got_branches.add(branch)
-            
+
         # Recursively expand included branches
         for child_branch in branches:
             child_names, child_inherit, child_branches, child_structure = \
@@ -213,8 +213,7 @@ class Germinator:
         else:
             return all_names, all_inherit, all_branches, all_structure
 
-
-    def expandInheritance (f, all_names, all_inherit, all_branches):
+    def expandInheritance(f, all_names, all_inherit, all_branches):
         """Expand out incomplete inheritance lists"""
         order = Germinate.tsort.topo_sort(all_inherit)
         for name in order:
@@ -229,10 +228,9 @@ class Germinator:
                     new_inherit.append(inheritee)
                     seen.add(inheritee)
             all_inherit[name] = new_inherit
-            
+
         return order, all_inherit, all_branches
 
-    
     def parseHints(self, f):
         """Parse a hints file."""
         for line in f:
