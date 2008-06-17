@@ -1,3 +1,9 @@
+germinate (1.2) UNRELEASED; urgency=low
+
+  * Generate a seedstructure.dot diagram of seed inheritance
+
+ -- Nicolas Barcet <nicolas.barcet@ubuntu.com> Thu, 5 Jun 2008 23:57:30 +0200
+
 germinate (1.1) unstable; urgency=low
 
   * Only raise SeedError from open_seed if all attempts to open the seed

@@ -251,6 +251,8 @@ for architecture in architectures:
             seed_base, seed_dist, bzr)
     except Germinate.seeds.SeedError:
         sys.exit(1)
+    seed_names, seed_inherit, seed_branches = germinator.expandInheritance(
+        seed_names, seed_inherit, seed_branches)
     needed_seeds = []
     for seed_name in seeds:
         for inherit in seed_inherit[seed_name]:

@@ -206,7 +206,15 @@ class Germinator:
         # later branches can override seeds from earlier branches
         all_branches.reverse()
 
-        # Expand out incomplete inheritance lists
+        if top_level:
+            self.structure = all_structure
+            self.supported = all_names[-1]
+            return all_names, all_inherit, all_branches
+        else:
+            return all_names, all_inherit, all_branches, all_structure
+
+    def expandInheritance(f, all_names, all_inherit, all_branches):
+        """Expand out incomplete inheritance lists"""
         order = Germinate.tsort.topo_sort(all_inherit)
         for name in order:
             seen = set()
@@ -221,12 +229,7 @@ class Germinator:
                     seen.add(inheritee)
             all_inherit[name] = new_inherit
 
-        if top_level:
-            self.structure = all_structure
-            self.supported = all_names[-1]
-            return order, all_inherit, all_branches
-        else:
-            return all_names, all_inherit, all_branches, all_structure
+        return order, all_inherit, all_branches
 
     def parseHints(self, f):
         """Parse a hints file."""
