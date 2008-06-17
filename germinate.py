@@ -262,7 +262,7 @@ def write_dot(filename, seednames, seedinherit):
 
     #Initialize dot document
     dotfile = codecs.open(filename, "w", "utf8", "replace")
-    print >>dotfile, "digraph seedstructure {"
+    print >>dotfile, "digraph structure {"
     print >>dotfile, "    node [color=lightblue2, style=filled];"
 
     heritage = []
@@ -420,7 +420,7 @@ def main():
     except Germinate.seeds.SeedError:
         sys.exit(1)
 
-    write_dot("seedstructure.dot", seednames, seedinherit)
+    write_dot("structure.dot", seednames, seedinherit)
 
     seednames, seedinherit, seedbranches = g.expandInheritance(
         seednames, seedinherit, seedbranches)
