@@ -109,6 +109,8 @@ class Globals:
                                                                     RELEASE)
         except Germinate.seeds.SeedError:
             sys.exit(1)
+	seednames, seedinherit, seedbranches = g.expandInheritance(
+			        seednames, seedinherit, seedbranches)
         needed_seeds = []
         build_tree = False
         for seedname in self.seeds:
