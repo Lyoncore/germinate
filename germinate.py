@@ -420,7 +420,7 @@ def main():
     except Germinate.seeds.SeedError:
         sys.exit(1)
 
-    write_dot ("seedstructure.dot", seednames, seedinherit)
+    write_dot("seedstructure.dot", seednames, seedinherit)
 
     seednames, seedinherit, seedbranches = g.expandInheritance(
         seednames, seedinherit, seedbranches)
