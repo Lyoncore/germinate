@@ -30,6 +30,7 @@ import os
 import getopt
 import logging
 import ConfigParser
+import subprocess
 
 try:
     set # introduced in 2.4
@@ -177,9 +178,17 @@ def get_debootstrap_version():
     return version
 
 def debootstrap_packages(arch):
-    debootstrap = os.popen('debootstrap --arch %s --print-debs %s debootstrap-dir %s' % (arch,dist,archive_base[arch][0]))
-    packages = debootstrap.read().split()
-    if debootstrap.close():
+    env = dict(os.environ)
+    if 'PATH' in env:
+        env['PATH'] = '/usr/sbin:/sbin:%s' % env['PATH']
+    else:
+        env['PATH'] = '/usr/sbin:/sbin:/usr/bin:/bin'
+    debootstrap = subprocess.Popen(
+        ['debootstrap', '--arch', arch, '--print-debs',
+         dist, 'debootstrap-dir', archive_base[arch][0]],
+        stdout=subprocess.PIPE, env=env)
+    packages = debootstrap.communicate()[0].split()
+    if debootstrap.returncode != 0:
         raise RuntimeError('Unable to retrieve package list from debootstrap')
     
     

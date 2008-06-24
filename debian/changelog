@@ -1,6 +1,11 @@
 germinate (1.2) UNRELEASED; urgency=low
 
+  [ Nicolas Barcet ]
   * Generate a seedstructure.dot diagram of seed inheritance.
+
+  [ Colin Watson ]
+  * Ensure that /usr/sbin and /sbin are on PATH when running debootstrap
+    (closes: #487706).
 
  -- Nicolas Barcet <nicolas.barcet@ubuntu.com>  Thu, 5 Jun 2008 23:57:30 +0200
 
