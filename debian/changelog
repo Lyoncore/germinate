@@ -1,6 +1,6 @@
 germinate (1.2) UNRELEASED; urgency=low
 
-  * Generate a seedstructure.dot diagram of seed inheritance
+  * Generate a seedstructure.dot diagram of seed inheritance.
 
  -- Nicolas Barcet <nicolas.barcet@ubuntu.com>  Thu, 5 Jun 2008 23:57:30 +0200
 
