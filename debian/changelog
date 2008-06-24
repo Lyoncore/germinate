@@ -5,7 +5,7 @@ germinate (1.2) UNRELEASED; urgency=low
 
   [ Colin Watson ]
   * Ensure that /usr/sbin and /sbin are on PATH when running debootstrap
-    (closes: #487706).
+    (closes: #487706). Requires Python 2.4.
 
  -- Nicolas Barcet <nicolas.barcet@ubuntu.com>  Thu, 5 Jun 2008 23:57:30 +0200
 
