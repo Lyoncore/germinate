@@ -52,13 +52,15 @@ Options:
 
   -h, --help            Print this help message and exit.
   --version             Output version information and exit.
+  --nodch               Don't modify debian/changelog.
   --bzr                 Fetch seeds using bzr. Requires bzr to be installed.
 """
 
 bzr = False
+nodch = False
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "h", ["help", "version", "bzr"])
+    opts, args = getopt.getopt(sys.argv[1:], "h", ["help", "version", "bzr", "nodch"])
 except getopt.GetoptError:
     usage(sys.stderr)
     sys.exit(2)
@@ -73,6 +75,8 @@ for option, value in opts:
         sys.exit()
     elif option == "--bzr":
         bzr = True
+    elif option == "--nodch":
+        nodch = True
 
 if not os.path.exists('debian/control'):
     raise RuntimeError('must be run from the top level of a source package')
@@ -389,7 +393,7 @@ for architecture in architectures:
                 removals[package].append([seed_name_recommends, architecture])
 
 
-if additions or removals:
+if not nodch and (additions or removals):
     dch_help = os.popen('dch --help')
     have_U = '-U' in dch_help.read()
     dch_help.close()
