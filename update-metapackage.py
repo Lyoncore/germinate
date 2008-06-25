@@ -190,15 +190,13 @@ def debootstrap_packages(arch):
     debootstrap = subprocess.Popen(
         ['debootstrap', '--arch', arch, '--print-debs',
          dist, 'debootstrap-dir', archive_base[arch][0]],
-        stdout=subprocess.PIPE, env=env)
-    packages = debootstrap.communicate()[0].split()
+        stdout=subprocess.PIPE, env=env, stderr=subprocess.PIPE)
+    (debootstrap_stdout, _) = debootstrap.communicate()
     if debootstrap.returncode != 0:
-        raise RuntimeError('Unable to retrieve package list from debootstrap')
-    
-    
-    # sometimes debootstrap gives empty packages / multiple separators
-    packages = filter(None, packages)
-    
+        raise RuntimeError('Unable to retrieve package list from debootstrap: %s' % debootstrap_stdout)    
+
+    packages = filter(None, debootstrap_stdout.split())
+    # sometimes debootstrap gives empty packages / multiple separators   
     packages.sort()
 
     return packages
