@@ -390,7 +390,6 @@ for architecture in architectures:
                 removals.setdefault(package,[])
                 removals[package].append([seed_name_recommends, architecture])
 
-
 if not nodch and (additions or removals):
     dch_help = os.popen('dch --help')
     have_U = '-U' in dch_help.read()
@@ -424,4 +423,4 @@ if not nodch and (additions or removals):
         os.system("dch -a '%s'" % change)
     update_debootstrap_version()
 else:
-    print "No changes found"
+    if not nodch: print "No changes found"
