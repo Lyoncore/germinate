@@ -97,6 +97,17 @@ been blacklisted, so use this feature sparingly.
 A
 .Pa STRUCTURE
 file alongside the seeds lists their inheritance relationships.
+It may also include lines beginning with
+.Sq include ,
+causing other collections of seeds to be included as if they were part of
+the collection currently being germinated, or lines beginning with
+.Sq feature ,
+which set flags for the processing of seeds.
+The only flag currently defined is
+.Sq follow\-recommends ,
+which causes
+.Nm
+to treat Recommends fields as if they were Depends.
 .Ss Build-dependencies and Sq supported
 There is typically no need for a default desktop installation to contain all
 the compilers and development libraries needed to build itself from source;

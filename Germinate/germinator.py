@@ -43,6 +43,7 @@ class Germinator:
         self.pruned = {}
 
         self.structure = []
+        self.features = set()
         self.seeds = []
         self.seed = {}
         self.seedrecommends = {}
@@ -138,6 +139,8 @@ class Germinator:
                 lines.append(line)
             elif words[0] == 'include':
                 seedbranches.extend(words[1:])
+            elif words[0] == 'feature':
+                self.features.update(words[1:])
             else:
                 self.error("Unparseable seed structure entry: %s", line)
         f.close()
@@ -685,6 +688,11 @@ class Germinator:
             self.seedrecommends[seedname] = self.weedBlacklist(
                 self.seedrecommends[seedname], seedname, False, why)
 
+            # Note that seedrecommends are not processed with
+            # recommends=True; that is reserved for Recommends of packages,
+            # not packages recommended by the seed. Changing this results in
+            # less helpful output when a package is recommended by an inner
+            # seed and required by an outer seed.
             for pkg in self.seed[seedname] + self.seedrecommends[seedname]:
                 self.addPackage(seedname, pkg, why)
 
@@ -806,7 +814,8 @@ class Germinator:
         """Calculate the reverse dependency relationships."""
         for pkg in self.all:
             fields = ["Pre-Depends", "Depends"]
-            if self.packages[pkg]["Section"] == "metapackages":
+            if ("follow-recommends" in self.features or
+                self.packages[pkg]["Section"] == "metapackages"):
                 fields.append("Recommends")
             for field in fields:
                 for deplist in self.packages[pkg][field]:
@@ -828,7 +837,8 @@ class Germinator:
                 continue
 
             fields = ["Pre-Depends", "Depends"]
-            if self.packages[pkg]["Section"] == "metapackages":
+            if ("follow-recommends" in self.features or
+                self.packages[pkg]["Section"] == "metapackages"):
                 fields.append("Recommends")
             fields.extend(["Build-Depends", "Build-Depends-Indep"])
             for field in fields:
@@ -865,7 +875,7 @@ class Germinator:
             return False
 
     def addDependency(self, seedname, pkg, depend, build_depend,
-                      second_class, build_tree):
+                      second_class, build_tree, recommends):
         """Add a single dependency. Returns True if a dependency was added,
            otherwise False."""
         (depname, depver, deptype) = depend
@@ -878,7 +888,13 @@ class Germinator:
             trylist = [ d for d in self.provides[depname]
                         if d in self.packages and self.allowedDependency(pkg, d, seedname, build_depend) ]
         else:
-            self.error("Unknown dependency %s by %s",
+            if build_depend:
+                desc = "build-dependency"
+            elif recommends:
+                desc = "recommendation"
+            else:
+                desc = "dependency"
+            self.error("Unknown %s %s by %s", desc,
                        self.unparseDependency(depname, depver, deptype), pkg)
             return False
 
@@ -935,6 +951,8 @@ class Germinator:
 
         if build_tree and build_depend:
             why = self.packages[pkg]["Source"] + " (Build-Depend)"
+        elif recommends:
+            why = pkg + " (Recommends)"
         else:
             why = pkg
 
@@ -950,25 +968,32 @@ class Germinator:
                 self.depends[seedname].add(dep)
 
         for dep in dependlist:
-            self.addPackage(seedname, dep, why, build_tree, second_class)
+            self.addPackage(seedname, dep, why,
+                            build_tree, second_class, recommends)
 
         return True
 
     def addDependencyTree(self, seedname, pkg, depends,
                           build_depend=False,
                           second_class=False,
-                          build_tree=False):
+                          build_tree=False,
+                          recommends=False):
         """Add a package's dependency tree."""
         if build_depend: build_tree = True
         if build_tree: second_class = True
         for deplist in depends:
             for dep in deplist:
+                # TODO cjwatson 2008-07-02: At the moment this check will
+                # catch an existing Recommends and we'll never get as far as
+                # calling rememberWhy with a dependency, so self.why will be
+                # a bit inaccurate. We may need another pass for Recommends
+                # to fix this.
                 if self.alreadySatisfied(seedname, pkg, dep, build_depend, second_class):
                     break
             else:
                 for dep in deplist:
                     if self.addDependency(seedname, pkg, dep, build_depend,
-                                          second_class, build_tree):
+                                          second_class, build_tree, recommends):
                         if len(deplist) > 1:
                             self.info("Chose %s to satisfy %s", dep[0], pkg)
                         break
@@ -976,23 +1001,26 @@ class Germinator:
                     if len(deplist) > 1:
                         self.error("Nothing to choose to satisfy %s", pkg)
 
-    def rememberWhy(self, seedname, pkg, why, build_tree=False):
+    def rememberWhy(self, seedname, pkg, why, build_tree=False,
+                    recommends=False):
         """Remember why this package was added to the output for this seed."""
         if pkg in self.why[seedname]:
-            (old_why, old_build_tree) = self.why[seedname][pkg];
+            (old_why, old_build_tree, old_recommends) = self.why[seedname][pkg]
             # Reasons from the dependency tree beat reasons from the
             # build-dependency tree; but pick the first of either type that
-            # we see.
-            if not old_build_tree:
+            # we see. Within either tree, dependencies beat recommendations.
+            if not old_build_tree and build_tree:
                 return
-            if build_tree:
-                return
+            if old_build_tree == build_tree:
+                if not old_recommends or recommends:
+                    return
 
-        self.why[seedname][pkg] = (why, build_tree)
+        self.why[seedname][pkg] = (why, build_tree, recommends)
 
     def addPackage(self, seedname, pkg, why,
                    second_class=False,
-                   build_tree=False):
+                   build_tree=False,
+                   recommends=False):
         """Add a package and its dependency trees."""
         if seedname in self.pruned[pkg]:
             self.warning("Pruned %s from %s", pkg, seedname)
@@ -1031,8 +1059,8 @@ class Germinator:
         # Remember why the package was added to the output for this seed.
         # Also remember a reason for "all" too, so that an aggregated list
         # of all selected packages can be constructed easily.
-        self.rememberWhy(seedname, pkg, why, build_tree)
-        self.rememberWhy("all", pkg, why, build_tree)
+        self.rememberWhy(seedname, pkg, why, build_tree, recommends)
+        self.rememberWhy("all", pkg, why, build_tree, recommends)
 
         for prov in self.packages[pkg]["Provides"]:
             if prov[0][0] not in self.pkgprovides:
@@ -1048,11 +1076,13 @@ class Germinator:
                                second_class=second_class,
                                build_tree=build_tree)
 
-        if self.packages[pkg]["Section"] == "metapackages":
+        if ("follow-recommends" in self.features or
+            self.packages[pkg]["Section"] == "metapackages"):
             self.addDependencyTree(seedname, pkg,
                                    self.packages[pkg]["Recommends"],
                                    second_class=second_class,
-                                   build_tree=build_tree)
+                                   build_tree=build_tree,
+                                   recommends=True)
 
         src = self.packages[pkg]["Source"]
         if src not in self.sources:
