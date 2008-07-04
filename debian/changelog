@@ -1,6 +1,6 @@
 germinate (1.3) UNRELEASED; urgency=low
 
-  [ Francois-Denis Gonthier ]
+  [ François-Denis Gonthier ]
   * Add --nodch option to germinate-update-metapackage (LP: #242374).
 
   [ Colin Watson ]
