@@ -94,6 +94,23 @@ as above to blacklist all binaries from the given source package.
 Note that this may result in uninstallable packages whose dependencies have
 been blacklisted, so use this feature sparingly.
 .Pp
+Some seeds also contain headers at the top of the file, in
+.Dq key: value
+format.
+For the most part, these are not parsed by
+.Nm
+itself.
+The Ubuntu
+.Ic tasksel
+package uses keys beginning with
+.Sq Task\-
+to define fields of similar names in its
+.Pa .desc
+files.
+.Xr germinate\-update\-metapackage 1
+uses some of these headers to reduce the need for fragile configuration;
+see its documentation for further details.
+.Pp
 A
 .Pa STRUCTURE
 file alongside the seeds lists their inheritance relationships.
