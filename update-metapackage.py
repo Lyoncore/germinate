@@ -53,17 +53,20 @@ update.cfg.
 
 Options:
 
-  -h, --help            Print this help message and exit.
-  --version             Output version information and exit.
-  --nodch               Don't modify debian/changelog.
-  --bzr                 Fetch seeds using bzr. Requires bzr to be installed.
+  -h, --help              Print this help message and exit.
+  -o, --output-directory  Output in specific directory.
+  --version               Output version information and exit.
+  --nodch                 Don't modify debian/changelog.
+  --bzr                   Fetch seeds using bzr. Requires bzr to be installed.
 """
 
 bzr = False
 nodch = False
+outdir = None
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "h", ["help", "version", "bzr", "nodch"])
+    opts, args = getopt.getopt(sys.argv[1:], "ho:",
+                               ["help", "version", "bzr", "nodch", "output-directory="])
 except getopt.GetoptError:
     usage(sys.stderr)
     sys.exit(2)
@@ -80,6 +83,10 @@ for option, value in opts:
         bzr = True
     elif option == "--nodch":
         nodch = True
+    elif option in ("-o", "--output-directory"):
+        outdir = value
+
+if not outdir: outdir = "."
 
 if not os.path.exists('debian/control'):
     raise RuntimeError('must be run from the top level of a source package')
@@ -290,7 +297,7 @@ for architecture in architectures:
     for seed_name in output_seeds:
         meta_name = metapackage_name(seed_name, seed_texts[seed_name])
 
-        output_filename = '%s-%s' % (seed_name,architecture)
+        output_filename = os.path.join(outdir, '%s-%s' % (seed_name,architecture))
         old_list = None
         if os.path.exists(output_filename):
             old_list = set(map(str.strip,open(output_filename).readlines()))
@@ -331,7 +338,7 @@ for architecture in architectures:
 
         new_recommends_list.sort()
         seed_name_recommends = '%s-recommends' % seed_name
-        output_recommends_filename = '%s-%s' % (seed_name_recommends,architecture)
+        output_recommends_filename = os.path.join(outdir, '%s-%s' % (seed_name_recommends,architecture))
         if os.path.exists(output_recommends_filename):
             old_recommends_list = set(map(str.strip,open(output_recommends_filename).readlines()))
             os.rename(output_recommends_filename, output_recommends_filename + '.old')
