@@ -46,7 +46,10 @@ import Germinate.seeds
 import Germinate.version
 
 def usage(f):
-    print >>f, """Usage: update-metapackage.py [options]
+    print >>f, """Usage: update-metapackage.py [options] [dist]
+
+Update metapackage lists for distribution 'dist' as defined in
+update.cfg.
 
 Options:
 
