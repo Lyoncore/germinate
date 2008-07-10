@@ -212,7 +212,7 @@ def _write_rdepend_list(f, g, pkg, prefix, stack=None, done=None):
     if "Reverse-Depends" not in g.packages[pkg]:
         return
 
-    for field in ("Pre-Depends", "Depends",
+    for field in ("Pre-Depends", "Depends", "Recommends",
                   "Build-Depends", "Build-Depends-Indep"):
         if field not in g.packages[pkg]["Reverse-Depends"]:
             continue
