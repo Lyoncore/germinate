@@ -53,11 +53,12 @@ update.cfg.
 
 Options:
 
-  -h, --help              Print this help message and exit.
-  -o, --output-directory  Output in specific directory.
-  --version               Output version information and exit.
-  --nodch                 Don't modify debian/changelog.
-  --bzr                   Fetch seeds using bzr. Requires bzr to be installed.
+  -h, --help            Print this help message and exit.
+  -o, --output-directory=DIR
+                        Output in specific directory.
+  --version             Output version information and exit.
+  --nodch               Don't modify debian/changelog.
+  --bzr                 Fetch seeds using bzr. Requires bzr to be installed.
 """
 
 bzr = False
