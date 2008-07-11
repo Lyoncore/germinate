@@ -1,4 +1,4 @@
-germinate (1.4) UNRELEASED; urgency=low
+germinate (1.4) unstable; urgency=low
 
   [ François-Denis Gonthier ]
   * Display stdout from debootstrap on error.
@@ -7,7 +7,7 @@ germinate (1.4) UNRELEASED; urgency=low
   * Add a general description to germinate-update-metapackage's help output.
   * Add --output-directory to germinate-update-metapackage.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Fri, 11 Jul 2008 10:08:42 -0400
+ -- Colin Watson <cjwatson@ubuntu.com>  Fri, 11 Jul 2008 15:36:10 +0100
 
 germinate (1.3) unstable; urgency=low
 
