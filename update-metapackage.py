@@ -46,21 +46,27 @@ import Germinate.seeds
 import Germinate.version
 
 def usage(f):
-    print >>f, """Usage: update-metapackage.py [options]
+    print >>f, """Usage: update-metapackage.py [options] [dist]
+
+Update metapackage lists for distribution 'dist' as defined in
+update.cfg.
 
 Options:
 
-  -h, --help            Print this help message and exit.
-  --version             Output version information and exit.
-  --nodch               Don't modify debian/changelog.
-  --bzr                 Fetch seeds using bzr. Requires bzr to be installed.
+  -h, --help              Print this help message and exit.
+  -o, --output-directory  Output in specific directory.
+  --version               Output version information and exit.
+  --nodch                 Don't modify debian/changelog.
+  --bzr                   Fetch seeds using bzr. Requires bzr to be installed.
 """
 
 bzr = False
 nodch = False
+outdir = None
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "h", ["help", "version", "bzr", "nodch"])
+    opts, args = getopt.getopt(sys.argv[1:], "ho:",
+                               ["help", "version", "bzr", "nodch", "output-directory="])
 except getopt.GetoptError:
     usage(sys.stderr)
     sys.exit(2)
@@ -77,6 +83,11 @@ for option, value in opts:
         bzr = True
     elif option == "--nodch":
         nodch = True
+    elif option in ("-o", "--output-directory"):
+        outdir = value
+
+if not outdir:
+    outdir = "."
 
 if not os.path.exists('debian/control'):
     raise RuntimeError('must be run from the top level of a source package')
@@ -190,15 +201,13 @@ def debootstrap_packages(arch):
     debootstrap = subprocess.Popen(
         ['debootstrap', '--arch', arch, '--print-debs',
          dist, 'debootstrap-dir', archive_base[arch][0]],
-        stdout=subprocess.PIPE, env=env)
-    packages = debootstrap.communicate()[0].split()
+        stdout=subprocess.PIPE, env=env, stderr=subprocess.PIPE)
+    (debootstrap_stdout, _) = debootstrap.communicate()
     if debootstrap.returncode != 0:
-        raise RuntimeError('Unable to retrieve package list from debootstrap')
-    
-    
-    # sometimes debootstrap gives empty packages / multiple separators
-    packages = filter(None, packages)
-    
+        raise RuntimeError('Unable to retrieve package list from debootstrap: %s' % debootstrap_stdout)    
+
+    packages = filter(None, debootstrap_stdout.split())
+    # sometimes debootstrap gives empty packages / multiple separators   
     packages.sort()
 
     return packages
@@ -289,7 +298,7 @@ for architecture in architectures:
     for seed_name in output_seeds:
         meta_name = metapackage_name(seed_name, seed_texts[seed_name])
 
-        output_filename = '%s-%s' % (seed_name,architecture)
+        output_filename = os.path.join(outdir, '%s-%s' % (seed_name,architecture))
         old_list = None
         if os.path.exists(output_filename):
             old_list = set(map(str.strip,open(output_filename).readlines()))
@@ -330,7 +339,7 @@ for architecture in architectures:
 
         new_recommends_list.sort()
         seed_name_recommends = '%s-recommends' % seed_name
-        output_recommends_filename = '%s-%s' % (seed_name_recommends,architecture)
+        output_recommends_filename = os.path.join(outdir, '%s-%s' % (seed_name_recommends,architecture))
         if os.path.exists(output_recommends_filename):
             old_recommends_list = set(map(str.strip,open(output_recommends_filename).readlines()))
             os.rename(output_recommends_filename, output_recommends_filename + '.old')
@@ -392,7 +401,6 @@ for architecture in architectures:
                 removals.setdefault(package,[])
                 removals[package].append([seed_name_recommends, architecture])
 
-
 if not nodch and (additions or removals):
     dch_help = os.popen('dch --help')
     have_U = '-U' in dch_help.read()
@@ -426,4 +434,5 @@ if not nodch and (additions or removals):
         os.system("dch -a '%s'" % change)
     update_debootstrap_version()
 else:
-    print "No changes found"
+    if not nodch:
+        print "No changes found"
