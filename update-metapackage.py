@@ -86,7 +86,8 @@ for option, value in opts:
     elif option in ("-o", "--output-directory"):
         outdir = value
 
-if not outdir: outdir = "."
+if not outdir:
+    outdir = "."
 
 if not os.path.exists('debian/control'):
     raise RuntimeError('must be run from the top level of a source package')
@@ -433,4 +434,5 @@ if not nodch and (additions or removals):
         os.system("dch -a '%s'" % change)
     update_debootstrap_version()
 else:
-    if not nodch: print "No changes found"
+    if not nodch:
+        print "No changes found"
