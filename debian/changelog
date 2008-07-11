@@ -1,6 +1,10 @@
 germinate (1.4) UNRELEASED; urgency=low
 
   [ François-Denis Gonthier ]
+  * Display stdout from debootstrap on error.
+  * --nodch shouldn't make germinate-update-metapackage display the 'No
+    changes found' message.
+  * Add a general description to germinate-update-metapackage's help output.
   * Add --output-directory to germinate-update-metapackage.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Fri, 11 Jul 2008 10:08:42 -0400
