@@ -402,7 +402,7 @@ for architecture in architectures:
                 removals.setdefault(package,[])
                 removals[package].append([seed_name_recommends, architecture])
 
-if not nodch and (additions or removals):
+if not nodch and (additions or removals or moves):
     dch_help = os.popen('dch --help')
     have_U = '-U' in dch_help.read()
     dch_help.close()
