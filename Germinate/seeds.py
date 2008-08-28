@@ -75,6 +75,7 @@ def open_seed(seed_bases, seed_branches, seed_file, bzr=False):
         branches_desc = '{%s}' % ','.join(seed_branches)
 
     fd = None
+    seed_ssh_host = None
     for base in seed_bases:
         for branch in seed_branches:
             try:
@@ -84,14 +85,7 @@ def open_seed(seed_bases, seed_branches, seed_file, bzr=False):
                 ssh_match = re.match(r'bzr\+ssh://(?:[^/]*?@)?(.*?)(?:/|$)',
                                      base)
                 if ssh_match:
-                    ssh_host = ssh_match.group(1)
-                    logging.error("Do you need to set your user name on %s?",
-                                  ssh_host)
-                    logging.error("Try a section such as this in ~/.ssh/config:")
-                    logging.error("")
-                    logging.error("Host %s", ssh_host)
-                    logging.error("        User YOUR_USER_NAME")
-                    raise
+                    seed_ssh_host = ssh_match.group(1)
             except (OSError, IOError, urllib2.URLError):
                 pass
         if fd is not None:
@@ -104,6 +98,14 @@ def open_seed(seed_bases, seed_branches, seed_file, bzr=False):
             for base in seed_bases:
                 for branch in seed_branches:
                     logging.warning('  %s' % os.path.join(base, branch))
+
+            if seed_ssh_host is not None:
+                logging.error("Do you need to set your user name on %s?",
+                              seed_ssh_host)
+                logging.error("Try a section such as this in ~/.ssh/config:")
+                logging.error("")
+                logging.error("Host %s", seed_ssh_host)
+                logging.error("        User YOUR_USER_NAME")
         else:
             logging.warning("Could not open (any of):")
             for base in seed_bases:
