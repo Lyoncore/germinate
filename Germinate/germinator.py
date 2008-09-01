@@ -46,6 +46,7 @@ class Germinator:
         self.features = set()
         self.seeds = []
         self.seed = {}
+        self.seedfeatures = {}
         self.seedrecommends = {}
         self.seedinherit = {}
         self.seedrelease = {}
@@ -375,6 +376,7 @@ class Germinator:
     def newSeed(self, seedname, seedinherit, seedrelease):
         self.seeds.append(seedname)
         self.seed[seedname] = []
+        self.seedfeatures[seedname] = set()
         self.seedrecommends[seedname] = []
         self.seedinherit[seedname] = seedinherit
         self.seedrelease[seedname] = seedrelease
@@ -507,6 +509,10 @@ class Germinator:
                     # Allows us to pick the right modules later
                     self.warning("Allowing d-i kernel versions: %s", values)
                     self.di_kernel_versions[seedname].update(values)
+                elif name == "feature":
+                    self.warning("Setting features {%s} for seed %s",
+                        ', '.join(values), seedname)
+                    self.seedfeatures[seedname].update(values)
                 elif name.endswith("-include"):
                     included_seed = name[:-8]
                     if (included_seed not in self.seeds and
@@ -801,6 +807,17 @@ class Germinator:
         else:
             return "%s (%s %s)" % (depname, deptype, depver)
 
+    def followRecommends(self, seed=None):
+        """Should we follow Recommends for this seed?"""
+        if seed is not None and seed in self.seedfeatures:
+            if "follow-recommends" in self.seedfeatures[seed]:
+                return True
+            if "no-follow-recommends" in self.seedfeatures[seed]:
+                return False
+        if "follow-recommends" in self.features:
+            return True
+        return False
+
     def addReverse(self, pkg, field, rdep):
         """Add a reverse dependency entry."""
         if "Reverse-Depends" not in self.packages[pkg]:
@@ -814,7 +831,7 @@ class Germinator:
         """Calculate the reverse dependency relationships."""
         for pkg in self.all:
             fields = ["Pre-Depends", "Depends"]
-            if ("follow-recommends" in self.features or
+            if (self.followRecommends() or
                 self.packages[pkg]["Section"] == "metapackages"):
                 fields.append("Recommends")
             for field in fields:
@@ -837,7 +854,7 @@ class Germinator:
                 continue
 
             fields = ["Pre-Depends", "Depends"]
-            if ("follow-recommends" in self.features or
+            if (self.followRecommends() or
                 self.packages[pkg]["Section"] == "metapackages"):
                 fields.append("Recommends")
             fields.extend(["Build-Depends", "Build-Depends-Indep"])
@@ -1076,7 +1093,7 @@ class Germinator:
                                second_class=second_class,
                                build_tree=build_tree)
 
-        if ("follow-recommends" in self.features or
+        if (self.followRecommends(seedname) or
             self.packages[pkg]["Section"] == "metapackages"):
             self.addDependencyTree(seedname, pkg,
                                    self.packages[pkg]["Recommends"],

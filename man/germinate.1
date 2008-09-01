@@ -125,6 +125,12 @@ The only flag currently defined is
 which causes
 .Nm
 to treat Recommends fields as if they were Depends.
+(Features may also be set on a per-seed basis using lines beginning with
+.Sq "\ *\ Feature:"
+in the seed file; here,
+.Sq no\-follow\-recommends
+is also supported to allow Recommends-following to be turned off for
+individual seeds.)
 .Ss Build-dependencies and Sq supported
 There is typically no need for a default desktop installation to contain all
 the compilers and development libraries needed to build itself from source;
