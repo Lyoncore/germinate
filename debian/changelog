@@ -1,3 +1,11 @@
+germinate (1.8) UNRELEASED; urgency=low
+
+  [ Evan Dandrea ]
+  * Fix -S example to use file:// where the rest of the documentation says
+    you should (LP: #264471).
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 09 Sep 2008 02:16:29 +0100
+
 germinate (1.7) unstable; urgency=low
 
   * Add support for setting per-seed features, so that following Recommends
