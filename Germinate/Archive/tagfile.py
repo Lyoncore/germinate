@@ -21,7 +21,6 @@
 import os
 import urllib2
 import cStringIO
-import gzip
 import tempfile
 import shutil
 
@@ -35,9 +34,10 @@ class TagFile:
 
     def open_tag_files(self, mirrors, dirname, tagfile_type,
                        dist, component, ftppath):
-        def open_tag_file(mirror):
+        def open_tag_file(mirror, suffix):
             """Download an apt tag file if needed, then open it."""
-            url = mirror + "dists/" + dist + "/" + component + "/" + ftppath
+            url = (mirror + "dists/" + dist + "/" + component + "/" + ftppath +
+                   suffix)
             req = urllib2.Request(url)
             filename = None
             
@@ -51,24 +51,55 @@ class TagFile:
             if not os.path.exists(fullname):
                 print "Downloading", req.get_full_url(), "file ..."
 
-                url_f = urllib2.urlopen(req)
-                url_data = cStringIO.StringIO(url_f.read())
-                url_f.close()
+                compressed = filename + suffix
+                try:
+                    url_f = urllib2.urlopen(req)
+                    compressed_f = open(compressed, "w")
+                    compressed_f.write(url_f.read())
+                    compressed_f.close()
+                    url_f.close()
 
-                # apt_pkg is weird and won't accept GzipFile
-                print "Decompressing", req.get_full_url(), "file ..."
-                gzip_f = gzip.GzipFile(fileobj=url_data)
-                f = open(fullname, "w")
-                for line in gzip_f:
-                    print >>f, line,
+                    # apt_pkg is weird and won't accept GzipFile
+                    if suffix:
+                        print "Decompressing", req.get_full_url(), "file ..."
 
-                f.close()
-                gzip_f.close()
-                url_data.close()
+                        if suffix == ".gz":
+                            import gzip
+                            compressed_f = gzip.GzipFile(compressed)
+                        elif suffix == ".bz2":
+                            import bz2
+                            compressed_f = bz2.BZ2File(compressed)
+                        else:
+                            raise RuntimeError("Unknown suffix '%s'" % suffix)
+
+                        f = open(fullname, "w")
+                        for line in compressed_f:
+                            print >>f, line,
+                        f.close()
+
+                        compressed_f.close()
+                finally:
+                    if suffix:
+                        try:
+                            os.unlink(compressed)
+                        except OSError:
+                            pass
 
             return open(fullname, "r")
-        
-        return map(open_tag_file, mirrors)
+
+        tag_files = []
+        for mirror in mirrors:
+            tag_file = None
+            for suffix in (".bz2", ".gz"):
+                try:
+                    tag_file = open_tag_file(mirror, suffix)
+                    break
+                except IOError:
+                    pass
+            if tag_file is None:
+                tag_file = open_tag_file(mirror, "")
+            tag_files.append(tag_file)
+        return tag_files
 
     def feed(self, g, dists, components, arch, cleanup=False):
         if cleanup:
@@ -81,19 +112,19 @@ class TagFile:
                 g.parsePackages(
                     self.open_tag_files(
                         self.mirrors, dirname, "Packages", dist, component,
-                        "binary-" + arch + "/Packages.gz"),
+                        "binary-" + arch + "/Packages"),
                     "deb")
 
                 g.parseSources(
                     self.open_tag_files(
                         self.source_mirrors, dirname, "Sources", dist, component,
-                        "source/Sources.gz"))
+                        "source/Sources"))
 
                 instpackages = ""
                 try:
                     instpackages = self.open_tag_files(
                         self.mirrors, dirname, "InstallerPackages", dist, component,
-                        "debian-installer/binary-" + arch + "/Packages.gz")
+                        "debian-installer/binary-" + arch + "/Packages")
                 except IOError:
                     # can live without these
                     print "Missing installer Packages file for", component, \
