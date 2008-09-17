@@ -1,6 +1,11 @@
 germinate (1.9) UNRELEASED; urgency=low
 
   * Fix fallback from .bz2 files when OSError is raised.
+  * Try promoting alternative dependencies before adding new packages to the
+    output. While the first dependency in an |-ed list may be promoted from
+    any lesser seed, doing this for all alternatives produces pathological
+    output, so instead we only promote from "close-by" lesser seeds, i.e.
+    those that list the current seed in a Task-Seeds header (LP: #271309).
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 17 Sep 2008 13:17:18 +0100
 

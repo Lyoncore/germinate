@@ -50,6 +50,7 @@ class Germinator:
         self.seedrecommends = {}
         self.seedinherit = {}
         self.seedrelease = {}
+        self.close_seeds = {}
         self.substvars = {}
         self.depends = {}
         self.build_depends = {}
@@ -380,6 +381,7 @@ class Germinator:
         self.seedrecommends[seedname] = []
         self.seedinherit[seedname] = seedinherit
         self.seedrelease[seedname] = seedrelease
+        self.close_seeds[seedname] = set()
         self.depends[seedname] = set()
         self.build_depends[seedname] = set()
         self.sourcepkgs[seedname] = set()
@@ -491,6 +493,10 @@ class Germinator:
         seedrecommends = []
 
         for line in entries:
+            if line.lower().startswith('task-seeds:'):
+                self.close_seeds[seedname].update(line[11:].strip().split())
+                continue
+
             if not line.startswith(" * "):
                 continue
 
@@ -891,81 +897,10 @@ class Germinator:
         else:
             return False
 
-    def addDependency(self, seedname, pkg, depend, build_depend,
+    def addDependency(self, seedname, pkg, dependlist, build_depend,
                       second_class, build_tree, recommends):
         """Add a single dependency. Returns True if a dependency was added,
            otherwise False."""
-        (depname, depver, deptype) = depend
-        if (self.checkVersionedDependency(depname, depver, deptype) and
-            self.allowedDependency(pkg, depname, seedname, build_depend)):
-            virtual = None
-            trylist = [ depname ]
-        elif self.allowedVirtualDependency(pkg, deptype) and depname in self.provides:
-            virtual = depname
-            trylist = [ d for d in self.provides[depname]
-                        if d in self.packages and self.allowedDependency(pkg, d, seedname, build_depend) ]
-        else:
-            if build_depend:
-                desc = "build-dependency"
-            elif recommends:
-                desc = "recommendation"
-            else:
-                desc = "dependency"
-            self.error("Unknown %s %s by %s", desc,
-                       self.unparseDependency(depname, depver, deptype), pkg)
-            return False
-
-        # Last ditch effort to satisfy this by promoting lesser seeds to
-        # higher dependencies
-        found = False
-        for trydep in trylist:
-            for lesserseed in self.strictlyOuterSeeds(seedname):
-                if (trydep in self.seed[lesserseed] or
-                    trydep in self.seedrecommends[lesserseed]):
-                    if second_class:
-                        # "I'll get you next time, Gadget!"
-                        # When processing the build tree, we don't promote
-                        # packages from lesser seeds, since we still want to
-                        # consider them (e.g.) part of ship even if they're
-                        # build-dependencies of desktop. However, we do need
-                        # to process them now anyway, since otherwise we
-                        # might end up selecting the wrong alternative from
-                        # an or-ed build-dependency.
-                        pass
-                    else:
-                        if trydep in self.seed[lesserseed]:
-                            self.seed[lesserseed].remove(trydep)
-                        if trydep in self.seedrecommends[lesserseed]:
-                            self.seedrecommends[lesserseed].remove(trydep)
-                        self.warning("Promoted %s from %s to %s to satisfy %s",
-                                     trydep, lesserseed, seedname, pkg)
-
-                    depname = trydep
-                    found = True
-                    break
-            if found: break
-
-        dependlist = [depname]
-        if virtual is not None and not found:
-            reallist = [ d for d in self.provides[virtual]
-                         if d in self.packages and self.allowedDependency(pkg, d, seedname, build_depend) ]
-            if len(reallist):
-                depname = reallist[0]
-                # If this one was a d-i kernel module, pick all the modules
-                # for other allowed kernel versions too.
-                if self.packages[depname]["Kernel-Version"] != "":
-                    dependlist = [ d for d in reallist
-                                   if not self.di_kernel_versions[seedname] or
-                                      self.packages[d]["Kernel-Version"] in self.di_kernel_versions[seedname] ]
-                else:
-                    dependlist = [depname]
-                self.info("Chose %s out of %s to satisfy %s",
-                          ", ".join(dependlist), virtual, pkg)
-            else:
-                self.error("Nothing to choose out of %s to satisfy %s",
-                           virtual, pkg)
-                return False
-
         if build_tree and build_depend:
             why = self.packages[pkg]["Source"] + " (Build-Depend)"
         elif recommends:
@@ -990,6 +925,102 @@ class Germinator:
 
         return True
 
+    def promoteDependency(self, seedname, pkg, depend, close, build_depend,
+                          second_class, build_tree, recommends):
+        """Try to satisfy a dependency by promoting an item from a lesser
+           seed. If close is True, only "close-by" seeds (ones that generate
+           the same task, as defined by Task-Seeds headers) are considered.
+           Returns True if a dependency was added, otherwise False."""
+        (depname, depver, deptype) = depend
+        if (self.checkVersionedDependency(depname, depver, deptype) and
+            self.allowedDependency(pkg, depname, seedname, build_depend)):
+            trylist = [ depname ]
+        elif (self.allowedVirtualDependency(pkg, deptype) and
+              depname in self.provides):
+            trylist = [ d for d in self.provides[depname]
+                        if d in self.packages and
+                           self.allowedDependency(pkg, d, seedname,
+                                                  build_depend) ]
+        else:
+            return False
+
+        for trydep in trylist:
+            lesserseeds = self.strictlyOuterSeeds(seedname)
+            if close:
+                lesserseeds = [l for l in lesserseeds
+                                 if seedname in self.close_seeds[l]]
+            for lesserseed in lesserseeds:
+                if (trydep in self.seed[lesserseed] or
+                    trydep in self.seedrecommends[lesserseed]):
+                    if second_class:
+                        # "I'll get you next time, Gadget!"
+                        # When processing the build tree, we don't promote
+                        # packages from lesser seeds, since we still want to
+                        # consider them (e.g.) part of ship even if they're
+                        # build-dependencies of desktop. However, we do need
+                        # to process them now anyway, since otherwise we
+                        # might end up selecting the wrong alternative from
+                        # an or-ed build-dependency.
+                        pass
+                    else:
+                        if trydep in self.seed[lesserseed]:
+                            self.seed[lesserseed].remove(trydep)
+                        if trydep in self.seedrecommends[lesserseed]:
+                            self.seedrecommends[lesserseed].remove(trydep)
+                        self.warning("Promoted %s from %s to %s to satisfy %s",
+                                     trydep, lesserseed, seedname, pkg)
+
+                    return self.addDependency(seedname, pkg, [trydep],
+                                              build_depend, second_class,
+                                              build_tree, recommends)
+
+        return False
+
+    def newDependency(self, seedname, pkg, depend, build_depend,
+                      second_class, build_tree, recommends):
+        """Try to satisfy a dependency by adding a new package to the output
+           set. Returns True if a dependency was added, otherwise False."""
+        (depname, depver, deptype) = depend
+        if (self.checkVersionedDependency(depname, depver, deptype) and
+            self.allowedDependency(pkg, depname, seedname, build_depend)):
+            virtual = None
+        elif self.allowedVirtualDependency(pkg, deptype) and depname in self.provides:
+            virtual = depname
+        else:
+            if build_depend:
+                desc = "build-dependency"
+            elif recommends:
+                desc = "recommendation"
+            else:
+                desc = "dependency"
+            self.error("Unknown %s %s by %s", desc,
+                       self.unparseDependency(depname, depver, deptype), pkg)
+            return False
+
+        dependlist = [depname]
+        if virtual is not None:
+            reallist = [ d for d in self.provides[virtual]
+                         if d in self.packages and self.allowedDependency(pkg, d, seedname, build_depend) ]
+            if len(reallist):
+                depname = reallist[0]
+                # If this one was a d-i kernel module, pick all the modules
+                # for other allowed kernel versions too.
+                if self.packages[depname]["Kernel-Version"] != "":
+                    dependlist = [ d for d in reallist
+                                   if not self.di_kernel_versions[seedname] or
+                                      self.packages[d]["Kernel-Version"] in self.di_kernel_versions[seedname] ]
+                else:
+                    dependlist = [depname]
+                self.info("Chose %s out of %s to satisfy %s",
+                          ", ".join(dependlist), virtual, pkg)
+            else:
+                self.error("Nothing to choose out of %s to satisfy %s",
+                           virtual, pkg)
+                return False
+
+        return self.addDependency(seedname, pkg, dependlist, build_depend,
+                                  second_class, build_tree, recommends)
+
     def addDependencyTree(self, seedname, pkg, depends,
                           build_depend=False,
                           second_class=False,
@@ -1008,15 +1039,35 @@ class Germinator:
                 if self.alreadySatisfied(seedname, pkg, dep, build_depend, second_class):
                     break
             else:
+                firstdep = True
                 for dep in deplist:
-                    if self.addDependency(seedname, pkg, dep, build_depend,
-                                          second_class, build_tree, recommends):
+                    if firstdep:
+                        # For the first (preferred) alternative, we may
+                        # consider promoting it from any lesser seed.
+                        close = False
+                        firstdep = False
+                    else:
+                        # Other alternatives are less favoured, and will
+                        # only be promoted from closely-allied seeds.
+                        close = True
+                    if self.promoteDependency(seedname, pkg, dep, close,
+                                              build_depend, second_class,
+                                              build_tree, recommends):
                         if len(deplist) > 1:
                             self.info("Chose %s to satisfy %s", dep[0], pkg)
                         break
                 else:
-                    if len(deplist) > 1:
-                        self.error("Nothing to choose to satisfy %s", pkg)
+                    for dep in deplist:
+                        if self.newDependency(seedname, pkg, dep, build_depend,
+                                              second_class, build_tree,
+                                              recommends):
+                            if len(deplist) > 1:
+                                self.info("Chose %s to satisfy %s", dep[0],
+                                          pkg)
+                            break
+                    else:
+                        if len(deplist) > 1:
+                            self.error("Nothing to choose to satisfy %s", pkg)
 
     def rememberWhy(self, seedname, pkg, why, build_tree=False,
                     recommends=False):
