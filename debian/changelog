@@ -1,3 +1,9 @@
+germinate (1.9) UNRELEASED; urgency=low
+
+  * Fix fallback from .bz2 files when OSError is raised.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 17 Sep 2008 13:17:18 +0100
+
 germinate (1.8) unstable; urgency=low
 
   [ Evan Dandrea ]

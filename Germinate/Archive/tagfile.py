@@ -94,7 +94,7 @@ class TagFile:
                 try:
                     tag_file = open_tag_file(mirror, suffix)
                     break
-                except IOError:
+                except (IOError, OSError):
                     pass
             if tag_file is None:
                 tag_file = open_tag_file(mirror, "")
