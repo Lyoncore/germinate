@@ -1,4 +1,4 @@
-germinate (1.9) UNRELEASED; urgency=low
+germinate (1.9) unstable; urgency=low
 
   * Fix fallback from .bz2 files when OSError is raised.
   * Try promoting alternative dependencies before adding new packages to the
@@ -7,7 +7,7 @@ germinate (1.9) UNRELEASED; urgency=low
     output, so instead we only promote from "close-by" lesser seeds, i.e.
     those that list the current seed in a Task-Seeds header (LP: #271309).
 
- -- Colin Watson <cjwatson@ubuntu.com>  Wed, 17 Sep 2008 13:17:18 +0100
+ -- Colin Watson <cjwatson@ubuntu.com>  Fri, 19 Sep 2008 01:05:19 +0100
 
 germinate (1.8) unstable; urgency=low
 
