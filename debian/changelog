@@ -1,3 +1,11 @@
+germinate (1.10) UNRELEASED; urgency=low
+
+  * Increase the recursion limit to 2000 for now to avoid running into
+    problems with very deep dependency chains following code changes in 1.9.
+    Other solutions are possible; this is a quick temporary hack.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 23 Sep 2008 19:15:05 +0100
+
 germinate (1.9) unstable; urgency=low
 
   * Fix fallback from .bz2 files when OSError is raised.

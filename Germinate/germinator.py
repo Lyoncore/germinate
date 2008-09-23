@@ -18,6 +18,7 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
+import sys
 import apt_pkg
 import re
 import fnmatch
@@ -31,6 +32,9 @@ except NameError:
 
 import Germinate.seeds
 import Germinate.tsort
+
+# TODO: would be much more elegant to reduce our recursion depth!
+sys.setrecursionlimit(2000)
 
 class Germinator:
     PROGRESS = 15
