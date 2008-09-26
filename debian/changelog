@@ -1,3 +1,10 @@
+germinate (1.11) UNRELEASED; urgency=low
+
+  * Keep going if the blacklist file can't be downloaded. (This was always
+    the intent, but I managed to type "sys.exit(1)" rather than "pass" ...)
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Fri, 26 Sep 2008 12:46:22 +0100
+
 germinate (1.10) unstable; urgency=low
 
   * Increase the recursion limit to 2000 for now to avoid running into
