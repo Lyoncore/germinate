@@ -1,7 +1,7 @@
 germinate (1.11) UNRELEASED; urgency=low
 
   * Keep going if the blacklist file can't be downloaded. (This was always
-    the intent, but I managed to type "sys.exit(1)" rather than "pass" ...)
+    the intent, but foiled by an implementation error.)
 
  -- Colin Watson <cjwatson@ubuntu.com>  Fri, 26 Sep 2008 12:46:22 +0100
 

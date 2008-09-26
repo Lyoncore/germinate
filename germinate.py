@@ -410,7 +410,7 @@ def main():
     try:
         blacklist = Germinate.seeds.open_seed(SEEDS, RELEASE, "blacklist", bzr)
     except Germinate.seeds.SeedError:
-        pass
+        blacklist = None
     if blacklist is not None:
         g.parseBlacklist(blacklist)
 
