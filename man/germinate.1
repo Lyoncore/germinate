@@ -72,19 +72,25 @@ Seeds are stored in text files downloaded from a given URL.
 Lines not beginning with
 .Sq "\ *\ "
 (wiki-style list markup) are ignored.
+.Pp
+Seed entries may simply consist of a package name, or may include any of the
+following special syntax:
+.Bl -tag -width 6n
+.It %
 Seed entries beginning with
 .Sq %
 expand to all binaries from the given source package.
+.It [...]
 Seed entries may be followed with
 .Sq " [" Ns Ar arch1 Ar arch2 ... Ns \&]
 to indicate that they should only be used on the given architectures, or with
 .Sq " [!" Ns Ar arch1 No ! Ns Ar arch2 ... Ns \&]
 to indicate that they should not be used on the given architectures.
-.Pp
+.It (...)
 Seed entries in parentheses indicate that the seed should be treated as a
 recommendation of metapackages generated from this seed, rather than as a
 dependency.
-.Pp
+.It !
 Seed entries beginning with
 .Sq \&!
 cause the given package to be blacklisted from the given seed and any seeds
@@ -101,7 +107,7 @@ It is not intended for the purpose of working around buggy package
 relationships, and attempts to do so will not work because
 .Ic apt
 has no way to know about blacklist entries in seeds.
-.Pp
+.It key: value
 Some seeds also contain headers at the top of the file, in
 .Dq key: value
 format.
@@ -118,6 +124,7 @@ files.
 .Xr germinate\-update\-metapackage 1
 uses some of these headers to reduce the need for fragile configuration;
 see its documentation for further details.
+.El
 .Pp
 A
 .Pa STRUCTURE

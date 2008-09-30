@@ -4,6 +4,8 @@ germinate (1.11) UNRELEASED; urgency=low
     the intent, but foiled by an implementation error.)
   * Clarify the purpose of individual blacklist entries in seeds in
     germinate(1).
+  * Render the description of special seed syntax in germinate(1) as a tag
+    list, to make it easier to read.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Fri, 26 Sep 2008 12:46:22 +0100
 
