@@ -93,6 +93,14 @@ from which it inherits; this may be followed by
 as above to blacklist all binaries from the given source package.
 Note that this may result in uninstallable packages whose dependencies have
 been blacklisted, so use this feature sparingly.
+The purpose of a blacklist is to make it obvious when a package that is not
+supposed to be installed ends up in
+.Nm Ns 's
+output, so that package relationships can be fixed to stop that happening.
+It is not intended for the purpose of working around buggy package
+relationships, and attempts to do so will not work because
+.Ic apt
+has no way to know about blacklist entries in seeds.
 .Pp
 Some seeds also contain headers at the top of the file, in
 .Dq key: value
