@@ -46,7 +46,7 @@ import Germinate.version
 # Where do we get up-to-date seeds from?
 SEEDS = ["http://people.ubuntu.com/~ubuntu-archive/seeds/"]
 SEEDS_BZR = ["http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/"]
-RELEASE = "ubuntu.intrepid"
+RELEASE = "ubuntu.jaunty"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
 # them from?
@@ -54,7 +54,7 @@ MIRRORS = []
 SOURCE_MIRRORS = []
 DEFAULT_MIRROR = "http://archive.ubuntu.com/ubuntu/"
 DEFAULT_SOURCE_MIRROR = None
-DIST = ["intrepid"]
+DIST = ["jaunty"]
 COMPONENTS = ["main", "restricted"]
 ARCH = "i386"
 

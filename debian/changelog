@@ -1,3 +1,9 @@
+germinate (1.12) UNRELEASED; urgency=low
+
+  * Change default distribution to jaunty.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Fri, 31 Oct 2008 12:41:00 +0000
+
 germinate (1.11) unstable; urgency=low
 
   * Keep going if the blacklist file can't be downloaded. (This was always

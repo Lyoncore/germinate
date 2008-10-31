@@ -34,9 +34,9 @@ import Germinate.version
 
 # TODO: cloned from germinate.py; should be common
 SEEDS = ["http://people.ubuntu.com/~ubuntu-archive/seeds/"]
-RELEASE = "ubuntu.intrepid"
+RELEASE = "ubuntu.jaunty"
 MIRRORS = ["http://archive.ubuntu.com/ubuntu/"]
-DIST = ["intrepid"]
+DIST = ["jaunty"]
 COMPONENTS = ["main"]
 ARCH = "i386"
 

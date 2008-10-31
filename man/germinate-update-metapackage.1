@@ -155,9 +155,9 @@ the
 source package in the Ubuntu archive:
 .Bd -literal -offset indent
 [DEFAULT]
-dist: intrepid
+dist: jaunty
 
-[intrepid]
+[jaunty]
 seeds: desktop
 architectures: i386 amd64 powerpc ia64 sparc hppa lpia
 seed_base: http://people.ubuntu.com/~ubuntu-archive/seeds/
@@ -171,7 +171,7 @@ archive_base/powerpc: %(archive_base/ports)s
 archive_base/sparc: %(archive_base/ports)s
 components: main restricted
 
-[intrepid/bzr]
+[jaunty/bzr]
 seed_base: bzr+ssh://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/
 seed_dist: kubuntu.%(dist)s
 .Ed
