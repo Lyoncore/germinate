@@ -7,6 +7,7 @@
 .Nd expand dependencies in a list of seed packages
 .Sh SYNOPSIS
 .Nm
+.Op Fl v
 .Op Fl S Ar source
 .Op Fl s Ar dist
 .Op Fl m Ar mirror
@@ -185,6 +186,10 @@ See the
 file for full details on these.
 .Sh OPTIONS
 .Bl -tag -width 4n
+.It Xo Fl v ,
+.Fl Fl verbose
+.Xc
+Be more verbose when processing seeds.
 .It Xo Fl S ,
 .Fl Fl seed\-source Ar source Ns \&,...
 .Xc

@@ -1,3 +1,9 @@
+germinate (1.13) UNRELEASED; urgency=low
+
+  * Document 'germinate -v' in its manual page.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 04 Feb 2009 12:08:07 +0100
+
 germinate (1.12) unstable; urgency=low
 
   * Change default distribution to jaunty.
