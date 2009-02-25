@@ -263,13 +263,13 @@ class Germinator:
 
                 # If there is a previous package info stored, fetch
                 # the version to compare them.
-                if self.packages.has_key(pkg):
+                if pkg in self.packages:
                     last_ver = self.packages[pkg]["Version"]
 
                 # If this is a new package, or if the stored version
                 # is older than the new version, store the new
                 # package.
-                if (not self.packages.has_key(pkg) or
+                if (pkg not in self.packages or
                     apt_pkg.VersionCompare(last_ver, ver) < 0):
                     self.packages[pkg] = {}
                     self.packagetype[pkg] = pkgtype
@@ -323,10 +323,10 @@ class Germinator:
                 ver = p.Section["Version"]
                 last_ver = None
 
-                if self.sources.has_key(src):
+                if src in self.sources:
                     last_ver = self.sources[src]["Version"]
 
-                if (not self.sources.has_key(src) or
+                if (src not in self.sources or
                     apt_pkg.VersionCompare(last_ver, ver) < 0):
                     self.sources[src] = {}
 
