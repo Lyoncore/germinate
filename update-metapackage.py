@@ -61,6 +61,10 @@ Options:
   --bzr                 Fetch seeds using bzr. Requires bzr to be installed.
 """
 
+def error_exit(message):
+    print >>sys.stderr, "%s: %s" % (sys.argv[0], message)
+    sys.exit(1)
+
 bzr = False
 nodch = False
 outdir = None
@@ -91,7 +95,7 @@ if not outdir:
     outdir = "."
 
 if not os.path.exists('debian/control'):
-    raise RuntimeError('must be run from the top level of a source package')
+    error_exit('must be run from the top level of a source package')
 this_source = None
 control = open('debian/control')
 for line in control:
@@ -101,9 +105,9 @@ for line in control:
     elif line == '':
         break
 if this_source is None:
-    raise RuntimeError('cannot find Source: in debian/control')
+    error_exit('cannot find Source: in debian/control')
 if not this_source.endswith('-meta'):
-    raise RuntimeError('source package name must be *-meta')
+    error_exit('source package name must be *-meta')
 metapackage = this_source[:-5]
 
 print "[info] Initialising %s-* package lists update..." % metapackage
@@ -139,7 +143,7 @@ for arch in architectures:
         if archive_base_default is not None:
             archive_base[arch] = archive_base_default
         else:
-            raise RuntimeError('no archive_base configured for %s' % arch)
+            error_exit('no archive_base configured for %s' % arch)
 
 if bzr and config.has_option("%s/bzr" % dist, 'seed_base'):
     seed_base = config.get("%s/bzr" % dist, 'seed_base')
@@ -189,7 +193,7 @@ debootstrap_version_file = 'debootstrap-version'
 def get_debootstrap_version():
     version = os.popen("dpkg-query -W --showformat '${Version}' debootstrap").read()
     if not version:
-        raise RuntimeError('debootstrap does not appear to be installed')
+        error_exit('debootstrap does not appear to be installed')
 
     return version
 
@@ -205,7 +209,7 @@ def debootstrap_packages(arch):
         stdout=subprocess.PIPE, env=env, stderr=subprocess.PIPE)
     (debootstrap_stdout, debootstrap_stderr) = debootstrap.communicate()
     if debootstrap.returncode != 0:
-        raise RuntimeError('Unable to retrieve package list from debootstrap; stdout: %s\nstderr: %s' % (debootstrap_stdout, debootstrap_stderr))
+        error_exit('Unable to retrieve package list from debootstrap; stdout: %s\nstderr: %s' % (debootstrap_stdout, debootstrap_stderr))
 
     packages = filter(None, debootstrap_stdout.split())
     # sometimes debootstrap gives empty packages / multiple separators   
@@ -220,7 +224,7 @@ def check_debootstrap_version():
         failed = os.system("dpkg --compare-versions '%s' ge '%s'" % (debootstrap_version,
                                                                      old_debootstrap_version))
         if failed:
-            raise RuntimeError('Installed debootstrap is older than in the previous version! (%s < %s)' % (
+            error_exit('Installed debootstrap is older than in the previous version! (%s < %s)' % (
                 debootstrap_version,
                 old_debootstrap_version
                 ))

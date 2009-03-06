@@ -1,3 +1,10 @@
+germinate (1.14) UNRELEASED; urgency=low
+
+  * If germinate-update-metapackage fails, just print a message on stderr
+    and exit 1, rather than raising RuntimeError (LP: #323714).
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Fri, 06 Mar 2009 09:46:30 +0000
+
 germinate (1.13) unstable; urgency=low
 
   * Document 'germinate -v' in its manual page.
