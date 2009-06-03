@@ -51,7 +51,7 @@ class TagFile:
             if not os.path.exists(fullname):
                 print "Downloading", req.get_full_url(), "file ..."
 
-                compressed = filename + suffix
+                compressed = os.path.join(dirname, filename + suffix)
                 try:
                     url_f = urllib2.urlopen(req)
                     compressed_f = open(compressed, "w")

@@ -1,3 +1,10 @@
+germinate (1.15) UNRELEASED; urgency=low
+
+  * Fix handling of archives that only contain uncompressed index files
+    (thanks to Chris Cheney for the report).
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 03 Jun 2009 17:30:04 +0100
+
 germinate (1.14) unstable; urgency=low
 
   * If germinate-update-metapackage fails, just print a message on stderr
