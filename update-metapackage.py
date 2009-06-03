@@ -204,8 +204,8 @@ def debootstrap_packages(arch):
     else:
         env['PATH'] = '/usr/sbin:/sbin:/usr/bin:/bin'
     debootstrap = subprocess.Popen(
-        ['debootstrap', '--arch', arch, '--print-debs',
-         dist, 'debootstrap-dir', archive_base[arch][0]],
+        ['debootstrap', '--arch', arch, '--components', ','.join(components),
+         '--print-debs', dist, 'debootstrap-dir', archive_base[arch][0]],
         stdout=subprocess.PIPE, env=env, stderr=subprocess.PIPE)
     (debootstrap_stdout, debootstrap_stderr) = debootstrap.communicate()
     if debootstrap.returncode != 0:

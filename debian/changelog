@@ -1,3 +1,9 @@
+germinate (1.16) UNRELEASED; urgency=low
+
+  * Pass germinate-update-metapackage's list of components to debootstrap.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 03 Jun 2009 23:31:44 +0100
+
 germinate (1.15) unstable; urgency=low
 
   * Fix handling of archives that only contain uncompressed index files
