@@ -1,6 +1,7 @@
 germinate (1.16) UNRELEASED; urgency=low
 
   * Pass germinate-update-metapackage's list of components to debootstrap.
+  * Replace internal wiki link in README with something world-readable.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 03 Jun 2009 23:31:44 +0100
 
