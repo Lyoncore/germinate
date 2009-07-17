@@ -44,7 +44,7 @@ import Germinate.version
 
 
 # Where do we get up-to-date seeds from?
-SEEDS = ["http://people.ubuntu.com/~ubuntu-archive/seeds/"]
+SEEDS = ["http://people.canonical.com/~ubuntu-archive/seeds/"]
 SEEDS_BZR = ["http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/"]
 RELEASE = "ubuntu.jaunty"
 

@@ -33,7 +33,7 @@ import Germinate.seeds
 import Germinate.version
 
 # TODO: cloned from germinate.py; should be common
-SEEDS = ["http://people.ubuntu.com/~ubuntu-archive/seeds/"]
+SEEDS = ["http://people.canonical.com/~ubuntu-archive/seeds/"]
 RELEASE = "ubuntu.jaunty"
 MIRRORS = ["http://archive.ubuntu.com/ubuntu/"]
 DIST = ["jaunty"]

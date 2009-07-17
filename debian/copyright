@@ -3,7 +3,7 @@ Colin Watson <cjwatson@canonical.com>, and packaged by Colin Watson.
 
 The source is available using bzr from here:
 
-  http://people.ubuntu.com/~cjwatson/bzr/germinate/mainline/
+  http://people.canonical.com/~cjwatson/bzr/germinate/mainline/
 
 Copyright (c) 2004, 2005, 2006, 2007, 2008 Canonical Ltd.
 update-metapackage.py also Copyright (c) 2006 Gustavo Franco
