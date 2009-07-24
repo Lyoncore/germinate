@@ -1,6 +1,7 @@
 germinate (1.17) UNRELEASED; urgency=low
 
   * Use people.canonical.com everywhere rather than people.ubuntu.com.
+  * Change default distribution to karmic.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Fri, 17 Jul 2009 21:46:50 +0100
 
