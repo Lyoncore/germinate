@@ -1,0 +1,3 @@
+*.py usr/lib/germinate
+Germinate/*.py usr/lib/germinate/Germinate
+Germinate/Archive/*.py usr/lib/germinate/Germinate/Archive

@@ -3,13 +3,13 @@ Section: utils
 Priority: optional
 Maintainer: Colin Watson <cjwatson@ubuntu.com>
 Standards-Version: 3.7.3
-Build-Depends: debhelper (>= 5.0.37.2)
+Build-Depends: debhelper (>= 7.0.0)
 Build-Depends-Indep: python, python-support (>= 0.3)
 Vcs-Bzr: http://people.canonical.com/~cjwatson/bzr/germinate/mainline
 
 Package: germinate
 Architecture: all
-Depends: ${python:Depends}, python-apt
+Depends: ${misc:Depends}, ${python:Depends}, python-apt
 XB-Python-Version: ${python:Versions}
 Description: Expand dependencies in a list of seed packages
  Germinate takes lists of seed packages and expands their dependencies to

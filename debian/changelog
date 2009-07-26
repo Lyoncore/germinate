@@ -2,6 +2,9 @@ germinate (1.17) UNRELEASED; urgency=low
 
   * Use people.canonical.com everywhere rather than people.ubuntu.com.
   * Change default distribution to karmic.
+  * Convert to debhelper 7. I've taken some care to avoid use of the new
+    override targets since Ubuntu hardy-jaunty don't have a debhelper that
+    supports those.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Fri, 17 Jul 2009 21:46:50 +0100
 

@@ -4,43 +4,24 @@ tmp = $(CURDIR)/debian/germinate
 version = $(shell dpkg-parsechangelog | awk '/Version:/ { print $$2 }')
 
 build:
+	dh $@
 
 clean:
-	dh_testdir
-	dh_testroot
+	dh $@
+	# TODO: this can go away once we use distutils
 	-find -name \*.pyc | xargs -r rm -f
-	dh_clean
 
-install: build
-	dh_testdir
-	dh_testroot
-	dh_clean -k
-	dh_installdirs
-
-	# TODO: use distutils
-	dh_install Germinate/*.py usr/lib/germinate/Germinate/
+install:
+	dh --until dh_install $@
+	# TODO: can distutils take care of this?
 	sed -i 's/@VERSION@/$(version)/g' \
 		$(tmp)/usr/lib/germinate/Germinate/version.py
-	dh_install Germinate/Archive/*.py usr/lib/germinate/Germinate/Archive/
-	install -m755 *.py $(tmp)/usr/lib/germinate/
+	dh --remaining $@
 
-binary-arch:
-
-binary-indep: build install
-	dh_testdir
-	dh_testroot
-	dh_installdocs
-	dh_installman man/*.1
-	dh_installchangelogs
-	dh_link
-	dh_compress
-	dh_fixperms
-	dh_pysupport
-	dh_installdeb
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
+binary-arch binary-indep: build install
+	dh $@
 
 binary: binary-arch binary-indep
+	dh $@
 
 .PHONY: build clean install binary-arch binary-indep binary
