@@ -1,4 +1,4 @@
-germinate (1.17) UNRELEASED; urgency=low
+germinate (1.17) unstable; urgency=low
 
   * Use people.canonical.com everywhere rather than people.ubuntu.com.
   * Change default distribution to karmic.
@@ -7,7 +7,7 @@ germinate (1.17) UNRELEASED; urgency=low
     supports those.
   * Policy version 3.8.2: no changes required.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Fri, 17 Jul 2009 21:46:50 +0100
+ -- Colin Watson <cjwatson@ubuntu.com>  Sun, 26 Jul 2009 15:38:01 +0100
 
 germinate (1.16) unstable; urgency=low
 
