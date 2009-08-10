@@ -1,11 +1,11 @@
-germinate (1.18) UNRELEASED; urgency=low
+germinate (1.18) unstable; urgency=low
 
   * Make germinate-update-metapackage write out a metapackage-map file,
     which is useful for later determining the set of seeds and metapackages
     to build.
   * Add a debhelper addon, useful for building metapackages.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Mon, 10 Aug 2009 22:36:53 +0100
+ -- Colin Watson <cjwatson@ubuntu.com>  Mon, 10 Aug 2009 23:36:23 +0100
 
 germinate (1.17) unstable; urgency=low
 
