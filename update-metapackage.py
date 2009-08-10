@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# Copyright (c) 2004, 2005, 2006, 2007, 2008 Canonical Ltd.
+# Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 Canonical Ltd.
 # Copyright (c) 2006 Gustavo Franco
 #
 # This file is part of Germinate.
@@ -264,6 +264,7 @@ removals = {}
 moves = {}
 apt_pkg.InitConfig()
 apt_pkg.InitSystem()
+metapackage_map = {}
 for architecture in architectures:
     print "[%s] Downloading available package lists..." % architecture
     apt_pkg.Config.Set("APT::Architecture", architecture)
@@ -302,6 +303,7 @@ for architecture in architectures:
     print "[%s] Merging seeds with available package lists..." % architecture
     for seed_name in output_seeds:
         meta_name = metapackage_name(seed_name, seed_texts[seed_name])
+        metapackage_map[seed_name] = meta_name
 
         output_filename = os.path.join(outdir, '%s-%s' % (seed_name,architecture))
         old_list = None
@@ -405,6 +407,11 @@ for architecture in architectures:
             elif value == -1:
                 removals.setdefault(package,[])
                 removals[package].append([seed_name_recommends, architecture])
+
+metapackage_map_file = open('metapackage-map', 'w')
+for seed_name in output_seeds:
+    print >>metapackage_map_file, seed_name, metapackage_map[seed_name]
+metapackage_map_file.close()
 
 if not nodch and (additions or removals or moves):
     dch_help = os.popen('dch --help')
