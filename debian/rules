@@ -1,27 +1,3 @@
 #! /usr/bin/make -f
-
-tmp = $(CURDIR)/debian/germinate
-version = $(shell dpkg-parsechangelog | awk '/Version:/ { print $$2 }')
-
-build:
+%:
 	dh $@
-
-clean:
-	dh $@
-	# TODO: this can go away once we use distutils
-	-find -name \*.pyc | xargs -r rm -f
-
-install:
-	dh --until dh_install $@
-	# TODO: can distutils take care of this?
-	sed -i 's/@VERSION@/$(version)/g' \
-		$(tmp)/usr/lib/germinate/Germinate/version.py
-	dh --remaining $@
-
-binary-arch binary-indep: build install
-	dh $@
-
-binary: binary-arch binary-indep
-	dh $@
-
-.PHONY: build clean install binary-arch binary-indep binary
