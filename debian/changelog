@@ -1,3 +1,11 @@
+germinate (1.19) UNRELEASED; urgency=low
+
+  * Fix interpretation of architecture-specific regex seed entries where the
+    regex contains a character class (which looks a bit like an architecture
+    specification in the wrong light).
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 21 Oct 2009 17:32:19 +0100
+
 germinate (1.18) unstable; urgency=low
 
   * Make germinate-update-metapackage write out a metapackage-map file,

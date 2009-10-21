@@ -551,11 +551,10 @@ class Germinator:
                 continue
 
             pkg = pkg.strip()
-            archspec = []
-            startarchspec = pkg.find("[")
-            if startarchspec != -1:
-                endarchspec = pkg.find("]")
-                if pkg.endswith("]"):
+            if pkg.endswith("]"):
+                archspec = []
+                startarchspec = pkg.rfind("[")
+                if startarchspec != -1:
                     archspec = pkg[startarchspec + 1:-1].split()
                     pkg = pkg[:startarchspec - 1]
                     posarch = [x for x in archspec if not x.startswith('!')]
