@@ -1,8 +1,12 @@
 germinate (1.19) UNRELEASED; urgency=low
 
+  [ Colin Watson ]
   * Fix interpretation of architecture-specific regex seed entries where the
     regex contains a character class (which looks a bit like an architecture
     specification in the wrong light).
+
+  [ Loïc Minier ]
+  * Document --source-mirror option in germinate(1).
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 21 Oct 2009 17:32:19 +0100
 
