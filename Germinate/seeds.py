@@ -69,10 +69,7 @@ def _open_seed_internal(seed_base, seed_branch, seed_file, bzr=False):
 
 def open_seed(seed_bases, seed_branches, seed_file, bzr=False):
     if isinstance(seed_branches, str) or isinstance(seed_branches, unicode):
-        branches_desc = seed_branches
         seed_branches = [seed_branches]
-    else:
-        branches_desc = '{%s}' % ','.join(seed_branches)
 
     fd = None
     seed_ssh_host = None

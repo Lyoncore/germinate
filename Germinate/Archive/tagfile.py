@@ -20,7 +20,6 @@
 
 import os
 import urllib2
-import cStringIO
 import tempfile
 import shutil
 

@@ -29,12 +29,6 @@ import logging
 import codecs
 import cStringIO
 
-try:
-    set # introduced in 2.4
-except NameError:
-    import sets
-    set = sets.Set
-
 import apt_pkg
 
 from Germinate import Germinator
@@ -42,6 +36,8 @@ import Germinate.Archive
 import Germinate.seeds
 import Germinate.version
 
+
+__pychecker__ = 'maxlines=300'
 
 # Where do we get up-to-date seeds from?
 SEEDS = ["http://people.canonical.com/~ubuntu-archive/seeds/"]
@@ -164,21 +160,21 @@ def write_source_list(filename, g, srcset):
     srclist.sort()
     f = codecs.open(filename, "w", "utf8", "replace")
 
-    format = "%-*s | %-*s"
+    fmt = "%-*s | %-*s"
     header_args = [src_len, "Source", mnt_len, "Maintainer"]
     separator = ("-" * src_len) + "-+-" + ("-" * mnt_len) + "-"
     if CHECK_IPV6:
-        format += " | %-*s"
+        fmt += " | %-*s"
         header_args.extend((ipv6_len, "IPv6 status"))
         separator += "+-" + ("-" * ipv6_len) + "-"
 
-    print >>f, format % tuple(header_args)
+    print >>f, fmt % tuple(header_args)
     print >>f, separator
     for src in srclist:
         args = [src_len, src, mnt_len, g.sources[src]["Maintainer"]]
         if CHECK_IPV6:
             args.extend((ipv6_len, g.sources[src]["IPv6"]))
-        print >>f, format % tuple(args)
+        print >>f, fmt % tuple(args)
 
     f.close()
 
@@ -264,8 +260,6 @@ def write_dot(filename, seednames, seedinherit):
     dotfile = codecs.open(filename, "w", "utf8", "replace")
     print >>dotfile, "digraph structure {"
     print >>dotfile, "    node [color=lightblue2, style=filled];"
-
-    heritage = []
 
     for seed in seednames:
         for inherit in seedinherit[seed]:
@@ -415,7 +409,7 @@ def main():
         g.parseBlacklist(blacklist)
 
     try:
-        seednames, seedinherit, seedbranches = g.parseStructure(
+        seednames, seedinherit, seedbranches, _ = g.parseStructure(
             SEEDS, RELEASE, bzr)
     except Germinate.seeds.SeedError:
         sys.exit(1)
@@ -469,22 +463,22 @@ def main():
         write_source_list(seedname + ".build-sources",
                           g, g.build_sourcepkgs[seedname])
 
-    all = set()
-    sup = set()
+    all_bins = set()
+    sup_bins = set()
     all_srcs = set()
     sup_srcs = set()
     for seedname in seednames:
-        all.update(g.seed[seedname])
-        all.update(g.seedrecommends[seedname])
-        all.update(g.depends[seedname])
-        all.update(g.build_depends[seedname])
+        all_bins.update(g.seed[seedname])
+        all_bins.update(g.seedrecommends[seedname])
+        all_bins.update(g.depends[seedname])
+        all_bins.update(g.build_depends[seedname])
         all_srcs.update(g.sourcepkgs[seedname])
         all_srcs.update(g.build_sourcepkgs[seedname])
 
         if seedname == g.supported:
-            sup.update(g.seed[seedname])
-            sup.update(g.seedrecommends[seedname])
-            sup.update(g.depends[seedname])
+            sup_bins.update(g.seed[seedname])
+            sup_bins.update(g.seedrecommends[seedname])
+            sup_bins.update(g.depends[seedname])
             sup_srcs.update(g.sourcepkgs[seedname])
 
         # Only include those build-dependencies that aren't already in the
@@ -498,13 +492,13 @@ def main():
             build_depends.update(dict.fromkeys(g.seedrecommends[seed], False))
             build_depends.update(dict.fromkeys(g.depends[seed], False))
             build_sourcepkgs.update(dict.fromkeys(g.sourcepkgs[seed], False))
-        sup.update([k for (k, v) in build_depends.iteritems() if v])
+        sup_bins.update([k for (k, v) in build_depends.iteritems() if v])
         sup_srcs.update([k for (k, v) in build_sourcepkgs.iteritems() if v])
 
-    write_list("all", "all", g, all)
+    write_list("all", "all", g, all_bins)
     write_source_list("all.sources", g, all_srcs)
 
-    write_list("all", "%s+build-depends" % g.supported, g, sup)
+    write_list("all", "%s+build-depends" % g.supported, g, sup_bins)
     write_source_list("%s+build-depends.sources" % g.supported, g, sup_srcs)
 
     write_list("all", "all+extra", g, g.all)

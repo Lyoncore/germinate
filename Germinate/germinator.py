@@ -24,12 +24,6 @@ import re
 import fnmatch
 import logging
 
-try:
-    set # introduced in 2.4
-except NameError:
-    import sets
-    set = sets.Set
-
 import Germinate.seeds
 import Germinate.tsort
 
@@ -157,8 +151,6 @@ class Germinator:
         """Like parseStructureFile, but deals with acquiring the seed
         structure files and recursively acquiring any seed structure files
         it includes. got_branches is for internal use only."""
-        # TODO: this method's signature is awful; it returns different types
-        # depending on whether it is called recursively or at the top level.
         if got_branches is None:
             top_level = True
             got_branches = set()
@@ -218,11 +210,13 @@ class Germinator:
         if top_level:
             self.structure = all_structure
             self.supported = all_names[-1]
-            return all_names, all_inherit, all_branches
+            # TODO: The None return here is unsightly; it's due to signature
+            # consistency with the recursive form.
+            return all_names, all_inherit, all_branches, None
         else:
             return all_names, all_inherit, all_branches, all_structure
 
-    def expandInheritance(f, all_names, all_inherit, all_branches):
+    def expandInheritance(self, unused_all_names, all_inherit, all_branches):
         """Expand out incomplete inheritance lists"""
         order = Germinate.tsort.topo_sort(all_inherit)
         for name in order:
@@ -340,7 +334,7 @@ class Germinator:
                         self.sources[src][field] = apt_pkg.ParseSrcDepends(value)
 
                     binaries = apt_pkg.ParseDepends(p.Section.get("Binary", src))
-                    self.sources[src]["Binaries"] = [ bin[0][0] for bin in binaries ]
+                    self.sources[src]["Binaries"] = [ b[0][0] for b in binaries ]
 
             f.close()
 

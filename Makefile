@@ -7,6 +7,11 @@ clean:
 	-find -name \*.pyc | xargs -r rm -f
 	$(MAKE) -C debhelper clean
 
+check:
+	if which pychecker >/dev/null 2>&1; then \
+		pychecker Germinate/Archive/*.py Germinate/*.py *.py; \
+	fi
+
 install:
 	install -d $(DESTDIR)/usr/bin $(DESTDIR)/usr/lib/germinate/Germinate/Archive
 	install *.py $(DESTDIR)/usr/lib/germinate/

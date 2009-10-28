@@ -105,8 +105,8 @@ class Globals:
             g, DIST, COMPONENTS, ARCH, True)
 
         try:
-            seednames, seedinherit, seedbranches = g.parseStructure(SEEDS,
-                                                                    RELEASE)
+            seednames, seedinherit, seedbranches, _ = g.parseStructure(SEEDS,
+                                                                       RELEASE)
         except Germinate.seeds.SeedError:
             sys.exit(1)
         seednames, seedinherit, seedbranches = g.expandInheritance(
