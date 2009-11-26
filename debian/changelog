@@ -1,11 +1,11 @@
-germinate (1.20) UNRELEASED; urgency=low
+germinate (1.20) unstable; urgency=low
 
   * Add 'make check' which runs pychecker if available, and make it pass.
   * Change default distribution to lucid.
   * Update kubuntu-meta example in germinate-update-metapackage(1) (add
     netbook; remove hppa; add armel).
 
- -- Colin Watson <cjwatson@ubuntu.com>  Wed, 28 Oct 2009 12:50:50 +0000
+ -- Colin Watson <cjwatson@ubuntu.com>  Thu, 26 Nov 2009 12:50:56 +0000
 
 germinate (1.19) unstable; urgency=low
 
