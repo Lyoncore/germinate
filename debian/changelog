@@ -1,6 +1,7 @@
 germinate (1.20) UNRELEASED; urgency=low
 
   * Add 'make check' which runs pychecker if available, and make it pass.
+  * Change default distribution to lucid.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 28 Oct 2009 12:50:50 +0000
 
