@@ -9,7 +9,7 @@ Vcs-Bzr: http://people.canonical.com/~cjwatson/bzr/germinate/mainline
 
 Package: germinate
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, ${perl:Depends}, python-apt
+Depends: ${misc:Depends}, ${python:Depends}, ${perl:Depends}, python-apt (>= 0.7.93.2~)
 XB-Python-Version: ${python:Versions}
 Description: Expand dependencies in a list of seed packages
  Germinate takes lists of seed packages and expands their dependencies to

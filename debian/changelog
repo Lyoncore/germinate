@@ -1,3 +1,10 @@
+germinate (1.21) UNRELEASED; urgency=low
+
+  * Port the code to the new python-apt API and require at least
+    version 0.7.93.2 of python-apt (closes: #571744).
+
+ -- Julian Andres Klode <jak@debian.org>  Sat, 27 Feb 2010 18:56:06 +0100
+
 germinate (1.20) unstable; urgency=low
 
   * Add 'make check' which runs pychecker if available, and make it pass.

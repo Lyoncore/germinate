@@ -249,10 +249,9 @@ class Germinator:
     def parsePackages(self, tag_files, pkgtype):
         """Parse a Packages file and get the information we need."""
         for f in tag_files:
-            p = apt_pkg.ParseTagFile(f)
-            while p.Step() == 1:
-                pkg = p.Section["Package"]
-                ver = p.Section["Version"]
+            for section in apt_pkg.TagFile(f):
+                pkg = section["Package"]
+                ver = section["Version"]
                 last_ver = None
 
                 # If there is a previous package info stored, fetch
@@ -264,36 +263,36 @@ class Germinator:
                 # is older than the new version, store the new
                 # package.
                 if (pkg not in self.packages or
-                    apt_pkg.VersionCompare(last_ver, ver) < 0):
+                    apt_pkg.version_compare(last_ver, ver) < 0):
                     self.packages[pkg] = {}
                     self.packagetype[pkg] = pkgtype
                     self.pruned[pkg] = set()
 
                     self.packages[pkg]["Section"] = \
-                        p.Section.get("Section", "").split('/')[-1]
+                        section.get("Section", "").split('/')[-1]
 
-                    self.packages[pkg]["Version"] = p.Section.get("Version")
+                    self.packages[pkg]["Version"] = section.get("Version")
 
                     self.packages[pkg]["Maintainer"] = \
-                        unicode(p.Section.get("Maintainer", ""), "utf8", "replace")
+                        unicode(section.get("Maintainer", ""), "utf8", "replace")
 
-                    self.packages[pkg]["Essential"] = p.Section.get("Essential", "")
+                    self.packages[pkg]["Essential"] = section.get("Essential", "")
 
                     for field in "Pre-Depends", "Depends", "Recommends", "Suggests":
-                        value = p.Section.get(field, "")
-                        self.packages[pkg][field] = apt_pkg.ParseDepends(value)
+                        value = section.get(field, "")
+                        self.packages[pkg][field] = apt_pkg.parse_depends(value)
 
                     for field in "Size", "Installed-Size":
-                        value = p.Section.get(field, "0")
+                        value = section.get(field, "0")
                         self.packages[pkg][field] = int(value)
 
-                    src = p.Section.get("Source", pkg)
+                    src = section.get("Source", pkg)
                     idx = src.find("(")
                     if idx != -1:
                         src = src[:idx].strip()
                     self.packages[pkg]["Source"] = src
 
-                    provides = apt_pkg.ParseDepends(p.Section.get("Provides", ""))
+                    provides = apt_pkg.parse_depends(section.get("Provides", ""))
                     for prov in provides:
                         if prov[0][0] not in self.provides:
                             self.provides[prov[0][0]] = []
@@ -305,35 +304,34 @@ class Germinator:
                     if pkg in self.provides:
                         self.provides[pkg].append(pkg)
 
-                    self.packages[pkg]["Kernel-Version"] = p.Section.get("Kernel-Version", "")
+                    self.packages[pkg]["Kernel-Version"] = section.get("Kernel-Version", "")
             f.close()
 
     def parseSources(self, tag_files):
         """Parse a Sources file and get the information we need."""
         for f in tag_files:
-            p = apt_pkg.ParseTagFile(f)
-            while p.Step() == 1:
-                src = p.Section["Package"]
-                ver = p.Section["Version"]
+            for section in apt_pkg.TagFile(f):
+                src = section["Package"]
+                ver = section["Version"]
                 last_ver = None
 
                 if src in self.sources:
                     last_ver = self.sources[src]["Version"]
 
                 if (src not in self.sources or
-                    apt_pkg.VersionCompare(last_ver, ver) < 0):
+                    apt_pkg.version_compare(last_ver, ver) < 0):
                     self.sources[src] = {}
 
                     self.sources[src]["Maintainer"] = \
-                        unicode(p.Section.get("Maintainer", ""), "utf8", "replace")
+                        unicode(section.get("Maintainer", ""), "utf8", "replace")
                     self.sources[src]["IPv6"] = "Unknown"
                     self.sources[src]["Version"] = ver
 
                     for field in "Build-Depends", "Build-Depends-Indep":
-                        value = p.Section.get(field, "")
-                        self.sources[src][field] = apt_pkg.ParseSrcDepends(value)
+                        value = section.get(field, "")
+                        self.sources[src][field] = apt_pkg.parse_src_depends(value)
 
-                    binaries = apt_pkg.ParseDepends(p.Section.get("Binary", src))
+                    binaries = apt_pkg.parse_depends(section.get("Binary", src))
                     self.sources[src]["Binaries"] = [ b[0][0] for b in binaries ]
 
             f.close()
@@ -786,14 +784,14 @@ class Germinator:
             return True
 
         ver = self.packages[depname]["Version"]
-        compare = apt_pkg.VersionCompare(ver, depver)
+        compare = apt_pkg.version_compare(ver, depver)
         if deptype == "<=":
             return compare <= 0
         elif deptype == ">=":
             return compare >= 0
-        elif deptype == "<<":
+        elif deptype == "<":
             return compare < 0
-        elif deptype == ">>":
+        elif deptype == ">":
             return compare > 0
         elif deptype == "=":
             return compare == 0

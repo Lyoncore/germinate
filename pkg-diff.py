@@ -97,9 +97,9 @@ class Globals:
         global RELEASE, MIRRORS, DIST, COMPONENTS, ARCH
         print "Germinating"
         g = Germinator()
-        apt_pkg.InitConfig()
-        apt_pkg.Config.Set("APT::Architecture", ARCH)
-        apt_pkg.InitSystem()
+        apt_pkg.init_config()
+        apt_pkg.config.set("APT::Architecture", ARCH)
+        apt_pkg.init_system()
 
         Germinate.Archive.TagFile(MIRRORS).feed(
             g, DIST, COMPONENTS, ARCH, True)

@@ -388,9 +388,9 @@ def main():
     handler.setFormatter(logging.Formatter('%(levelname)s%(message)s'))
     logger.addHandler(handler)
 
-    apt_pkg.InitConfig()
-    apt_pkg.Config.Set("APT::Architecture", ARCH)
-    apt_pkg.InitSystem()
+    apt_pkg.init_config()
+    apt_pkg.config.set("APT::Architecture", ARCH)
+    apt_pkg.init_system()
 
     Germinate.Archive.TagFile(MIRRORS, SOURCE_MIRRORS).feed(
         g, DIST, COMPONENTS, ARCH, cleanup)

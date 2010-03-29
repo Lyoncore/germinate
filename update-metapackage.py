@@ -260,12 +260,12 @@ def main():
     additions = {}
     removals = {}
     moves = {}
-    apt_pkg.InitConfig()
-    apt_pkg.InitSystem()
+    apt_pkg.init_config()
+    apt_pkg.init_system()
     metapackage_map = {}
     for architecture in architectures:
         print "[%s] Downloading available package lists..." % architecture
-        apt_pkg.Config.Set("APT::Architecture", architecture)
+        apt_pkg.config.set("APT::Architecture", architecture)
         germinator = Germinator()
         Germinate.Archive.TagFile(archive_base[architecture], archive_base_default).feed(
             germinator, [dist], components, architecture, cleanup=True)
