@@ -1,6 +1,8 @@
 germinate (1.22) UNRELEASED; urgency=low
 
   * Change default distribution to maverick.
+  * Update kubuntu-meta example in germinate-update-metapackage(1) (remove
+    lpia).
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 02 Jun 2010 09:46:58 +0100
 
