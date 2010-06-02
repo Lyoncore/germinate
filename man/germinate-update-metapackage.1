@@ -155,9 +155,9 @@ the
 source package in the Ubuntu archive:
 .Bd -literal -offset indent
 [DEFAULT]
-dist: lucid
+dist: maverick
 
-[lucid]
+[maverick]
 seeds: desktop netbook
 architectures: i386 amd64 powerpc ia64 sparc lpia armel
 seed_base: http://people.canonical.com/~ubuntu-archive/seeds/
@@ -171,7 +171,7 @@ archive_base/sparc: %(archive_base/ports)s
 archive_base/armel: %(archive_base/ports)s
 components: main restricted
 
-[lucid/bzr]
+[maverick/bzr]
 seed_base: bzr+ssh://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/
 seed_dist: kubuntu.%(dist)s
 .Ed
