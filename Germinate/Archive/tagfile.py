@@ -72,8 +72,8 @@ class TagFile:
                             raise RuntimeError("Unknown suffix '%s'" % suffix)
 
                         f = open(fullname, "w")
-                        for line in compressed_f:
-                            print >>f, line,
+                        print >>f, compressed_f.read(),
+                        f.flush()
                         f.close()
 
                         compressed_f.close()
