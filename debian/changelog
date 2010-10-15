@@ -1,4 +1,4 @@
-germinate (1.23) UNRELEASED; urgency=low
+germinate (1.23) unstable; urgency=low
 
   * Write out entire decompressed Packages/Sources files in one go, rather
     than line-by-line.  This is a bit faster.
@@ -7,7 +7,7 @@ germinate (1.23) UNRELEASED; urgency=low
   * Update kubuntu-meta example in germinate-update-metapackage(1) (remove
     ia64 and sparc).
 
- -- Colin Watson <cjwatson@ubuntu.com>  Thu, 14 Oct 2010 13:37:20 +0100
+ -- Colin Watson <cjwatson@debian.org>  Fri, 15 Oct 2010 22:09:07 +0100
 
 germinate (1.22) unstable; urgency=low
 
