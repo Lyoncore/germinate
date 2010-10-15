@@ -34,9 +34,9 @@ import Germinate.version
 
 # TODO: cloned from germinate.py; should be common
 SEEDS = ["http://people.canonical.com/~ubuntu-archive/seeds/"]
-RELEASE = "ubuntu.maverick"
+RELEASE = "ubuntu.natty"
 MIRRORS = ["http://archive.ubuntu.com/ubuntu/"]
-DIST = ["maverick"]
+DIST = ["natty"]
 COMPONENTS = ["main"]
 ARCH = "i386"
 

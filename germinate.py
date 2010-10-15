@@ -42,7 +42,7 @@ __pychecker__ = 'maxlines=300'
 # Where do we get up-to-date seeds from?
 SEEDS = ["http://people.canonical.com/~ubuntu-archive/seeds/"]
 SEEDS_BZR = ["http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/"]
-RELEASE = "ubuntu.maverick"
+RELEASE = "ubuntu.natty"
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
 # them from?
@@ -50,7 +50,7 @@ MIRRORS = []
 SOURCE_MIRRORS = []
 DEFAULT_MIRROR = "http://archive.ubuntu.com/ubuntu/"
 DEFAULT_SOURCE_MIRROR = None
-DIST = ["maverick"]
+DIST = ["natty"]
 COMPONENTS = ["main", "restricted"]
 ARCH = "i386"
 
