@@ -2,6 +2,7 @@ germinate (1.23) UNRELEASED; urgency=low
 
   * Write out entire decompressed Packages/Sources files in one go, rather
     than line-by-line.  This is a bit faster.
+  * Convert to dh_python2.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Thu, 14 Oct 2010 13:37:20 +0100
 
