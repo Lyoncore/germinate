@@ -4,6 +4,8 @@ germinate (1.23) UNRELEASED; urgency=low
     than line-by-line.  This is a bit faster.
   * Convert to dh_python2.
   * Change default distribution to natty.
+  * Update kubuntu-meta example in germinate-update-metapackage(1) (remove
+    ia64 and sparc).
 
  -- Colin Watson <cjwatson@ubuntu.com>  Thu, 14 Oct 2010 13:37:20 +0100
 
