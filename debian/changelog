@@ -1,9 +1,9 @@
-germinate (1.24) UNRELEASED; urgency=low
+germinate (1.24) unstable; urgency=low
 
   * Always refresh copies of local Packages and Sources files (i.e. when
     using the file: scheme).
 
- -- Colin Watson <cjwatson@ubuntu.com>  Tue, 21 Dec 2010 14:26:27 +0000
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 21 Dec 2010 14:32:07 +0000
 
 germinate (1.23) unstable; urgency=low
 
