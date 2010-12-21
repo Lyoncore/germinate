@@ -47,6 +47,13 @@ class TagFile:
                 filename = os.path.split(req.get_selector())[0].replace(os.sep, "_")
             
             fullname = os.path.join(dirname, filename)
+            if req.get_type() == "file":
+                # Always refresh.  TODO: we should use If-Modified-Since for
+                # remote HTTP tag files.
+                try:
+                    os.unlink(fullname)
+                except OSError:
+                    pass
             if not os.path.exists(fullname):
                 print "Downloading", req.get_full_url(), "file ..."
 
