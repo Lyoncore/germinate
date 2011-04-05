@@ -108,7 +108,7 @@ def main():
     metapackage = this_source[:-5]
 
     print "[info] Initialising %s-* package lists update..." % metapackage
-        
+
     config = ConfigParser.SafeConfigParser()
     config_file = open('update.cfg')
     config.readfp(config_file)
@@ -118,7 +118,7 @@ def main():
         dist = args[0]
     else:
         dist = config.get('DEFAULT', 'dist')
-            
+
     seeds = config.get(dist, 'seeds').split()
     try:
         output_seeds = config.get(dist, 'output_seeds').split()
@@ -209,7 +209,7 @@ def main():
             error_exit('Unable to retrieve package list from debootstrap; stdout: %s\nstderr: %s' % (debootstrap_stdout, debootstrap_stderr))
 
         packages = filter(None, debootstrap_stdout.split())
-        # sometimes debootstrap gives empty packages / multiple separators   
+        # sometimes debootstrap gives empty packages / multiple separators
         packages.sort()
 
         return packages

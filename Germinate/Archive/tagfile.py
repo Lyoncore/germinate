@@ -39,13 +39,13 @@ class TagFile:
                    suffix)
             req = urllib2.Request(url)
             filename = None
-            
+
             if req.get_type() != "file":
                 filename = "%s_%s_%s_%s" % (req.get_host(), dist, component, tagfile_type)
             else:
                 # Make a more or less dummy filename for local URLs.
                 filename = os.path.split(req.get_selector())[0].replace(os.sep, "_")
-            
+
             fullname = os.path.join(dirname, filename)
             if req.get_type() == "file":
                 # Always refresh.  TODO: we should use If-Modified-Since for
