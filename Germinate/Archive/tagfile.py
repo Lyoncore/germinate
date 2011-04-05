@@ -104,7 +104,7 @@ class TagFile:
                 except (IOError, OSError):
                     pass
         if len(tag_files) == 0:
-            raise IOError
+            raise IOError, "no %s files found" % tagfile_type
         return tag_files
 
     def feed(self, g, dists, components, arch, cleanup=False):
