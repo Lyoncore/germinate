@@ -99,13 +99,12 @@ class TagFile:
             for suffix in (".bz2", ".gz", ""):
                 try:
                     tag_file = open_tag_file(mirror, suffix)
+                    tag_files.append(tag_file)
                     break
                 except (IOError, OSError):
                     pass
-            if not tag_file is None:
-                tag_files.append(tag_file)
-        if not tag_files:
-                raise IOError
+        if len(tag_files) == 0:
+            raise IOError
         return tag_files
 
     def feed(self, g, dists, components, arch, cleanup=False):
