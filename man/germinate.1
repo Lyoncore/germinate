@@ -17,6 +17,7 @@
 .Op Fl i
 .Op Fl Fl bzr
 .Op Fl Fl no\-rdepends
+.Op Fl Fl no\-installer
 .Sh DESCRIPTION
 .Nm
 is a program to help with the maintenance of large software distributions.
@@ -272,6 +273,9 @@ These calculations cause a large number of small files to be written out in
 the
 .Pa rdepends/
 directory, and may take some time.
+.It Fl Fl no\-installer
+Do not consider debian-installer udeb packages.
+While generally not the desired outcome, sometimes you might wish to omit consideration of installer packages when processing your seeds, perhaps if sending the output directly to the package manager on an already-installed system.
 .It Fl Fl seed\-packages Ar parent Ns / Ns Ar pkg Ns \&,...
 Treat each
 .Ar pkg

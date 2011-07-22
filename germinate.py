@@ -53,6 +53,7 @@ DEFAULT_SOURCE_MIRROR = None
 DIST = ["natty"]
 COMPONENTS = ["main", "restricted"]
 ARCH = "i386"
+INSTALLER_PACKAGES = True
 
 CHECK_IPV6 = False
 
@@ -293,6 +294,7 @@ Options:
   --bzr                 Fetch seeds using bzr. Requires bzr to be installed.
   --cleanup             Don't cache Packages or Sources files.
   --no-rdepends         Disable reverse-dependency calculations.
+  --no-installer        Do not consider debian-installer udeb packages.
   --seed-packages=PARENT/PKG,PARENT/PKG,...
                         Treat each PKG as a seed by itself, inheriting from
                         PARENT.
@@ -303,7 +305,7 @@ Options:
 def main():
     global SEEDS, SEEDS_BZR, RELEASE
     global DEFAULT_MIRROR, DEFAULT_SOURCE_MIRROR, SOURCE_MIRRORS, MIRRORS
-    global DIST, ARCH, COMPONENTS, CHECK_IPV6
+    global DIST, ARCH, COMPONENTS, CHECK_IPV6, INSTALLER_PACKAGES
     verbose = False
     bzr = False
     cleanup = False
@@ -329,6 +331,7 @@ def main():
                                     "bzr",
                                     "cleanup",
                                     "no-rdepends",
+                                    "no-installer",
                                     "seed-packages="])
     except getopt.GetoptError:
         usage(sys.stderr)
@@ -373,6 +376,8 @@ def main():
             cleanup = True
         elif option == "--no-rdepends":
             want_rdepends = False
+        elif option == "--no-installer":
+            INSTALLER_PACKAGES = False
         elif option == "--seed-packages":
             seed_packages = value.split(',')
 
@@ -392,7 +397,7 @@ def main():
     apt_pkg.config.set("APT::Architecture", ARCH)
     apt_pkg.init_system()
 
-    Germinate.Archive.TagFile(MIRRORS, SOURCE_MIRRORS).feed(
+    Germinate.Archive.TagFile(MIRRORS, SOURCE_MIRRORS, INSTALLER_PACKAGES).feed(
         g, DIST, COMPONENTS, ARCH, cleanup)
 
     if CHECK_IPV6:

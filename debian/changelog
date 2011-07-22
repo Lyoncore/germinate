@@ -1,3 +1,10 @@
+germinate (1.25.1) unstable; urgency=low
+
+  * Add a new option, --no-installer, allowing one to process seeds
+    without considering debian-installer udebs in the output.
+
+ -- Adam Conrad <adconrad@0c3.net>  Thu, 21 Jul 2011 22:19:29 -0600
+
 germinate (1.25) unstable; urgency=low
 
   * Only raise an exception from open_tag_files if an appropriate file is

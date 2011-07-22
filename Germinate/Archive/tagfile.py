@@ -24,8 +24,9 @@ import tempfile
 import shutil
 
 class TagFile:
-    def __init__(self, mirrors, source_mirrors=None):
+    def __init__(self, mirrors, source_mirrors=None, installer_packages=True):
         self.mirrors = mirrors
+        self.installer_packages = installer_packages
         if source_mirrors:
             self.source_mirrors = source_mirrors
         else:
@@ -127,16 +128,17 @@ class TagFile:
                         "source/Sources"))
 
                 instpackages = ""
-                try:
-                    instpackages = self.open_tag_files(
-                        self.mirrors, dirname, "InstallerPackages", dist, component,
-                        "debian-installer/binary-" + arch + "/Packages")
-                except IOError:
-                    # can live without these
-                    print "Missing installer Packages file for", component, \
-                          "(ignoring)"
-                else:
-                    g.parsePackages(instpackages, "udeb")
+                if self.installer_packages:
+                    try:
+                        instpackages = self.open_tag_files(
+                            self.mirrors, dirname, "InstallerPackages", dist, component,
+                            "debian-installer/binary-" + arch + "/Packages")
+                    except IOError:
+                        # can live without these
+                        print "Missing installer Packages file for", component, \
+                              "(ignoring)"
+                    else:
+                        g.parsePackages(instpackages, "udeb")
 
         if cleanup:
             shutil.rmtree(dirname)
