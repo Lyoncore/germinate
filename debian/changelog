@@ -1,10 +1,10 @@
-germinate (1.26) UNRELEASED; urgency=low
+germinate (1.26) unstable; urgency=low
 
   * Use 'bzr branch' rather than 'bzr get'; the latter is apparently
     deprecated in bzr 2.4.
   * Change default distribution to oneiric.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Fri, 12 Aug 2011 12:56:28 +0100
+ -- Colin Watson <cjwatson@ubuntu.com>  Fri, 12 Aug 2011 13:25:22 +0100
 
 germinate (1.25.1) unstable; urgency=low
 
