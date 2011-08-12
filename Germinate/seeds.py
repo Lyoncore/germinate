@@ -48,7 +48,7 @@ def _open_seed_internal(seed_base, seed_branch, seed_file, bzr=False):
         if not os.path.isdir(seed_checkout):
             # https://launchpad.net/products/bzr/+bug/39542
             if seed_path.startswith('http:'):
-                operation = 'get'
+                operation = 'branch'
                 logging.info("Fetching branch of %s", seed_path)
             else:
                 operation = 'checkout --lightweight'
