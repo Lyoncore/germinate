@@ -19,6 +19,7 @@
 # 02110-1301, USA.
 
 import os
+import urllib
 import urllib2
 import tempfile
 import shutil
@@ -42,7 +43,8 @@ class TagFile:
             filename = None
 
             if req.get_type() != "file":
-                filename = "%s_%s_%s_%s" % (req.get_host(), dist, component, tagfile_type)
+                filename = "%s_%s_%s_%s" % (urllib.quote(mirror, safe=""), dist,
+                                            component, tagfile_type)
             else:
                 # Make a more or less dummy filename for local URLs.
                 filename = os.path.split(req.get_selector())[0].replace(os.sep, "_")

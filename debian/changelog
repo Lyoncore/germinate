@@ -1,3 +1,11 @@
+germinate (1.27) UNRELEASED; urgency=low
+
+  [ Alexandros Frantzis ]
+  * Change local tag file name format to permit multiple repositories on the
+    same host (LP: #634831).
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Thu, 25 Aug 2011 16:30:23 +0100
+
 germinate (1.26) unstable; urgency=low
 
   * Use 'bzr branch' rather than 'bzr get'; the latter is apparently
