@@ -1,7 +1,7 @@
 germinate (1.28) UNRELEASED; urgency=low
 
   * Make sure to always close files after finishing with them.  Mostly this
-    is done using the 'with' statement in Python 2.6, but pyflakes gets
+    is done using the 'with' statement in Python 2.6, but pychecker gets
     unhappy with contextlib.closing so I carried on using traditional
     try/finally blocks in cases that would require that.
   * Remove all uses of os.system and os.popen, replacing them with uses of
