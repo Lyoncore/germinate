@@ -23,6 +23,7 @@ import apt_pkg
 import re
 import fnmatch
 import logging
+import codecs
 
 import Germinate.seeds
 import Germinate.tsort
@@ -1240,6 +1241,182 @@ class Germinator:
                     self.depends[seedname].add(pkg)
                 self.addPackage(seedname, pkg, "Rescued from %s" % src,
                                 build_tree=build_tree)
+
+    def writeList(self, whyname, filename, pkgset):
+        pkglist = list(pkgset)
+        pkglist.sort()
+
+        pkg_len = len("Package")
+        src_len = len("Source")
+        why_len = len("Why")
+        mnt_len = len("Maintainer")
+
+        for pkg in pkglist:
+            _pkg_len = len(pkg)
+            if _pkg_len > pkg_len: pkg_len = _pkg_len
+
+            _src_len = len(self.packages[pkg]["Source"])
+            if _src_len > src_len: src_len = _src_len
+
+            _why_len = len(self.why[whyname][pkg][0])
+            if _why_len > why_len: why_len = _why_len
+
+            _mnt_len = len(self.packages[pkg]["Maintainer"])
+            if _mnt_len > mnt_len: mnt_len = _mnt_len
+
+        size = 0
+        installed_size = 0
+
+        pkglist.sort()
+        with codecs.open(filename, "w", "utf8", "replace") as f:
+            print >>f, "%-*s | %-*s | %-*s | %-*s | %-15s | %-15s" % \
+                  (pkg_len, "Package",
+                   src_len, "Source",
+                   why_len, "Why",
+                   mnt_len, "Maintainer",
+                   "Deb Size (B)",
+                   "Inst Size (KB)")
+            print >>f, ("-" * pkg_len) + "-+-" + ("-" * src_len) + "-+-" \
+                  + ("-" * why_len) + "-+-" + ("-" * mnt_len) + "-+-" \
+                  + ("-" * 15) + "-+-" + ("-" * 15) + "-"
+            for pkg in pkglist:
+                size += self.packages[pkg]["Size"]
+                installed_size += self.packages[pkg]["Installed-Size"]
+                print >>f, "%-*s | %-*s | %-*s | %-*s | %15d | %15d" % \
+                      (pkg_len, pkg,
+                       src_len, self.packages[pkg]["Source"],
+                       why_len, self.why[whyname][pkg][0],
+                       mnt_len, self.packages[pkg]["Maintainer"],
+                       self.packages[pkg]["Size"],
+                       self.packages[pkg]["Installed-Size"])
+            print >>f, ("-" * (pkg_len + src_len + why_len + mnt_len + 9)) \
+                  + "-+-" + ("-" * 15) + "-+-" + ("-" * 15) + "-"
+            print >>f, "%*s | %15d | %15d" % \
+                  ((pkg_len + src_len + why_len + mnt_len + 9), "",
+                   size, installed_size)
+
+    def writeSourceList(self, filename, srcset, check_ipv6=False):
+        srclist = list(srcset)
+        srclist.sort()
+
+        src_len = len("Source")
+        mnt_len = len("Maintainer")
+        ipv6_len = len("IPv6 status")
+
+        for src in srclist:
+            _src_len = len(src)
+            if _src_len > src_len: src_len = _src_len
+
+            _mnt_len = len(self.sources[src]["Maintainer"])
+            if _mnt_len > mnt_len: mnt_len = _mnt_len
+
+            if check_ipv6:
+                _ipv6_len = len(self.sources[src]["IPv6"])
+                if _ipv6_len > ipv6_len: ipv6_len = _ipv6_len
+
+        srclist.sort()
+        with codecs.open(filename, "w", "utf8", "replace") as f:
+            fmt = "%-*s | %-*s"
+            header_args = [src_len, "Source", mnt_len, "Maintainer"]
+            separator = ("-" * src_len) + "-+-" + ("-" * mnt_len) + "-"
+            if check_ipv6:
+                fmt += " | %-*s"
+                header_args.extend((ipv6_len, "IPv6 status"))
+                separator += "+-" + ("-" * ipv6_len) + "-"
+
+            print >>f, fmt % tuple(header_args)
+            print >>f, separator
+            for src in srclist:
+                args = [src_len, src, mnt_len, self.sources[src]["Maintainer"]]
+                if check_ipv6:
+                    args.extend((ipv6_len, self.sources[src]["IPv6"]))
+                print >>f, fmt % tuple(args)
+
+    def writeRdependList(self, filename, pkg):
+        with open(filename, "w") as f:
+            print >>f, pkg
+            self._writeRdependList(f, pkg, "", done=set())
+
+    def _writeRdependList(self, f, pkg, prefix, stack=None, done=None):
+        if stack is None:
+            stack = []
+        else:
+            stack = list(stack)
+            if pkg in stack:
+                print >>f, prefix + "! loop"
+                return
+        stack.append(pkg)
+
+        if done is None:
+            done = set()
+        elif pkg in done:
+            print >>f, prefix + "! skipped"
+            return
+        done.add(pkg)
+
+        for seed in self.seeds:
+            if pkg in self.seed[seed]:
+                print >>f, prefix + "*", seed.title(), "seed"
+
+        if "Reverse-Depends" not in self.packages[pkg]:
+            return
+
+        for field in ("Pre-Depends", "Depends", "Recommends",
+                      "Build-Depends", "Build-Depends-Indep"):
+            if field not in self.packages[pkg]["Reverse-Depends"]:
+                continue
+
+            i = 0
+            print >>f, prefix + "*", "Reverse", field + ":"
+            for dep in self.packages[pkg]["Reverse-Depends"][field]:
+                i += 1
+                print >>f, prefix + " +- " + dep
+                if field.startswith("Build-"):
+                    continue
+
+                if i == len(self.packages[pkg]["Reverse-Depends"][field]):
+                    extra = "    "
+                else:
+                    extra = " |  "
+                self._writeRdependList(f, dep, prefix + extra, stack, done)
+
+    def writeProvidesList(self, filename):
+        provides = self.pkgprovides.keys()
+        provides.sort()
+
+        with open(filename, "w") as f:
+            for prov in provides:
+                print >>f, prov
+
+                provlist = list(self.pkgprovides[prov])
+                provlist.sort()
+                for pkg in provlist:
+                    print >>f, "\t%s" % (pkg,)
+                print >>f
+
+    def writeStructure(self, filename):
+        with open(filename, "w") as f:
+            for line in self.structure:
+                print >>f, line
+
+    def writeStructureDot(self, filename, seednames, seedinherit):
+        """Write a dot file to represent the structure of the seeds"""
+
+        #Initialize dot document
+        with codecs.open(filename, "w", "utf8", "replace") as dotfile:
+            print >>dotfile, "digraph structure {"
+            print >>dotfile, "    node [color=lightblue2, style=filled];"
+
+            for seed in seednames:
+                for inherit in seedinherit[seed]:
+                    print >>dotfile, "    \"%s\" -> \"%s\";" % (inherit, seed)
+
+            print >>dotfile, "}"
+
+    def writeSeedText(self, filename, seedtext):
+        with open(filename, "w") as f:
+            for line in seedtext:
+                print >>f, line.rstrip('\n')
 
 logging.addLevelName(logging.DEBUG, '  ')
 logging.addLevelName(Germinator.PROGRESS, '')

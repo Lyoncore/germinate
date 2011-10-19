@@ -26,7 +26,6 @@ import sys
 import urllib2
 import getopt
 import logging
-import codecs
 import cStringIO
 
 import apt_pkg
@@ -54,8 +53,6 @@ DIST = ["oneiric"]
 COMPONENTS = ["main", "restricted"]
 ARCH = "i386"
 INSTALLER_PACKAGES = True
-
-CHECK_IPV6 = False
 
 # If we need to download a new IPv6 dump, where do we get it from?
 IPV6DB = "http://debdev.fabbione.net/stat/"
@@ -86,184 +83,6 @@ def open_ipv6_tag_file(filename):
         url_f.close()
 
     return open(filename, "r")
-
-def write_list(whyname, filename, g, pkgset):
-    pkglist = list(pkgset)
-    pkglist.sort()
-
-    pkg_len = len("Package")
-    src_len = len("Source")
-    why_len = len("Why")
-    mnt_len = len("Maintainer")
-
-    for pkg in pkglist:
-        _pkg_len = len(pkg)
-        if _pkg_len > pkg_len: pkg_len = _pkg_len
-
-        _src_len = len(g.packages[pkg]["Source"])
-        if _src_len > src_len: src_len = _src_len
-
-        _why_len = len(g.why[whyname][pkg][0])
-        if _why_len > why_len: why_len = _why_len
-
-        _mnt_len = len(g.packages[pkg]["Maintainer"])
-        if _mnt_len > mnt_len: mnt_len = _mnt_len
-
-    size = 0
-    installed_size = 0
-
-    pkglist.sort()
-    with codecs.open(filename, "w", "utf8", "replace") as f:
-        print >>f, "%-*s | %-*s | %-*s | %-*s | %-15s | %-15s" % \
-              (pkg_len, "Package",
-               src_len, "Source",
-               why_len, "Why",
-               mnt_len, "Maintainer",
-               "Deb Size (B)",
-               "Inst Size (KB)")
-        print >>f, ("-" * pkg_len) + "-+-" + ("-" * src_len) + "-+-" \
-              + ("-" * why_len) + "-+-" + ("-" * mnt_len) + "-+-" \
-              + ("-" * 15) + "-+-" + ("-" * 15) + "-"
-        for pkg in pkglist:
-            size += g.packages[pkg]["Size"]
-            installed_size += g.packages[pkg]["Installed-Size"]
-            print >>f, "%-*s | %-*s | %-*s | %-*s | %15d | %15d" % \
-                  (pkg_len, pkg,
-                   src_len, g.packages[pkg]["Source"],
-                   why_len, g.why[whyname][pkg][0],
-                   mnt_len, g.packages[pkg]["Maintainer"],
-                   g.packages[pkg]["Size"],
-                   g.packages[pkg]["Installed-Size"])
-        print >>f, ("-" * (pkg_len + src_len + why_len + mnt_len + 9)) \
-              + "-+-" + ("-" * 15) + "-+-" + ("-" * 15) + "-"
-        print >>f, "%*s | %15d | %15d" % \
-              ((pkg_len + src_len + why_len + mnt_len + 9), "",
-               size, installed_size)
-
-def write_source_list(filename, g, srcset):
-    global CHECK_IPV6
-
-    srclist = list(srcset)
-    srclist.sort()
-
-    src_len = len("Source")
-    mnt_len = len("Maintainer")
-    ipv6_len = len("IPv6 status")
-
-    for src in srclist:
-        _src_len = len(src)
-        if _src_len > src_len: src_len = _src_len
-
-        _mnt_len = len(g.sources[src]["Maintainer"])
-        if _mnt_len > mnt_len: mnt_len = _mnt_len
-
-        if CHECK_IPV6:
-            _ipv6_len = len(g.sources[src]["IPv6"])
-            if _ipv6_len > ipv6_len: ipv6_len = _ipv6_len
-
-    srclist.sort()
-    with codecs.open(filename, "w", "utf8", "replace") as f:
-        fmt = "%-*s | %-*s"
-        header_args = [src_len, "Source", mnt_len, "Maintainer"]
-        separator = ("-" * src_len) + "-+-" + ("-" * mnt_len) + "-"
-        if CHECK_IPV6:
-            fmt += " | %-*s"
-            header_args.extend((ipv6_len, "IPv6 status"))
-            separator += "+-" + ("-" * ipv6_len) + "-"
-
-        print >>f, fmt % tuple(header_args)
-        print >>f, separator
-        for src in srclist:
-            args = [src_len, src, mnt_len, g.sources[src]["Maintainer"]]
-            if CHECK_IPV6:
-                args.extend((ipv6_len, g.sources[src]["IPv6"]))
-            print >>f, fmt % tuple(args)
-
-def write_rdepend_list(filename, g, pkg):
-    with open(filename, "w") as f:
-        print >>f, pkg
-        _write_rdepend_list(f, g, pkg, "", done=set())
-
-def _write_rdepend_list(f, g, pkg, prefix, stack=None, done=None):
-    if stack is None:
-        stack = []
-    else:
-        stack = list(stack)
-        if pkg in stack:
-            print >>f, prefix + "! loop"
-            return
-    stack.append(pkg)
-
-    if done is None:
-        done = set()
-    elif pkg in done:
-        print >>f, prefix + "! skipped"
-        return
-    done.add(pkg)
-
-    for seed in g.seeds:
-        if pkg in g.seed[seed]:
-            print >>f, prefix + "*", seed.title(), "seed"
-
-    if "Reverse-Depends" not in g.packages[pkg]:
-        return
-
-    for field in ("Pre-Depends", "Depends", "Recommends",
-                  "Build-Depends", "Build-Depends-Indep"):
-        if field not in g.packages[pkg]["Reverse-Depends"]:
-            continue
-
-        i = 0
-        print >>f, prefix + "*", "Reverse", field + ":"
-        for dep in g.packages[pkg]["Reverse-Depends"][field]:
-            i += 1
-            print >>f, prefix + " +- " + dep
-            if field.startswith("Build-"):
-                continue
-
-            if i == len(g.packages[pkg]["Reverse-Depends"][field]):
-                extra = "    "
-            else:
-                extra = " |  "
-            _write_rdepend_list(f, g, dep, prefix + extra, stack, done)
-
-def write_prov_list(filename, provdict):
-    provides = provdict.keys()
-    provides.sort()
-
-    with open(filename, "w") as f:
-        for prov in provides:
-            print >>f, prov
-
-            provlist = list(provdict[prov])
-            provlist.sort()
-            for pkg in provlist:
-                print >>f, "\t%s" % (pkg,)
-            print >>f
-
-def write_structure(filename, structure):
-    with open(filename, "w") as f:
-        for line in structure:
-            print >>f, line
-
-def write_seedtext(filename, seedtext):
-    with open(filename, "w") as f:
-        for line in seedtext:
-            print >>f, line.rstrip('\n')
-
-def write_dot(filename, seednames, seedinherit):
-    """Write a dot file to represent the structure of the seeds"""
-
-    #Initialize dot document
-    with codecs.open(filename, "w", "utf8", "replace") as dotfile:
-        print >>dotfile, "digraph structure {"
-        print >>dotfile, "    node [color=lightblue2, style=filled];"
-
-        for seed in seednames:
-            for inherit in seedinherit[seed]:
-                print >>dotfile, "    \"%s\" -> \"%s\";" % (inherit, seed)
-
-        print >>dotfile, "}"
 
 def usage(f):
     print >>f, """Usage: germinate.py [options]
@@ -301,8 +120,9 @@ Options:
 def main():
     global SEEDS, SEEDS_BZR, RELEASE
     global DEFAULT_MIRROR, DEFAULT_SOURCE_MIRROR, SOURCE_MIRRORS, MIRRORS
-    global DIST, ARCH, COMPONENTS, CHECK_IPV6, INSTALLER_PACKAGES
+    global DIST, ARCH, COMPONENTS, INSTALLER_PACKAGES
     verbose = False
+    check_ipv6 = False
     bzr = False
     cleanup = False
     want_rdepends = True
@@ -363,7 +183,7 @@ def main():
         elif option in ("-a", "--arch"):
             ARCH = value
         elif option in ("-i", "--ipv6"):
-            CHECK_IPV6 = True
+            check_ipv6 = True
         elif option == "--bzr":
             bzr = True
             if not seeds_set:
@@ -396,7 +216,7 @@ def main():
     Germinate.Archive.TagFile(MIRRORS, SOURCE_MIRRORS, INSTALLER_PACKAGES).feed(
         g, DIST, COMPONENTS, ARCH, cleanup)
 
-    if CHECK_IPV6:
+    if check_ipv6:
         with open_ipv6_tag_file("dailydump") as ipv6:
             g.parseIPv6(ipv6)
 
@@ -419,7 +239,7 @@ def main():
     except Germinate.seeds.SeedError:
         sys.exit(1)
 
-    write_dot("structure.dot", seednames, seedinherit)
+    g.writeStructureDot("structure.dot", seednames, seedinherit)
 
     seednames, seedinherit, seedbranches = g.expandInheritance(
         seednames, seedinherit, seedbranches)
@@ -451,24 +271,24 @@ def main():
     seednames_extra = list(seednames)
     seednames_extra.append('extra')
     for seedname in seednames_extra:
-        write_list(seedname, seedname,
-                   g, set(g.seed[seedname]) | set(g.seedrecommends[seedname]) |
-                      set(g.depends[seedname]))
-        write_list(seedname, seedname + ".seed",
-                   g, g.seed[seedname])
-        write_list(seedname, seedname + ".seed-recommends",
-                   g, g.seedrecommends[seedname])
-        write_list(seedname, seedname + ".depends",
-                   g, g.depends[seedname])
-        write_list(seedname, seedname + ".build-depends",
-                   g, g.build_depends[seedname])
+        g.writeList(seedname, seedname,
+                    set(g.seed[seedname]) | set(g.seedrecommends[seedname]) |
+                    set(g.depends[seedname]))
+        g.writeList(seedname, seedname + ".seed",
+                    g.seed[seedname])
+        g.writeList(seedname, seedname + ".seed-recommends",
+                    g.seedrecommends[seedname])
+        g.writeList(seedname, seedname + ".depends",
+                    g.depends[seedname])
+        g.writeList(seedname, seedname + ".build-depends",
+                    g.build_depends[seedname])
 
         if seedname != "extra" and seedname in seedtexts:
-            write_seedtext(seedname + ".seedtext", seedtexts[seedname])
-            write_source_list(seedname + ".sources",
-                              g, g.sourcepkgs[seedname])
-        write_source_list(seedname + ".build-sources",
-                          g, g.build_sourcepkgs[seedname])
+            g.writeSeedText(seedname + ".seedtext", seedtexts[seedname])
+            g.writeSourceList(seedname + ".sources",
+                              g.sourcepkgs[seedname], check_ipv6)
+        g.writeSourceList(seedname + ".build-sources",
+                          g.build_sourcepkgs[seedname], check_ipv6)
 
     all_bins = set()
     sup_bins = set()
@@ -502,18 +322,19 @@ def main():
         sup_bins.update([k for (k, v) in build_depends.iteritems() if v])
         sup_srcs.update([k for (k, v) in build_sourcepkgs.iteritems() if v])
 
-    write_list("all", "all", g, all_bins)
-    write_source_list("all.sources", g, all_srcs)
+    g.writeList("all", "all", all_bins)
+    g.writeSourceList("all.sources", all_srcs, check_ipv6)
 
-    write_list("all", "%s+build-depends" % g.supported, g, sup_bins)
-    write_source_list("%s+build-depends.sources" % g.supported, g, sup_srcs)
+    g.writeList("all", "%s+build-depends" % g.supported, sup_bins)
+    g.writeSourceList("%s+build-depends.sources" % g.supported, sup_srcs,
+                      check_ipv6)
 
-    write_list("all", "all+extra", g, g.all)
-    write_source_list("all+extra.sources", g, g.all_srcs)
+    g.writeList("all", "all+extra", g.all)
+    g.writeSourceList("all+extra.sources", g.all_srcs, check_ipv6)
 
-    write_prov_list("provides", g.pkgprovides)
+    g.writeProvidesList("provides")
 
-    write_structure("structure", g.structure)
+    g.writeStructure("structure")
 
     if os.path.exists("rdepends"):
         shutil.rmtree("rdepends")
@@ -525,7 +346,7 @@ def main():
             if not os.path.exists(dirname):
                 os.mkdir(dirname)
 
-            write_rdepend_list(os.path.join(dirname, pkg), g, pkg)
+            g.writeRdependList(os.path.join(dirname, pkg), pkg)
             os.symlink(os.path.join("..", g.packages[pkg]["Source"], pkg),
                        os.path.join("rdepends", "ALL", pkg))
 

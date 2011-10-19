@@ -6,6 +6,8 @@ germinate (1.28) UNRELEASED; urgency=low
     try/finally blocks in cases that would require that.
   * Remove all uses of os.system and os.popen, replacing them with uses of
     the better-designed subprocess module.
+  * Move output-writing functions from the top-level germinate program into
+    Germinator.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 
