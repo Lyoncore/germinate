@@ -24,6 +24,7 @@ import os
 import sys
 import getopt
 import logging
+import subprocess
 
 import apt_pkg
 
@@ -161,15 +162,17 @@ class Globals:
                         self.package.setdefault(pkg, Package(pkg))
                         self.package[pkg].setSeed(g.supported + ".build-depends")
 
-    def openDpkg(self, fname):
-        if fname == None:
-            return os.popen("dpkg --get-selections")
-        else:
-            return open(fname)
-
     def parseDpkg(self, fname):
-        with self.openDpkg(fname) as f:
-            lines = f.readlines()
+        if fname is None:
+            dpkg_cmd = subprocess.Popen(['dpkg', '--get-selections'],
+                                        stdout=subprocess.PIPE)
+            try:
+                lines = dpkg_cmd.stdout.readlines()
+            finally:
+                dpkg_cmd.wait()
+        else:
+            with open(fname) as f:
+                lines = f.readlines()
         for l in lines:
             pkg, st = l.split(None)
             self.package.setdefault(pkg, Package(pkg))

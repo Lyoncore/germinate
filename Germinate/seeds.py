@@ -26,6 +26,7 @@ import urlparse
 import urllib2
 import shutil
 import re
+import subprocess
 
 bzr_cache_dir = None
 
@@ -46,18 +47,19 @@ def _open_seed_internal(seed_base, seed_branch, seed_file, bzr=False):
             atexit.register(_cleanup_bzr_cache, bzr_cache_dir)
         seed_checkout = os.path.join(bzr_cache_dir, seed_branch)
         if not os.path.isdir(seed_checkout):
+            command = ['bzr']
             # https://launchpad.net/products/bzr/+bug/39542
             if seed_path.startswith('http:'):
-                operation = 'branch'
+                command.append('branch')
                 logging.info("Fetching branch of %s", seed_path)
             else:
-                operation = 'checkout --lightweight'
+                command.extend(['checkout', '--lightweight'])
                 logging.info("Checking out %s", seed_path)
-            command = ('bzr %s %s %s' % (operation, seed_path, seed_checkout))
-            status = os.system(command)
+            command.extend([seed_path, seed_checkout])
+            status = subprocess.call(command)
             if status != 0:
                 raise SeedError("Command failed with exit status %d:\n"
-                                "  '%s'" % (status, command))
+                                "  '%s'" % (status, ' '.join(command)))
         return open(os.path.join(seed_checkout, seed_file))
     else:
         url = urlparse.urljoin(seed_path, seed_file)

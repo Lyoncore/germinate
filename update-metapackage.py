@@ -186,8 +186,10 @@ def main():
     debootstrap_version_file = 'debootstrap-version'
 
     def get_debootstrap_version():
-        with os.popen("dpkg-query -W --showformat '${Version}' debootstrap") as version_file:
-            version = version_file.read()
+        version_cmd = subprocess.Popen(
+            ['dpkg-query', '-W', '--showformat', '${Version}', 'debootstrap'],
+            stdout=subprocess.PIPE)
+        version, _ = version_cmd.communicate()
         if not version:
             error_exit('debootstrap does not appear to be installed')
 
@@ -219,8 +221,9 @@ def main():
             with open(debootstrap_version_file) as debootstrap:
                 old_debootstrap_version = debootstrap.read().strip()
             debootstrap_version = get_debootstrap_version()
-            failed = os.system("dpkg --compare-versions '%s' ge '%s'" % (debootstrap_version,
-                                                                         old_debootstrap_version))
+            failed = subprocess.call(
+                ['dpkg', '--compare-versions',
+                 debootstrap_version, 'ge', old_debootstrap_version])
             if failed:
                 error_exit('Installed debootstrap is older than in the previous version! (%s < %s)' % (
                     debootstrap_version,
@@ -418,12 +421,15 @@ def main():
             print >>metapackage_map_file, seed_name, metapackage_map[seed_name]
 
     if not nodch and (additions or removals or moves):
-        with os.popen('dch --help') as dch_help:
-            have_U = '-U' in dch_help.read()
+        dch_help = subprocess.Popen(['dch', '--help'], stdout=subprocess.PIPE)
+        try:
+            have_U = '-U' in dch_help.stdout.read()
+        finally:
+            dch_help.wait()
         if have_U:
-            os.system("dch -iU 'Refreshed dependencies'")
+            subprocess.check_call(['dch', '-iU', 'Refreshed dependencies'])
         else:
-            os.system("dch -i 'Refreshed dependencies'")
+            subprocess.check_call(['dch', '-i', 'Refreshed dependencies'])
         changes = []
         addition_keys = additions.keys()
         addition_keys.sort()
@@ -446,7 +452,7 @@ def main():
                            (package, format_changes(moves[package])))
         for change in changes:
             print change
-            os.system("dch -a '%s'" % change)
+            subprocess.check_call(['dch', '-a', change])
         update_debootstrap_version()
     else:
         if not nodch:
