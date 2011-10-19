@@ -63,10 +63,11 @@ class TagFile:
                 compressed = os.path.join(dirname, filename + suffix)
                 try:
                     url_f = urllib2.urlopen(req)
-                    compressed_f = open(compressed, "w")
-                    compressed_f.write(url_f.read())
-                    compressed_f.close()
-                    url_f.close()
+                    try:
+                        with open(compressed, "w") as compressed_f:
+                            compressed_f.write(url_f.read())
+                    finally:
+                        url_f.close()
 
                     # apt_pkg is weird and won't accept GzipFile
                     if suffix:
@@ -81,12 +82,15 @@ class TagFile:
                         else:
                             raise RuntimeError("Unknown suffix '%s'" % suffix)
 
-                        f = open(fullname, "w")
-                        print >>f, compressed_f.read(),
-                        f.flush()
-                        f.close()
-
-                        compressed_f.close()
+                        # This can be simplified once we can require Python
+                        # 2.7, where gzip.GzipFile and bz2.BZ2File are
+                        # context managers.
+                        try:
+                            with open(fullname, "w") as f:
+                                print >>f, compressed_f.read(),
+                                f.flush()
+                        finally:
+                            compressed_f.close()
                 finally:
                     if suffix:
                         try:
@@ -118,16 +122,23 @@ class TagFile:
 
         for dist in dists:
             for component in components:
-                g.parsePackages(
-                    self.open_tag_files(
-                        self.mirrors, dirname, "Packages", dist, component,
-                        "binary-" + arch + "/Packages"),
-                    "deb")
+                packages = self.open_tag_files(
+                    self.mirrors, dirname, "Packages", dist, component,
+                    "binary-" + arch + "/Packages")
+                try:
+                    g.parsePackages(packages, "deb")
+                finally:
+                    for tag_file in packages:
+                        tag_file.close()
 
-                g.parseSources(
-                    self.open_tag_files(
-                        self.source_mirrors, dirname, "Sources", dist, component,
-                        "source/Sources"))
+                sources = self.open_tag_files(
+                    self.source_mirrors, dirname, "Sources", dist, component,
+                    "source/Sources")
+                try:
+                    g.parseSources(sources)
+                finally:
+                    for tag_file in packages:
+                        tag_file.close()
 
                 instpackages = ""
                 if self.installer_packages:
@@ -140,7 +151,11 @@ class TagFile:
                         print "Missing installer Packages file for", component, \
                               "(ignoring)"
                     else:
-                        g.parsePackages(instpackages, "udeb")
+                        try:
+                            g.parsePackages(instpackages, "udeb")
+                        finally:
+                            for tag_file in instpackages:
+                                tag_file.close()
 
         if cleanup:
             shutil.rmtree(dirname)

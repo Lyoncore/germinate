@@ -94,13 +94,13 @@ def main():
     if not os.path.exists('debian/control'):
         error_exit('must be run from the top level of a source package')
     this_source = None
-    control = open('debian/control')
-    for line in control:
-        if line.startswith('Source:'):
-            this_source = line[7:].strip()
-            break
-        elif line == '':
-            break
+    with open('debian/control') as control:
+        for line in control:
+            if line.startswith('Source:'):
+                this_source = line[7:].strip()
+                break
+            elif line == '':
+                break
     if this_source is None:
         error_exit('cannot find Source: in debian/control')
     if not this_source.endswith('-meta'):
@@ -110,9 +110,8 @@ def main():
     print "[info] Initialising %s-* package lists update..." % metapackage
 
     config = ConfigParser.SafeConfigParser()
-    config_file = open('update.cfg')
-    config.readfp(config_file)
-    config_file.close()
+    with open('update.cfg') as config_file:
+        config.readfp(config_file)
 
     if len(args) > 0:
         dist = args[0]
@@ -187,7 +186,8 @@ def main():
     debootstrap_version_file = 'debootstrap-version'
 
     def get_debootstrap_version():
-        version = os.popen("dpkg-query -W --showformat '${Version}' debootstrap").read()
+        with os.popen("dpkg-query -W --showformat '${Version}' debootstrap") as version_file:
+            version = version_file.read()
         if not version:
             error_exit('debootstrap does not appear to be installed')
 
@@ -216,7 +216,8 @@ def main():
 
     def check_debootstrap_version():
         if os.path.exists(debootstrap_version_file):
-            old_debootstrap_version = open(debootstrap_version_file).read().strip()
+            with open(debootstrap_version_file) as debootstrap:
+                old_debootstrap_version = debootstrap.read().strip()
             debootstrap_version = get_debootstrap_version()
             failed = os.system("dpkg --compare-versions '%s' ge '%s'" % (debootstrap_version,
                                                                          old_debootstrap_version))
@@ -227,8 +228,8 @@ def main():
                     ))
 
     def update_debootstrap_version():
-        open(debootstrap_version_file, 'w').write(get_debootstrap_version() +
-                                                  '\n')
+        with open(debootstrap_version_file, 'w') as debootstrap:
+            debootstrap.write(get_debootstrap_version() + '\n')
 
     def format_changes(items):
         by_arch = {}
@@ -291,10 +292,12 @@ def main():
             try:
                 seed_fd = Germinate.seeds.open_seed(seed_base, seed_branches,
                                                     seed_name, bzr)
+                try:
+                    seed_texts[seed_name] = seed_fd.readlines()
+                finally:
+                    seed_fd.close()
             except Germinate.seeds.SeedError:
                 sys.exit(1)
-            seed_texts[seed_name] = seed_fd.readlines()
-            seed_fd.close()
             germinator.plantSeed(seed_texts[seed_name], architecture, seed_name,
                                  list(seed_inherit[seed_name]))
 
@@ -307,7 +310,8 @@ def main():
             output_filename = os.path.join(outdir, '%s-%s' % (seed_name,architecture))
             old_list = None
             if os.path.exists(output_filename):
-                old_list = set(map(str.strip,open(output_filename).readlines()))
+                with open(output_filename) as output:
+                    old_list = set(map(str.strip, output.readlines()))
                 os.rename(output_filename, output_filename + '.old')
 
             # work on the depends
@@ -324,11 +328,10 @@ def main():
                     new_list.append(package)
 
             new_list.sort()
-            output = open(output_filename, 'w')
-            for package in new_list:
-                output.write(package)
-                output.write('\n')
-            output.close()
+            with open(output_filename, 'w') as output:
+                for package in new_list:
+                    output.write(package)
+                    output.write('\n')
 
             # work on the recommends
             old_recommends_list = None
@@ -347,14 +350,14 @@ def main():
             seed_name_recommends = '%s-recommends' % seed_name
             output_recommends_filename = os.path.join(outdir, '%s-%s' % (seed_name_recommends,architecture))
             if os.path.exists(output_recommends_filename):
-                old_recommends_list = set(map(str.strip,open(output_recommends_filename).readlines()))
+                with open(output_recommends_filename) as output:
+                    old_recommends_list = set(map(str.strip, output.readlines()))
                 os.rename(output_recommends_filename, output_recommends_filename + '.old')
 
-            output = open(output_recommends_filename, 'w')
-            for package in new_recommends_list:
-                output.write(package)
-                output.write('\n')
-            output.close()
+            with open(output_recommends_filename, 'w') as output:
+                for package in new_recommends_list:
+                    output.write(package)
+                    output.write('\n')
 
 
             # Calculate deltas
@@ -410,15 +413,13 @@ def main():
                     removals[package].append([seed_name_recommends,
                                               architecture])
 
-    metapackage_map_file = open('metapackage-map', 'w')
-    for seed_name in output_seeds:
-        print >>metapackage_map_file, seed_name, metapackage_map[seed_name]
-    metapackage_map_file.close()
+    with open('metapackage-map', 'w') as metapackage_map_file:
+        for seed_name in output_seeds:
+            print >>metapackage_map_file, seed_name, metapackage_map[seed_name]
 
     if not nodch and (additions or removals or moves):
-        dch_help = os.popen('dch --help')
-        have_U = '-U' in dch_help.read()
-        dch_help.close()
+        with os.popen('dch --help') as dch_help:
+            have_U = '-U' in dch_help.read()
         if have_U:
             os.system("dch -iU 'Refreshed dependencies'")
         else:

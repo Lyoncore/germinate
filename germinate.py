@@ -69,16 +69,21 @@ def open_ipv6_tag_file(filename):
     print "Downloading", filename, "file ..."
     url = IPV6DB + filename + ".gz"
     url_f = urllib2.urlopen(url)
-    url_data = cStringIO.StringIO(url_f.read())
-    url_f.close()
-    print "Decompressing", filename, "file ..."
-    gzip_f = gzip.GzipFile(fileobj=url_data)
-    f = open(filename, "w")
-    for line in gzip_f:
-        print >>f, line,
-    f.close()
-    gzip_f.close()
-    url_data.close()
+    try:
+        url_data = cStringIO.StringIO(url_f.read())
+        try:
+            print "Decompressing", filename, "file ..."
+            gzip_f = gzip.GzipFile(fileobj=url_data)
+            try:
+                with open(filename, "w") as f:
+                    for line in gzip_f:
+                        print >>f, line,
+            finally:
+                gzip_f.close()
+        finally:
+            url_data.close()
+    finally:
+        url_f.close()
 
     return open(filename, "r")
 
@@ -108,34 +113,32 @@ def write_list(whyname, filename, g, pkgset):
     installed_size = 0
 
     pkglist.sort()
-    f = codecs.open(filename, "w", "utf8", "replace")
-    print >>f, "%-*s | %-*s | %-*s | %-*s | %-15s | %-15s" % \
-          (pkg_len, "Package",
-           src_len, "Source",
-           why_len, "Why",
-           mnt_len, "Maintainer",
-           "Deb Size (B)",
-           "Inst Size (KB)")
-    print >>f, ("-" * pkg_len) + "-+-" + ("-" * src_len) + "-+-" \
-          + ("-" * why_len) + "-+-" + ("-" * mnt_len) + "-+-" \
-          + ("-" * 15) + "-+-" + ("-" * 15) + "-"
-    for pkg in pkglist:
-        size += g.packages[pkg]["Size"]
-        installed_size += g.packages[pkg]["Installed-Size"]
-        print >>f, "%-*s | %-*s | %-*s | %-*s | %15d | %15d" % \
-              (pkg_len, pkg,
-               src_len, g.packages[pkg]["Source"],
-               why_len, g.why[whyname][pkg][0],
-               mnt_len, g.packages[pkg]["Maintainer"],
-               g.packages[pkg]["Size"],
-               g.packages[pkg]["Installed-Size"])
-    print >>f, ("-" * (pkg_len + src_len + why_len + mnt_len + 9)) + "-+-" \
-          + ("-" * 15) + "-+-" + ("-" * 15) + "-"
-    print >>f, "%*s | %15d | %15d" % \
-          ((pkg_len + src_len + why_len + mnt_len + 9), "",
-           size, installed_size)
-
-    f.close()
+    with codecs.open(filename, "w", "utf8", "replace") as f:
+        print >>f, "%-*s | %-*s | %-*s | %-*s | %-15s | %-15s" % \
+              (pkg_len, "Package",
+               src_len, "Source",
+               why_len, "Why",
+               mnt_len, "Maintainer",
+               "Deb Size (B)",
+               "Inst Size (KB)")
+        print >>f, ("-" * pkg_len) + "-+-" + ("-" * src_len) + "-+-" \
+              + ("-" * why_len) + "-+-" + ("-" * mnt_len) + "-+-" \
+              + ("-" * 15) + "-+-" + ("-" * 15) + "-"
+        for pkg in pkglist:
+            size += g.packages[pkg]["Size"]
+            installed_size += g.packages[pkg]["Installed-Size"]
+            print >>f, "%-*s | %-*s | %-*s | %-*s | %15d | %15d" % \
+                  (pkg_len, pkg,
+                   src_len, g.packages[pkg]["Source"],
+                   why_len, g.why[whyname][pkg][0],
+                   mnt_len, g.packages[pkg]["Maintainer"],
+                   g.packages[pkg]["Size"],
+                   g.packages[pkg]["Installed-Size"])
+        print >>f, ("-" * (pkg_len + src_len + why_len + mnt_len + 9)) \
+              + "-+-" + ("-" * 15) + "-+-" + ("-" * 15) + "-"
+        print >>f, "%*s | %15d | %15d" % \
+              ((pkg_len + src_len + why_len + mnt_len + 9), "",
+               size, installed_size)
 
 def write_source_list(filename, g, srcset):
     global CHECK_IPV6
@@ -159,31 +162,27 @@ def write_source_list(filename, g, srcset):
             if _ipv6_len > ipv6_len: ipv6_len = _ipv6_len
 
     srclist.sort()
-    f = codecs.open(filename, "w", "utf8", "replace")
-
-    fmt = "%-*s | %-*s"
-    header_args = [src_len, "Source", mnt_len, "Maintainer"]
-    separator = ("-" * src_len) + "-+-" + ("-" * mnt_len) + "-"
-    if CHECK_IPV6:
-        fmt += " | %-*s"
-        header_args.extend((ipv6_len, "IPv6 status"))
-        separator += "+-" + ("-" * ipv6_len) + "-"
-
-    print >>f, fmt % tuple(header_args)
-    print >>f, separator
-    for src in srclist:
-        args = [src_len, src, mnt_len, g.sources[src]["Maintainer"]]
+    with codecs.open(filename, "w", "utf8", "replace") as f:
+        fmt = "%-*s | %-*s"
+        header_args = [src_len, "Source", mnt_len, "Maintainer"]
+        separator = ("-" * src_len) + "-+-" + ("-" * mnt_len) + "-"
         if CHECK_IPV6:
-            args.extend((ipv6_len, g.sources[src]["IPv6"]))
-        print >>f, fmt % tuple(args)
+            fmt += " | %-*s"
+            header_args.extend((ipv6_len, "IPv6 status"))
+            separator += "+-" + ("-" * ipv6_len) + "-"
 
-    f.close()
+        print >>f, fmt % tuple(header_args)
+        print >>f, separator
+        for src in srclist:
+            args = [src_len, src, mnt_len, g.sources[src]["Maintainer"]]
+            if CHECK_IPV6:
+                args.extend((ipv6_len, g.sources[src]["IPv6"]))
+            print >>f, fmt % tuple(args)
 
 def write_rdepend_list(filename, g, pkg):
-    f = open(filename, "w")
-    print >>f, pkg
-    _write_rdepend_list(f, g, pkg, "", done=set())
-    f.close()
+    with open(filename, "w") as f:
+        print >>f, pkg
+        _write_rdepend_list(f, g, pkg, "", done=set())
 
 def _write_rdepend_list(f, g, pkg, prefix, stack=None, done=None):
     if stack is None:
@@ -232,42 +231,39 @@ def write_prov_list(filename, provdict):
     provides = provdict.keys()
     provides.sort()
 
-    f = open(filename, "w")
-    for prov in provides:
-        print >>f, prov
+    with open(filename, "w") as f:
+        for prov in provides:
+            print >>f, prov
 
-        provlist = list(provdict[prov])
-        provlist.sort()
-        for pkg in provlist:
-            print >>f, "\t%s" % (pkg,)
-        print >>f
-    f.close()
+            provlist = list(provdict[prov])
+            provlist.sort()
+            for pkg in provlist:
+                print >>f, "\t%s" % (pkg,)
+            print >>f
 
 def write_structure(filename, structure):
-    f = open(filename, "w")
-    for line in structure:
-        print >>f, line
-    f.close()
+    with open(filename, "w") as f:
+        for line in structure:
+            print >>f, line
 
 def write_seedtext(filename, seedtext):
-    f = open(filename, "w")
-    for line in seedtext:
-        print >>f, line.rstrip('\n')
+    with open(filename, "w") as f:
+        for line in seedtext:
+            print >>f, line.rstrip('\n')
 
 def write_dot(filename, seednames, seedinherit):
     """Write a dot file to represent the structure of the seeds"""
 
     #Initialize dot document
-    dotfile = codecs.open(filename, "w", "utf8", "replace")
-    print >>dotfile, "digraph structure {"
-    print >>dotfile, "    node [color=lightblue2, style=filled];"
+    with codecs.open(filename, "w", "utf8", "replace") as dotfile:
+        print >>dotfile, "digraph structure {"
+        print >>dotfile, "    node [color=lightblue2, style=filled];"
 
-    for seed in seednames:
-        for inherit in seedinherit[seed]:
-            print >>dotfile, "    \"%s\" -> \"%s\";" % (inherit, seed)
+        for seed in seednames:
+            for inherit in seedinherit[seed]:
+                print >>dotfile, "    \"%s\" -> \"%s\";" % (inherit, seed)
 
-    print >>dotfile, "}"
-    dotfile.close()
+        print >>dotfile, "}"
 
 def usage(f):
     print >>f, """Usage: germinate.py [options]
@@ -401,17 +397,21 @@ def main():
         g, DIST, COMPONENTS, ARCH, cleanup)
 
     if CHECK_IPV6:
-        g.parseIPv6(open_ipv6_tag_file("dailydump"))
+        with open_ipv6_tag_file("dailydump") as ipv6:
+            g.parseIPv6(ipv6)
 
     if os.path.isfile("hints"):
-        g.parseHints(open("hints"))
+        with open("hints") as hints:
+            g.parseHints(hints)
 
     try:
         blacklist = Germinate.seeds.open_seed(SEEDS, RELEASE, "blacklist", bzr)
+        try:
+            g.parseBlacklist(blacklist)
+        finally:
+            blacklist.close()
     except Germinate.seeds.SeedError:
-        blacklist = None
-    if blacklist is not None:
-        g.parseBlacklist(blacklist)
+        pass
 
     try:
         seednames, seedinherit, seedbranches, _ = g.parseStructure(
@@ -427,12 +427,14 @@ def main():
     seedtexts = {}
     for seedname in seednames:
         try:
-            seed_fd = Germinate.seeds.open_seed(SEEDS, seedbranches, seedname,
-                                                bzr)
+            seed_fd = Germinate.seeds.open_seed(SEEDS, seedbranches,
+                                                seedname, bzr)
+            try:
+                seedtexts[seedname] = seed_fd.readlines()
+            finally:
+                seed_fd.close()
         except Germinate.seeds.SeedError:
             sys.exit(1)
-        seedtexts[seedname] = seed_fd.readlines()
-        seed_fd.close()
         g.plantSeed(seedtexts[seedname],
                     ARCH, seedname, list(seedinherit[seedname]), RELEASE)
     for seed_package in seed_packages:

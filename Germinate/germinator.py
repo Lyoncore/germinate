@@ -166,7 +166,10 @@ class Germinator:
 
         # Fetch this one
         seed = Germinate.seeds.open_seed(seed_base, branch, "STRUCTURE", bzr)
-        names, inherit, branches, structure = self.parseStructureFile(seed)
+        try:
+            names, inherit, branches, structure = self.parseStructureFile(seed)
+        finally:
+            seed.close()
         branches.insert(0, branch)
         got_branches.add(branch)
 
@@ -362,13 +365,12 @@ class Germinator:
     def writeBlacklisted(self, filename):
         """Write out the list of blacklisted packages we encountered"""
 
-        fh = open(filename, 'w')
-        sorted_blacklisted = list(self.blacklisted)
-        sorted_blacklisted.sort()
-        for pkg in sorted_blacklisted:
-            blacklist = self.blacklist[pkg]
-            fh.write('%s\t%s\n' % (pkg, blacklist))
-        fh.close()
+        with open(filename, 'w') as fh:
+            sorted_blacklisted = list(self.blacklisted)
+            sorted_blacklisted.sort()
+            for pkg in sorted_blacklisted:
+                blacklist = self.blacklist[pkg]
+                fh.write('%s\t%s\n' % (pkg, blacklist))
 
     def newSeed(self, seedname, seedinherit, seedrelease):
         self.seeds.append(seedname)

@@ -126,11 +126,14 @@ class Globals:
             try:
                 seed_fd = Germinate.seeds.open_seed(SEEDS, seedbranches,
                                                     seedname)
+                try:
+                    g.plantSeed(seed_fd,
+                                ARCH, seedname, list(seedinherit[seedname]),
+                                RELEASE)
+                finally:
+                    seed_fd.close()
             except Germinate.seeds.SeedError:
                 sys.exit(1)
-            g.plantSeed(seed_fd,
-                        ARCH, seedname, list(seedinherit[seedname]), RELEASE)
-            seed_fd.close()
         g.prune()
         g.grow()
 
@@ -158,13 +161,15 @@ class Globals:
                         self.package.setdefault(pkg, Package(pkg))
                         self.package[pkg].setSeed(g.supported + ".build-depends")
 
-    def parseDpkg(self, fname):
+    def openDpkg(self, fname):
         if fname == None:
-            f = os.popen("dpkg --get-selections")
+            return os.popen("dpkg --get-selections")
         else:
-            f = open(fname)
-        lines = f.readlines()
-        f.close()
+            return open(fname)
+
+    def parseDpkg(self, fname):
+        with self.openDpkg(fname) as f:
+            lines = f.readlines()
         for l in lines:
             pkg, st = l.split(None)
             self.package.setdefault(pkg, Package(pkg))
