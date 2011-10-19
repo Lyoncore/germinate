@@ -19,14 +19,11 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-import gzip
 import os
 import shutil
 import sys
-import urllib2
 import getopt
 import logging
-import cStringIO
 
 import apt_pkg
 
@@ -54,35 +51,6 @@ COMPONENTS = ["main", "restricted"]
 ARCH = "i386"
 INSTALLER_PACKAGES = True
 
-# If we need to download a new IPv6 dump, where do we get it from?
-IPV6DB = "http://debdev.fabbione.net/stat/"
-
-
-def open_ipv6_tag_file(filename):
-    """Download the daily IPv6 db dump if needed, and open it."""
-    if os.path.exists(filename):
-        return open(filename, "r")
-
-    print "Downloading", filename, "file ..."
-    url = IPV6DB + filename + ".gz"
-    url_f = urllib2.urlopen(url)
-    try:
-        url_data = cStringIO.StringIO(url_f.read())
-        try:
-            print "Decompressing", filename, "file ..."
-            gzip_f = gzip.GzipFile(fileobj=url_data)
-            try:
-                with open(filename, "w") as f:
-                    for line in gzip_f:
-                        print >>f, line,
-            finally:
-                gzip_f.close()
-        finally:
-            url_data.close()
-    finally:
-        url_f.close()
-
-    return open(filename, "r")
 
 def usage(f):
     print >>f, """Usage: germinate.py [options]
@@ -105,7 +73,6 @@ Options:
   -a, --arch=ARCH       Operate on architecture ARCH (default: %s).
   -c, --components=COMPS
                         Operate on components COMPS (default: %s).
-  -i, --ipv6            Check IPv6 status of source packages.
   --bzr                 Fetch seeds using bzr. Requires bzr to be installed.
   --cleanup             Don't cache Packages or Sources files.
   --no-rdepends         Disable reverse-dependency calculations.
@@ -122,7 +89,6 @@ def main():
     global DEFAULT_MIRROR, DEFAULT_SOURCE_MIRROR, SOURCE_MIRRORS, MIRRORS
     global DIST, ARCH, COMPONENTS, INSTALLER_PACKAGES
     verbose = False
-    check_ipv6 = False
     bzr = False
     cleanup = False
     want_rdepends = True
@@ -143,7 +109,6 @@ def main():
                                     "dist=",
                                     "components=",
                                     "arch=",
-                                    "ipv6",
                                     "bzr",
                                     "cleanup",
                                     "no-rdepends",
@@ -182,8 +147,6 @@ def main():
             COMPONENTS = value.split(",")
         elif option in ("-a", "--arch"):
             ARCH = value
-        elif option in ("-i", "--ipv6"):
-            check_ipv6 = True
         elif option == "--bzr":
             bzr = True
             if not seeds_set:
@@ -215,10 +178,6 @@ def main():
 
     Germinate.Archive.TagFile(MIRRORS, SOURCE_MIRRORS, INSTALLER_PACKAGES).feed(
         g, DIST, COMPONENTS, ARCH, cleanup)
-
-    if check_ipv6:
-        with open_ipv6_tag_file("dailydump") as ipv6:
-            g.parseIPv6(ipv6)
 
     if os.path.isfile("hints"):
         with open("hints") as hints:
@@ -286,9 +245,9 @@ def main():
         if seedname != "extra" and seedname in seedtexts:
             g.writeSeedText(seedname + ".seedtext", seedtexts[seedname])
             g.writeSourceList(seedname + ".sources",
-                              g.sourcepkgs[seedname], check_ipv6)
+                              g.sourcepkgs[seedname])
         g.writeSourceList(seedname + ".build-sources",
-                          g.build_sourcepkgs[seedname], check_ipv6)
+                          g.build_sourcepkgs[seedname])
 
     all_bins = set()
     sup_bins = set()
@@ -323,14 +282,13 @@ def main():
         sup_srcs.update([k for (k, v) in build_sourcepkgs.iteritems() if v])
 
     g.writeList("all", "all", all_bins)
-    g.writeSourceList("all.sources", all_srcs, check_ipv6)
+    g.writeSourceList("all.sources", all_srcs)
 
     g.writeList("all", "%s+build-depends" % g.supported, sup_bins)
-    g.writeSourceList("%s+build-depends.sources" % g.supported, sup_srcs,
-                      check_ipv6)
+    g.writeSourceList("%s+build-depends.sources" % g.supported, sup_srcs)
 
     g.writeList("all", "all+extra", g.all)
-    g.writeSourceList("all+extra.sources", g.all_srcs, check_ipv6)
+    g.writeSourceList("all+extra.sources", g.all_srcs)
 
     g.writeProvidesList("provides")
 

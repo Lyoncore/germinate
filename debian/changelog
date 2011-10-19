@@ -8,6 +8,11 @@ germinate (1.28) UNRELEASED; urgency=low
     the better-designed subprocess module.
   * Move output-writing functions from the top-level germinate program into
     Germinator.
+  * Remove all code supporting the germinate -i/--ipv6 option; this has been
+    off by default since November 2004, the service behind this was
+    discontinued in March 2007
+    (http://lists.debian.org/debian-ipv6/2007/02/msg00015.html), and
+    germinate was never a great place to track this kind of thing anyway.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 

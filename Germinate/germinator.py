@@ -328,7 +328,6 @@ class Germinator:
 
                     self.sources[src]["Maintainer"] = \
                         unicode(section.get("Maintainer", ""), "utf8", "replace")
-                    self.sources[src]["IPv6"] = "Unknown"
                     self.sources[src]["Version"] = ver
 
                     for field in "Build-Depends", "Build-Depends-Indep":
@@ -339,14 +338,6 @@ class Germinator:
                     self.sources[src]["Binaries"] = [ b[0][0] for b in binaries ]
 
             f.close()
-
-    def parseIPv6(self, f):
-        """Parse the IPv6 dailydump file and get the information we need."""
-        for line in f:
-            (src, info) = line.split(None, 1)
-            if src in self.sources:
-                self.sources[src]["IPv6"] = info.strip()
-        f.close()
 
     def parseBlacklist(self, f):
         """Parse a blacklist file, used to indicate unwanted packages"""
@@ -1295,13 +1286,12 @@ class Germinator:
                   ((pkg_len + src_len + why_len + mnt_len + 9), "",
                    size, installed_size)
 
-    def writeSourceList(self, filename, srcset, check_ipv6=False):
+    def writeSourceList(self, filename, srcset):
         srclist = list(srcset)
         srclist.sort()
 
         src_len = len("Source")
         mnt_len = len("Maintainer")
-        ipv6_len = len("IPv6 status")
 
         for src in srclist:
             _src_len = len(src)
@@ -1310,27 +1300,15 @@ class Germinator:
             _mnt_len = len(self.sources[src]["Maintainer"])
             if _mnt_len > mnt_len: mnt_len = _mnt_len
 
-            if check_ipv6:
-                _ipv6_len = len(self.sources[src]["IPv6"])
-                if _ipv6_len > ipv6_len: ipv6_len = _ipv6_len
-
         srclist.sort()
         with codecs.open(filename, "w", "utf8", "replace") as f:
             fmt = "%-*s | %-*s"
-            header_args = [src_len, "Source", mnt_len, "Maintainer"]
-            separator = ("-" * src_len) + "-+-" + ("-" * mnt_len) + "-"
-            if check_ipv6:
-                fmt += " | %-*s"
-                header_args.extend((ipv6_len, "IPv6 status"))
-                separator += "+-" + ("-" * ipv6_len) + "-"
 
-            print >>f, fmt % tuple(header_args)
-            print >>f, separator
+            print >>f, fmt % (src_len, "Source", mnt_len, "Maintainer")
+            print >>f, ("-" * src_len) + "-+-" + ("-" * mnt_len) + "-"
             for src in srclist:
-                args = [src_len, src, mnt_len, self.sources[src]["Maintainer"]]
-                if check_ipv6:
-                    args.extend((ipv6_len, self.sources[src]["IPv6"]))
-                print >>f, fmt % tuple(args)
+                print >>f, fmt % (src_len, src, mnt_len,
+                                  self.sources[src]["Maintainer"])
 
     def writeRdependList(self, filename, pkg):
         with open(filename, "w") as f:
