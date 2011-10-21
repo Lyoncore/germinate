@@ -26,8 +26,6 @@ import optparse
 import logging
 import subprocess
 
-import apt_pkg
-
 from Germinate import Germinator
 import Germinate.Archive
 import Germinate.defaults
@@ -93,10 +91,7 @@ class Globals:
 
         global MIRRORS, COMPONENTS
         print "Germinating"
-        g = Germinator()
-        apt_pkg.init_config()
-        apt_pkg.config.set("APT::Architecture", options.arch)
-        apt_pkg.init_system()
+        g = Germinator(options.arch)
 
         archive = Germinate.Archive.TagFile(
             options.dist, COMPONENTS, options.arch, MIRRORS, cleanup=True)

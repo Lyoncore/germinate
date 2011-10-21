@@ -26,8 +26,6 @@ import sys
 import optparse
 import logging
 
-import apt_pkg
-
 from Germinate import Germinator
 import Germinate.Archive
 import Germinate.defaults
@@ -114,8 +112,6 @@ def parse_options():
 
 
 def main():
-    g = Germinator()
-
     options = parse_options()
 
     logger = logging.getLogger()
@@ -127,9 +123,7 @@ def main():
     handler.setFormatter(logging.Formatter('%(levelname)s%(message)s'))
     logger.addHandler(handler)
 
-    apt_pkg.init_config()
-    apt_pkg.config.set("APT::Architecture", options.arch)
-    apt_pkg.init_system()
+    g = Germinator(options.arch)
 
     archive = Germinate.Archive.TagFile(
         options.dist, options.components, options.arch,

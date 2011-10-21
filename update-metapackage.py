@@ -32,8 +32,6 @@ import logging
 import ConfigParser
 import subprocess
 
-import apt_pkg
-
 from Germinate import Germinator
 import Germinate.Archive
 import Germinate.seeds
@@ -244,13 +242,10 @@ def main():
     additions = {}
     removals = {}
     moves = {}
-    apt_pkg.init_config()
-    apt_pkg.init_system()
     metapackage_map = {}
     for architecture in architectures:
         print "[%s] Downloading available package lists..." % architecture
-        apt_pkg.config.set("APT::Architecture", architecture)
-        germinator = Germinator()
+        germinator = Germinator(architecture)
         archive = Germinate.Archive.TagFile(
             [dist], components, architecture,
             archive_base[architecture], source_mirrors=archive_base_default,

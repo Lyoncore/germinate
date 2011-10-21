@@ -36,7 +36,9 @@ sys.setrecursionlimit(2000)
 class Germinator:
     PROGRESS = 15
 
-    def __init__(self):
+    def __init__(self, arch):
+        apt_pkg.config.set("APT::Architecture", arch)
+
         self.packages = {}
         self.packagetype = {}
         self.provides = {}
