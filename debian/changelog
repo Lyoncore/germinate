@@ -15,6 +15,7 @@ germinate (1.28) UNRELEASED; urgency=low
     germinate was never a great place to track this kind of thing anyway.
   * Convert all option parsing to optparse.  Consolidate defaults into a new
     Germinate.defaults module.
+  * Update copyright dates.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 
