@@ -27,7 +27,7 @@
 import sys
 import re
 import os
-import getopt
+import optparse
 import logging
 import ConfigParser
 import subprocess
@@ -41,55 +41,35 @@ import Germinate.version
 
 __pychecker__ = 'maxlocals=80'
 
-def usage(f):
-    print >>f, """Usage: update-metapackage.py [options] [dist]
-
-Update metapackage lists for distribution 'dist' as defined in
-update.cfg.
-
-Options:
-
-  -h, --help            Print this help message and exit.
-  -o, --output-directory=DIR
-                        Output in specific directory.
-  --version             Output version information and exit.
-  --nodch               Don't modify debian/changelog.
-  --bzr                 Fetch seeds using bzr. Requires bzr to be installed.
-"""
 
 def error_exit(message):
     print >>sys.stderr, "%s: %s" % (sys.argv[0], message)
     sys.exit(1)
 
+
+def parse_options():
+    description = '''\
+Update metapackage lists for distribution 'dist' as defined in
+update.cfg.'''
+
+    parser = optparse.OptionParser(prog='germinate-update-metapackage',
+                                   usage='%prog [options] [dist]',
+                                   version=Germinate.version.VERSION,
+                                   description=description)
+    parser.add_option('-o', '--output-directory', dest='outdir',
+                      default='.', metavar='DIR',
+                      help='output in specific directory')
+    parser.add_option('--nodch', dest='nodch', action='store_true',
+                      default=False,
+                      help="don't modify debian/changelog")
+    parser.add_option('--bzr', dest='bzr', action='store_true', default=False,
+                      help='fetch seeds using bzr (requires bzr to be '
+                           'installed)')
+    return parser.parse_args()
+
+
 def main():
-    bzr = False
-    nodch = False
-    outdir = None
-
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:",
-                                   ["help", "version", "bzr", "nodch", "output-directory="])
-    except getopt.GetoptError:
-        usage(sys.stderr)
-        sys.exit(2)
-
-    for option, value in opts:
-        if option in ("-h", "--help"):
-            usage(sys.stdout)
-            sys.exit()
-        elif option == "--version":
-            print "%s %s" % (os.path.basename(sys.argv[0]),
-                             Germinate.version.VERSION)
-            sys.exit()
-        elif option == "--bzr":
-            bzr = True
-        elif option == "--nodch":
-            nodch = True
-        elif option in ("-o", "--output-directory"):
-            outdir = value
-
-    if not outdir:
-        outdir = "."
+    options, args = parse_options()
 
     if not os.path.exists('debian/control'):
         error_exit('must be run from the top level of a source package')
@@ -141,12 +121,12 @@ def main():
             else:
                 error_exit('no archive_base configured for %s' % arch)
 
-    if bzr and config.has_option("%s/bzr" % dist, 'seed_base'):
+    if options.bzr and config.has_option("%s/bzr" % dist, 'seed_base'):
         seed_base = config.get("%s/bzr" % dist, 'seed_base')
     else:
         seed_base = config.get(dist, 'seed_base')
     seed_base = re.split(r'[, ]+', seed_base)
-    if bzr and config.has_option("%s/bzr" % dist, 'seed_dist'):
+    if options.bzr and config.has_option("%s/bzr" % dist, 'seed_dist'):
         seed_dist = config.get("%s/bzr" % dist, 'seed_dist')
     elif config.has_option(dist, 'seed_dist'):
         seed_dist = config.get(dist, 'seed_dist')
@@ -278,7 +258,7 @@ def main():
         print "[%s] Loading seed lists..." % architecture
         try:
             seed_names, seed_inherit, seed_branches, _ = \
-                germinator.parseStructure(seed_base, seed_dist, bzr)
+                germinator.parseStructure(seed_base, seed_dist, options.bzr)
         except Germinate.seeds.SeedError:
             sys.exit(1)
         seed_names, seed_inherit, seed_branches = germinator.expandInheritance(
@@ -294,7 +274,7 @@ def main():
         for seed_name in needed_seeds:
             try:
                 seed_fd = Germinate.seeds.open_seed(seed_base, seed_branches,
-                                                    seed_name, bzr)
+                                                    seed_name, options.bzr)
                 try:
                     seed_texts[seed_name] = seed_fd.readlines()
                 finally:
@@ -310,7 +290,8 @@ def main():
             meta_name = metapackage_name(seed_name, seed_texts[seed_name])
             metapackage_map[seed_name] = meta_name
 
-            output_filename = os.path.join(outdir, '%s-%s' % (seed_name,architecture))
+            output_filename = os.path.join(
+                options.outdir, '%s-%s' % (seed_name, architecture))
             old_list = None
             if os.path.exists(output_filename):
                 with open(output_filename) as output:
@@ -351,7 +332,8 @@ def main():
 
             new_recommends_list.sort()
             seed_name_recommends = '%s-recommends' % seed_name
-            output_recommends_filename = os.path.join(outdir, '%s-%s' % (seed_name_recommends,architecture))
+            output_recommends_filename = os.path.join(
+                options.outdir, '%s-%s' % (seed_name_recommends, architecture))
             if os.path.exists(output_recommends_filename):
                 with open(output_recommends_filename) as output:
                     old_recommends_list = set(map(str.strip, output.readlines()))
@@ -420,7 +402,7 @@ def main():
         for seed_name in output_seeds:
             print >>metapackage_map_file, seed_name, metapackage_map[seed_name]
 
-    if not nodch and (additions or removals or moves):
+    if not options.nodch and (additions or removals or moves):
         dch_help = subprocess.Popen(['dch', '--help'], stdout=subprocess.PIPE)
         try:
             have_U = '-U' in dch_help.stdout.read()
@@ -455,7 +437,7 @@ def main():
             subprocess.check_call(['dch', '-a', change])
         update_debootstrap_version()
     else:
-        if not nodch:
+        if not options.nodch:
             print "No changes found"
 
 if __name__ == "__main__":

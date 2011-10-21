@@ -22,149 +22,103 @@
 import os
 import shutil
 import sys
-import getopt
+import optparse
 import logging
 
 import apt_pkg
 
 from Germinate import Germinator
 import Germinate.Archive
+import Germinate.defaults
 import Germinate.seeds
 import Germinate.version
 
 
-__pychecker__ = 'maxlines=300'
+def parse_options():
+    parser = optparse.OptionParser(prog='germinate',
+                                   version=Germinate.version.VERSION)
+    parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
+                      default=False,
+                      help='be more verbose when processing seeds')
+    parser.add_option('-S', '--seed-source', dest='seeds', metavar='SOURCE',
+                      help='fetch seeds from SOURCE (default: %s)' %
+                           Germinate.defaults.seeds)
+    parser.add_option('-s', '--seed-dist', dest='release', metavar='DIST',
+                      default=Germinate.defaults.release,
+                      help='fetch seeds for distribution DIST '
+                           '(default: %default)')
+    parser.add_option('-m', '--mirror', dest='mirrors', action='append',
+                      metavar='MIRROR',
+                      help='get package lists from MIRROR (default: %s)' %
+                           Germinate.defaults.mirror)
+    parser.add_option('--source-mirror', dest='source_mirrors',
+                      action='append', metavar='MIRROR',
+                      help='get source package lists from mirror '
+                           '(default: value of --mirror)')
+    parser.add_option('-d', '--dist', dest='dist',
+                      default=Germinate.defaults.dist,
+                      help='operate on distribution DIST (default: %default)')
+    parser.add_option('-a', '--arch', dest='arch',
+                      default=Germinate.defaults.arch,
+                      help='operate on architecture ARCH (default: %default)')
+    parser.add_option('-c', '--components', dest='components',
+                      default='main,restricted', metavar='COMPS',
+                      help='operate on components COMPS (default: %default)')
+    parser.add_option('--bzr', dest='bzr', action='store_true', default=False,
+                      help='fetch seeds using bzr (requires bzr to be '
+                           'installed)')
+    parser.add_option('--cleanup', dest='cleanup', action='store_true',
+                      default=False,
+                      help="don't cache Packages or Sources files")
+    parser.add_option('--no-rdepends', dest='want_rdepends',
+                      action='store_false', default=True,
+                      help='disable reverse-dependency calculations')
+    parser.add_option('--no-installer', dest='installer', action='store_false',
+                      default=True,
+                      help='do not consider debian-installer udeb packages')
+    parser.add_option('--seed-packages', dest='seed_packages',
+                      metavar='PARENT/PKG,PARENT/PKG,...',
+                      help='treat each PKG as a seed by itself, inheriting '
+                           'from PARENT')
+    options, _ = parser.parse_args()
 
-# Where do we get up-to-date seeds from?
-SEEDS = ["http://people.canonical.com/~ubuntu-archive/seeds/"]
-SEEDS_BZR = ["http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/"]
-RELEASE = "ubuntu.oneiric"
+    if options.seeds is None:
+        if options.bzr:
+            options.seeds = Germinate.defaults.seeds_bzr
+        else:
+            options.seeds = Germinate.defaults.seeds
+    options.seeds = options.seeds.split(',')
 
-# If we need to download Packages.gz and/or Sources.gz, where do we get
-# them from?
-MIRRORS = []
-SOURCE_MIRRORS = []
-DEFAULT_MIRROR = "http://archive.ubuntu.com/ubuntu/"
-DEFAULT_SOURCE_MIRROR = None
-DIST = ["oneiric"]
-COMPONENTS = ["main", "restricted"]
-ARCH = "i386"
-INSTALLER_PACKAGES = True
+    if options.mirrors is None:
+        options.mirrors = [Germinate.defaults.mirror]
 
+    def canonicalise_mirror(mirror):
+        if not mirror.endswith('/'):
+            mirror += '/'
+        return mirror
 
-def usage(f):
-    print >>f, """Usage: germinate.py [options]
+    options.mirrors = map(canonicalise_mirror, options.mirrors)
+    if options.source_mirrors is not None:
+        options.source_mirrors = map(canonicalise_mirror,
+                                     options.source_mirrors)
 
-Options:
+    options.dist = options.dist.split(',')
+    options.components = options.components.split(',')
+    if options.seed_packages is None:
+        options.seed_packages = []
+    else:
+        options.seed_packages = options.seed_packages.split(',')
 
-  -h, --help            Print this help message and exit.
-  --version             Output version information and exit.
-  -v, --verbose         Be more verbose when processing seeds.
-  -S, --seed-source=SOURCE
-                        Fetch seeds from SOURCE
-                        (default: %s).
-  -s, --seed-dist=DIST  Fetch seeds for distribution DIST (default: %s).
-  -m, --mirror=MIRROR   Get package lists from MIRROR
-                        (default: %s).
-  --source-mirror=MIRROR
-                        Get source package lists from mirror
-                        (default: value of --mirror).
-  -d, --dist=DIST       Operate on distribution DIST (default: %s).
-  -a, --arch=ARCH       Operate on architecture ARCH (default: %s).
-  -c, --components=COMPS
-                        Operate on components COMPS (default: %s).
-  --bzr                 Fetch seeds using bzr. Requires bzr to be installed.
-  --cleanup             Don't cache Packages or Sources files.
-  --no-rdepends         Disable reverse-dependency calculations.
-  --no-installer        Do not consider debian-installer udeb packages.
-  --seed-packages=PARENT/PKG,PARENT/PKG,...
-                        Treat each PKG as a seed by itself, inheriting from
-                        PARENT.
-""" % (",".join(SEEDS), RELEASE, DEFAULT_MIRROR, ",".join(DIST), ARCH,
-       ",".join(COMPONENTS))
+    return options
 
 
 def main():
-    global SEEDS, SEEDS_BZR, RELEASE
-    global DEFAULT_MIRROR, DEFAULT_SOURCE_MIRROR, SOURCE_MIRRORS, MIRRORS
-    global DIST, ARCH, COMPONENTS, INSTALLER_PACKAGES
-    verbose = False
-    bzr = False
-    cleanup = False
-    want_rdepends = True
-    seed_packages = ()
-    seeds_set = False
-
     g = Germinator()
 
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hvS:s:m:d:c:a:i",
-                                   ["help",
-                                    "version",
-                                    "verbose",
-                                    "seed-source=",
-                                    "seed-dist=",
-                                    "mirror=",
-                                    "source-mirror=",
-                                    "dist=",
-                                    "components=",
-                                    "arch=",
-                                    "bzr",
-                                    "cleanup",
-                                    "no-rdepends",
-                                    "no-installer",
-                                    "seed-packages="])
-    except getopt.GetoptError:
-        usage(sys.stderr)
-        sys.exit(2)
-
-    for option, value in opts:
-        if option in ("-h", "--help"):
-            usage(sys.stdout)
-            sys.exit()
-        elif option == "--version":
-            print "%s %s" % (os.path.basename(sys.argv[0]),
-                             Germinate.version.VERSION)
-            sys.exit()
-        elif option in ("-v", "--verbose"):
-            verbose = True
-        elif option in ("-S", "--seed-source"):
-            SEEDS = value.split(",")
-            seeds_set = True
-        elif option in ("-s", "--seed-dist"):
-            RELEASE = value
-        elif option in ("-m", "--mirror"):
-            if not value.endswith("/"):
-                value += "/"
-            MIRRORS.append(value)
-        elif option == "--source-mirror":
-            if not value.endswith("/"):
-                value += "/"
-            SOURCE_MIRRORS.append(value)
-        elif option in ("-d", "--dist"):
-            DIST = value.split(",")
-        elif option in ("-c", "--components"):
-            COMPONENTS = value.split(",")
-        elif option in ("-a", "--arch"):
-            ARCH = value
-        elif option == "--bzr":
-            bzr = True
-            if not seeds_set:
-                SEEDS = SEEDS_BZR
-        elif option == "--cleanup":
-            cleanup = True
-        elif option == "--no-rdepends":
-            want_rdepends = False
-        elif option == "--no-installer":
-            INSTALLER_PACKAGES = False
-        elif option == "--seed-packages":
-            seed_packages = value.split(',')
-
-    if not MIRRORS:
-        MIRRORS.append(DEFAULT_MIRROR)
+    options = parse_options()
 
     logger = logging.getLogger()
-    if verbose:
+    if options.verbose:
         logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(Germinator.PROGRESS)
@@ -173,18 +127,20 @@ def main():
     logger.addHandler(handler)
 
     apt_pkg.init_config()
-    apt_pkg.config.set("APT::Architecture", ARCH)
+    apt_pkg.config.set("APT::Architecture", options.arch)
     apt_pkg.init_system()
 
-    Germinate.Archive.TagFile(MIRRORS, SOURCE_MIRRORS, INSTALLER_PACKAGES).feed(
-        g, DIST, COMPONENTS, ARCH, cleanup)
+    Germinate.Archive.TagFile(options.mirrors, options.source_mirrors,
+                              options.installer).feed(
+        g, options.dist, options.components, options.arch, options.cleanup)
 
     if os.path.isfile("hints"):
         with open("hints") as hints:
             g.parseHints(hints)
 
     try:
-        blacklist = Germinate.seeds.open_seed(SEEDS, RELEASE, "blacklist", bzr)
+        blacklist = Germinate.seeds.open_seed(
+            options.seeds, options.release, "blacklist", options.bzr)
         try:
             g.parseBlacklist(blacklist)
         finally:
@@ -194,7 +150,7 @@ def main():
 
     try:
         seednames, seedinherit, seedbranches, _ = g.parseStructure(
-            SEEDS, RELEASE, bzr)
+            options.seeds, options.release, options.bzr)
     except Germinate.seeds.SeedError:
         sys.exit(1)
 
@@ -206,8 +162,8 @@ def main():
     seedtexts = {}
     for seedname in seednames:
         try:
-            seed_fd = Germinate.seeds.open_seed(SEEDS, seedbranches,
-                                                seedname, bzr)
+            seed_fd = Germinate.seeds.open_seed(options.seeds, seedbranches,
+                                                seedname, options.bzr)
             try:
                 seedtexts[seedname] = seed_fd.readlines()
             finally:
@@ -215,16 +171,17 @@ def main():
         except Germinate.seeds.SeedError:
             sys.exit(1)
         g.plantSeed(seedtexts[seedname],
-                    ARCH, seedname, list(seedinherit[seedname]), RELEASE)
-    for seed_package in seed_packages:
+                    options.arch, seedname, list(seedinherit[seedname]),
+                    options.release)
+    for seed_package in options.seed_packages:
         (parent, pkg) = seed_package.split('/')
-        g.plantSeed([" * " + pkg], ARCH, pkg,
-                    seedinherit[parent] + [parent], RELEASE)
+        g.plantSeed([" * " + pkg], options.arch, pkg,
+                    seedinherit[parent] + [parent], options.release)
         seednames.append(pkg)
     g.prune()
     g.grow()
-    g.addExtras(RELEASE)
-    if want_rdepends:
+    g.addExtras(options.release)
+    if options.want_rdepends:
         g.reverseDepends()
 
     seednames_extra = list(seednames)
@@ -296,7 +253,7 @@ def main():
 
     if os.path.exists("rdepends"):
         shutil.rmtree("rdepends")
-    if want_rdepends:
+    if options.want_rdepends:
         os.mkdir("rdepends")
         os.mkdir(os.path.join("rdepends", "ALL"))
         for pkg in g.all:

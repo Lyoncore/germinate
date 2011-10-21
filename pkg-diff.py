@@ -20,9 +20,8 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-import os
 import sys
-import getopt
+import optparse
 import logging
 import subprocess
 
@@ -30,16 +29,12 @@ import apt_pkg
 
 from Germinate import Germinator
 import Germinate.Archive
+import Germinate.defaults
 import Germinate.seeds
 import Germinate.version
 
-# TODO: cloned from germinate.py; should be common
-SEEDS = ["http://people.canonical.com/~ubuntu-archive/seeds/"]
-RELEASE = "ubuntu.oneiric"
-MIRRORS = ["http://archive.ubuntu.com/ubuntu/"]
-DIST = ["oneiric"]
+MIRRORS = [Germinate.defaults.mirror]
 COMPONENTS = ["main"]
-ARCH = "i386"
 
 class Package:
     def __init__(self, name):
@@ -89,25 +84,25 @@ class Globals:
         self.outputs = {}
         self.outmode = ""
 
-    def setSeeds(self, seeds):
+    def setSeeds(self, options, seeds):
         self.seeds = seeds
 
         # Suppress most log information
         logging.getLogger().setLevel(logging.CRITICAL)
 
-        global RELEASE, MIRRORS, DIST, COMPONENTS, ARCH
+        global MIRRORS, COMPONENTS
         print "Germinating"
         g = Germinator()
         apt_pkg.init_config()
-        apt_pkg.config.set("APT::Architecture", ARCH)
+        apt_pkg.config.set("APT::Architecture", options.arch)
         apt_pkg.init_system()
 
         Germinate.Archive.TagFile(MIRRORS).feed(
-            g, DIST, COMPONENTS, ARCH, True)
+            g, options.dist, COMPONENTS, options.arch, True)
 
         try:
-            seednames, seedinherit, seedbranches, _ = g.parseStructure(SEEDS,
-                                                                       RELEASE)
+            seednames, seedinherit, seedbranches, _ = g.parseStructure(
+                options.seeds, options.release)
         except Germinate.seeds.SeedError:
             sys.exit(1)
         seednames, seedinherit, seedbranches = g.expandInheritance(
@@ -125,12 +120,12 @@ class Globals:
                 needed_seeds.append(seedname)
         for seedname in needed_seeds:
             try:
-                seed_fd = Germinate.seeds.open_seed(SEEDS, seedbranches,
-                                                    seedname)
+                seed_fd = Germinate.seeds.open_seed(options.seeds,
+                                                    seedbranches, seedname)
                 try:
                     g.plantSeed(seed_fd,
-                                ARCH, seedname, list(seedinherit[seedname]),
-                                RELEASE)
+                                options.arch, seedname,
+                                list(seedinherit[seedname]), options.release)
                 finally:
                     seed_fd.close()
             except Germinate.seeds.SeedError:
@@ -190,73 +185,56 @@ class Globals:
             if len(l):
                 print l
 
-def usage(f):
-    print >>f, """Usage: pkg-diff.py [options] [seeds]
 
-Options:
-
-  -h, --help            Print this help message and exit.
-  --version             Output version information and exit.
-  -l, --list=FILE       Read list of packages from this file
-                        (default: read from dpkg --get-selections).
-  -m, --mode=[i|r|d]    Show packages to install/remove/diff (default: d).
-  -S, --seed-source=SOURCE
-                        Fetch seeds from SOURCE
-                        (default: %s).
-  -s, --seed-dist=DIST  Fetch seeds for distribution DIST (default: %s).
-  -d, --dist=DIST       Operate on distribution DIST (default: %s).
-  -a, --arch=ARCH       Operate on architecture ARCH (default: %s).
-
+def parse_options():
+    epilog = '''\
 A list of seeds against which to compare may be supplied as non-option
-arguments. Seeds from which they inherit will be added automatically. The
-default is 'desktop'.
-""" % (",".join(SEEDS), RELEASE, ",".join(DIST), ARCH)
+arguments.  Seeds from which they inherit will be added automatically.  The
+default is 'desktop'.'''
+
+    parser = optparse.OptionParser(prog='germinate-pkg-diff',
+                                   usage='%prog [options] [seeds]',
+                                   version=Germinate.version.VERSION,
+                                   epilog=epilog)
+    parser.add_option('-l', '--list', dest='dpkgFile', metavar='FILE',
+                      help='read list of packages from this file '
+                           '(default: read from dpkg --get-selections)')
+    parser.add_option('-m', '--mode', dest='mode', type='choice',
+                      choices=('i', 'r', 'd'), default='d', metavar='[i|r|d]',
+                      help='show packages to install/remove/diff (default: d)')
+    parser.add_option('-S', '--seed-source', dest='seeds', metavar='SOURCE',
+                      default=Germinate.defaults.seeds,
+                      help='fetch seeds from SOURCE (default: %s)' %
+                           Germinate.defaults.seeds)
+    parser.add_option('-s', '--seed-dist', dest='release', metavar='DIST',
+                      default=Germinate.defaults.release,
+                      help='fetch seeds for distribution DIST '
+                           '(default: %default)')
+    parser.add_option('-d', '--dist', dest='dist',
+                      default=Germinate.defaults.dist,
+                      help='operate on distribution DIST (default: %default)')
+    parser.add_option('-a', '--arch', dest='arch',
+                      default=Germinate.defaults.arch,
+                      help='operate on architecture ARCH (default: %default)')
+
+    options, args = parser.parse_args()
+
+    options.seeds = options.seeds.split(',')
+    options.dist = options.dist.split(',')
+
+    return options, args
+
 
 def main():
-    global SEEDS, RELEASE, DIST, ARCH
     g = Globals()
 
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hl:m:S:s:d:a:",
-                                   ["help",
-                                    "version",
-                                    "list=",
-                                    "mode=",
-                                    "seed-source=",
-                                    "seed-dist=",
-                                    "dist=",
-                                    "arch="])
-    except getopt.GetoptError:
-        usage(sys.stderr)
-        sys.exit(2)
+    options, args = parse_options()
 
-    dpkgFile = None
-    for option, value in opts:
-        if option in ("-h", "--help"):
-            usage(sys.stdout)
-            sys.exit()
-        elif option == "--version":
-            print "%s %s" % (os.path.basename(sys.argv[0]),
-                             Germinate.version.VERSION)
-            sys.exit()
-        elif option in ("-l", "--list"):
-            dpkgFile = value
-        elif option in ("-m", "--mode"):
-            # one of 'i' (install), 'r' (remove), or 'd' (default)
-            g.setOutput(value)
-        elif option in ("-S", "--seed-source"):
-            SEEDS = value.split(",")
-        elif option in ("-s", "--seed-dist"):
-            RELEASE = value
-        elif option in ("-d", "--dist"):
-            DIST = value.split(",")
-        elif option in ("-a", "--arch"):
-            ARCH = value
-
-    g.parseDpkg(dpkgFile)
+    g.setOutput(options.mode)
+    g.parseDpkg(options.dpkgFile)
     if not len(args):
         args = ["desktop"]
-    g.setSeeds(args)
+    g.setSeeds(options, args)
     g.output()
 
 if __name__ == "__main__":
