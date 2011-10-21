@@ -19,12 +19,14 @@
 # 02110-1301, USA.
 
 import sys
-import apt_pkg
 import re
 import fnmatch
 import logging
 import codecs
 
+import apt_pkg
+
+from Germinate.archive import IndexType
 import Germinate.seeds
 import Germinate.tsort
 
@@ -250,94 +252,95 @@ class Germinator:
             self.hints[words[1]] = words[0]
         f.close()
 
-    def parsePackages(self, tag_files, pkgtype):
-        """Parse a Packages file and get the information we need."""
-        for f in tag_files:
-            for section in apt_pkg.TagFile(f):
-                pkg = section["Package"]
-                ver = section["Version"]
-                last_ver = None
+    def _parsePackage(self, section, pkgtype):
+        """Parse a section from a Packages file."""
+        pkg = section["Package"]
+        ver = section["Version"]
 
-                # If there is a previous package info stored, fetch
-                # the version to compare them.
-                if pkg in self.packages:
-                    last_ver = self.packages[pkg]["Version"]
+        # If we have already seen an equal or newer version of this package,
+        # then skip this section.
+        if pkg in self.packages:
+            last_ver = self.packages[pkg]["Version"]
+            if apt_pkg.version_compare(last_ver, ver) >= 0:
+                return
 
-                # If this is a new package, or if the stored version
-                # is older than the new version, store the new
-                # package.
-                if (pkg not in self.packages or
-                    apt_pkg.version_compare(last_ver, ver) < 0):
-                    self.packages[pkg] = {}
-                    self.packagetype[pkg] = pkgtype
-                    self.pruned[pkg] = set()
+        self.packages[pkg] = {}
+        self.packagetype[pkg] = pkgtype
+        self.pruned[pkg] = set()
 
-                    self.packages[pkg]["Section"] = \
-                        section.get("Section", "").split('/')[-1]
+        self.packages[pkg]["Section"] = \
+            section.get("Section", "").split('/')[-1]
 
-                    self.packages[pkg]["Version"] = section.get("Version")
+        self.packages[pkg]["Version"] = ver
 
-                    self.packages[pkg]["Maintainer"] = \
-                        unicode(section.get("Maintainer", ""), "utf8", "replace")
+        self.packages[pkg]["Maintainer"] = \
+            unicode(section.get("Maintainer", ""), "utf8", "replace")
 
-                    self.packages[pkg]["Essential"] = section.get("Essential", "")
+        self.packages[pkg]["Essential"] = section.get("Essential", "")
 
-                    for field in "Pre-Depends", "Depends", "Recommends", "Suggests":
-                        value = section.get(field, "")
-                        self.packages[pkg][field] = apt_pkg.parse_depends(value)
+        for field in "Pre-Depends", "Depends", "Recommends", "Suggests":
+            value = section.get(field, "")
+            self.packages[pkg][field] = apt_pkg.parse_depends(value)
 
-                    for field in "Size", "Installed-Size":
-                        value = section.get(field, "0")
-                        self.packages[pkg][field] = int(value)
+        for field in "Size", "Installed-Size":
+            value = section.get(field, "0")
+            self.packages[pkg][field] = int(value)
 
-                    src = section.get("Source", pkg)
-                    idx = src.find("(")
-                    if idx != -1:
-                        src = src[:idx].strip()
-                    self.packages[pkg]["Source"] = src
+        src = section.get("Source", pkg)
+        idx = src.find("(")
+        if idx != -1:
+            src = src[:idx].strip()
+        self.packages[pkg]["Source"] = src
 
-                    provides = apt_pkg.parse_depends(section.get("Provides", ""))
-                    for prov in provides:
-                        if prov[0][0] not in self.provides:
-                            self.provides[prov[0][0]] = []
-                            if prov[0][0] in self.packages:
-                                self.provides[prov[0][0]].append(prov[0][0])
-                        self.provides[prov[0][0]].append(pkg)
-                    self.packages[pkg]["Provides"] = provides
+        provides = apt_pkg.parse_depends(section.get("Provides", ""))
+        for prov in provides:
+            if prov[0][0] not in self.provides:
+                self.provides[prov[0][0]] = []
+                if prov[0][0] in self.packages:
+                    self.provides[prov[0][0]].append(prov[0][0])
+            self.provides[prov[0][0]].append(pkg)
+        self.packages[pkg]["Provides"] = provides
 
-                    if pkg in self.provides:
-                        self.provides[pkg].append(pkg)
+        if pkg in self.provides:
+            self.provides[pkg].append(pkg)
 
-                    self.packages[pkg]["Kernel-Version"] = section.get("Kernel-Version", "")
-            f.close()
+        self.packages[pkg]["Kernel-Version"] = section.get("Kernel-Version", "")
 
-    def parseSources(self, tag_files):
-        """Parse a Sources file and get the information we need."""
-        for f in tag_files:
-            for section in apt_pkg.TagFile(f):
-                src = section["Package"]
-                ver = section["Version"]
-                last_ver = None
+    def _parseSource(self, section):
+        """Parse a section from a Sources file."""
+        src = section["Package"]
+        ver = section["Version"]
 
-                if src in self.sources:
-                    last_ver = self.sources[src]["Version"]
+        # If we have already seen an equal or newer version of this source,
+        # then skip this section.
+        if src in self.sources:
+            last_ver = self.sources[src]["Version"]
+            if apt_pkg.version_compare(last_ver, ver) >= 0:
+                return
 
-                if (src not in self.sources or
-                    apt_pkg.version_compare(last_ver, ver) < 0):
-                    self.sources[src] = {}
+        self.sources[src] = {}
 
-                    self.sources[src]["Maintainer"] = \
-                        unicode(section.get("Maintainer", ""), "utf8", "replace")
-                    self.sources[src]["Version"] = ver
+        self.sources[src]["Maintainer"] = \
+            unicode(section.get("Maintainer", ""), "utf8", "replace")
+        self.sources[src]["Version"] = ver
 
-                    for field in "Build-Depends", "Build-Depends-Indep":
-                        value = section.get(field, "")
-                        self.sources[src][field] = apt_pkg.parse_src_depends(value)
+        for field in "Build-Depends", "Build-Depends-Indep":
+            value = section.get(field, "")
+            self.sources[src][field] = apt_pkg.parse_src_depends(value)
 
-                    binaries = apt_pkg.parse_depends(section.get("Binary", src))
-                    self.sources[src]["Binaries"] = [ b[0][0] for b in binaries ]
+        binaries = apt_pkg.parse_depends(section.get("Binary", src))
+        self.sources[src]["Binaries"] = [ b[0][0] for b in binaries ]
 
-            f.close()
+    def parseSections(self, archive):
+        for indextype, section in archive.sections():
+            if indextype == IndexType.PACKAGES:
+                self._parsePackage(section, "deb")
+            elif indextype == IndexType.SOURCES:
+                self._parseSource(section)
+            elif indextype == IndexType.INSTALLER_PACKAGES:
+                self._parsePackage(section, "udeb")
+            else:
+                raise ValueError("Unknown index type %d" % indextype)
 
     def parseBlacklist(self, f):
         """Parse a blacklist file, used to indicate unwanted packages"""

@@ -131,9 +131,11 @@ def main():
     apt_pkg.config.set("APT::Architecture", options.arch)
     apt_pkg.init_system()
 
-    Germinate.Archive.TagFile(options.mirrors, options.source_mirrors,
-                              options.installer).feed(
-        g, options.dist, options.components, options.arch, options.cleanup)
+    archive = Germinate.Archive.TagFile(
+        options.dist, options.components, options.arch,
+        options.mirrors, source_mirrors=options.source_mirrors,
+        installer_packages=options.installer, cleanup=options.cleanup)
+    g.parseSections(archive)
 
     if os.path.isfile("hints"):
         with open("hints") as hints:

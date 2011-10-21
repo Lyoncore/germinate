@@ -25,14 +25,23 @@ import urllib2
 import tempfile
 import shutil
 
-class TagFile:
-    def __init__(self, mirrors, source_mirrors=None, installer_packages=True):
+import apt_pkg
+
+from Germinate.archive import Archive, IndexType
+
+class TagFile(Archive):
+    def __init__(self, dists, components, arch, mirrors, source_mirrors=None,
+                 installer_packages=True, cleanup=False):
+        self.dists = dists
+        self.components = components
+        self.arch = arch
         self.mirrors = mirrors
         self.installer_packages = installer_packages
         if source_mirrors:
             self.source_mirrors = source_mirrors
         else:
             self.source_mirrors = mirrors
+        self.cleanup = cleanup
 
     def open_tag_files(self, mirrors, dirname, tagfile_type,
                        dist, component, ftppath):
@@ -115,30 +124,32 @@ class TagFile:
             raise IOError, "no %s files found" % tagfile_type
         return tag_files
 
-    def feed(self, g, dists, components, arch, cleanup=False):
-        if cleanup:
+    def sections(self):
+        if self.cleanup:
             dirname = tempfile.mkdtemp(prefix="germinate-")
         else:
             dirname = '.'
 
-        for dist in dists:
-            for component in components:
+        for dist in self.dists:
+            for component in self.components:
                 packages = self.open_tag_files(
                     self.mirrors, dirname, "Packages", dist, component,
-                    "binary-" + arch + "/Packages")
-                try:
-                    g.parsePackages(packages, "deb")
-                finally:
-                    for tag_file in packages:
+                    "binary-" + self.arch + "/Packages")
+                for tag_file in packages:
+                    try:
+                        for section in apt_pkg.TagFile(tag_file):
+                            yield (IndexType.PACKAGES, section)
+                    finally:
                         tag_file.close()
 
                 sources = self.open_tag_files(
                     self.source_mirrors, dirname, "Sources", dist, component,
                     "source/Sources")
-                try:
-                    g.parseSources(sources)
-                finally:
-                    for tag_file in packages:
+                for tag_file in sources:
+                    try:
+                        for section in apt_pkg.TagFile(tag_file):
+                            yield (IndexType.SOURCES, section)
+                    finally:
                         tag_file.close()
 
                 instpackages = ""
@@ -146,17 +157,19 @@ class TagFile:
                     try:
                         instpackages = self.open_tag_files(
                             self.mirrors, dirname, "InstallerPackages", dist, component,
-                            "debian-installer/binary-" + arch + "/Packages")
+                            "debian-installer/binary-" + self.arch + "/Packages")
                     except IOError:
                         # can live without these
                         print "Missing installer Packages file for", component, \
                               "(ignoring)"
                     else:
-                        try:
-                            g.parsePackages(instpackages, "udeb")
-                        finally:
-                            for tag_file in instpackages:
+                        for tag_file in instpackages:
+                            try:
+                                for section in apt_pkg.TagFile(tag_file):
+                                    yield (IndexType.INSTALLER_PACKAGES,
+                                           section)
+                            finally:
                                 tag_file.close()
 
-        if cleanup:
+        if self.cleanup:
             shutil.rmtree(dirname)

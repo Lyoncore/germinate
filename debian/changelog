@@ -16,6 +16,9 @@ germinate (1.28) UNRELEASED; urgency=low
   * Convert all option parsing to optparse.  Consolidate defaults into a new
     Germinate.defaults module.
   * Update copyright dates.
+  * Redesign how Germinator gets Packages/Sources sections from the archive.
+    This now works via an abstract interface, which should make it easier to
+    plug in alternative archive sources (e.g. a database).
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 

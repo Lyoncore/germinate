@@ -251,8 +251,11 @@ def main():
         print "[%s] Downloading available package lists..." % architecture
         apt_pkg.config.set("APT::Architecture", architecture)
         germinator = Germinator()
-        Germinate.Archive.TagFile(archive_base[architecture], archive_base_default).feed(
-            germinator, [dist], components, architecture, cleanup=True)
+        archive = Germinate.Archive.TagFile(
+            [dist], components, architecture,
+            archive_base[architecture], source_mirrors=archive_base_default,
+            cleanup=True)
+        germinator.parseSections(archive)
         debootstrap_base = set(debootstrap_packages(architecture))
 
         print "[%s] Loading seed lists..." % architecture

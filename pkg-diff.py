@@ -98,8 +98,9 @@ class Globals:
         apt_pkg.config.set("APT::Architecture", options.arch)
         apt_pkg.init_system()
 
-        Germinate.Archive.TagFile(MIRRORS).feed(
-            g, options.dist, COMPONENTS, options.arch, True)
+        archive = Germinate.Archive.TagFile(
+            options.dist, COMPONENTS, options.arch, MIRRORS, cleanup=True)
+        g.parseSections(archive)
 
         try:
             seednames, seedinherit, seedbranches, _ = g.parseStructure(
