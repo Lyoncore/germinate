@@ -29,7 +29,7 @@ import logging
 from Germinate import Germinator
 import Germinate.Archive
 import Germinate.defaults
-import Germinate.seeds
+from Germinate.seeds import Seed, SeedError
 import Germinate.version
 
 
@@ -136,19 +136,16 @@ def main():
             g.parseHints(hints)
 
     try:
-        blacklist = Germinate.seeds.open_seed(
-            options.seeds, options.release, "blacklist", options.bzr)
-        try:
+        with Seed(options.seeds, options.release, "blacklist",
+                  options.bzr) as blacklist:
             g.parseBlacklist(blacklist)
-        finally:
-            blacklist.close()
-    except Germinate.seeds.SeedError:
+    except SeedError:
         pass
 
     try:
         seednames, seedinherit, seedbranches, _ = g.parseStructure(
             options.seeds, options.release, options.bzr)
-    except Germinate.seeds.SeedError:
+    except SeedError:
         sys.exit(1)
 
     g.writeStructureDot("structure.dot", seednames, seedinherit)
@@ -159,13 +156,10 @@ def main():
     seedtexts = {}
     for seedname in seednames:
         try:
-            seed_fd = Germinate.seeds.open_seed(options.seeds, seedbranches,
-                                                seedname, options.bzr)
-            try:
+            with Seed(options.seeds, seedbranches, seedname,
+                      options.bzr) as seed_fd:
                 seedtexts[seedname] = seed_fd.readlines()
-            finally:
-                seed_fd.close()
-        except Germinate.seeds.SeedError:
+        except SeedError:
             sys.exit(1)
         g.plantSeed(seedtexts[seedname],
                     options.arch, seedname, list(seedinherit[seedname]),

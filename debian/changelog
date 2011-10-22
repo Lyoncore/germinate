@@ -21,6 +21,7 @@ germinate (1.28) UNRELEASED; urgency=low
     plug in alternative archive sources (e.g. a database).
   * Move all apt_pkg interaction into library code.  Germinator.__init__ now
     takes an architecture argument so that it can set APT::Architecture.
+  * Turn open_seed into a Seed class, allowing it to be a context manager.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 

@@ -29,7 +29,7 @@ import subprocess
 from Germinate import Germinator
 import Germinate.Archive
 import Germinate.defaults
-import Germinate.seeds
+from Germinate.seeds import Seed, SeedError
 import Germinate.version
 
 MIRRORS = [Germinate.defaults.mirror]
@@ -100,7 +100,7 @@ class Globals:
         try:
             seednames, seedinherit, seedbranches, _ = g.parseStructure(
                 options.seeds, options.release)
-        except Germinate.seeds.SeedError:
+        except SeedError:
             sys.exit(1)
         seednames, seedinherit, seedbranches = g.expandInheritance(
             seednames, seedinherit, seedbranches)
@@ -117,15 +117,11 @@ class Globals:
                 needed_seeds.append(seedname)
         for seedname in needed_seeds:
             try:
-                seed_fd = Germinate.seeds.open_seed(options.seeds,
-                                                    seedbranches, seedname)
-                try:
+                with Seed(options.seeds, seedbranches, seedname) as seed_fd:
                     g.plantSeed(seed_fd,
                                 options.arch, seedname,
                                 list(seedinherit[seedname]), options.release)
-                finally:
-                    seed_fd.close()
-            except Germinate.seeds.SeedError:
+            except SeedError:
                 sys.exit(1)
         g.prune()
         g.grow()

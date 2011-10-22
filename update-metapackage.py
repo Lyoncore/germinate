@@ -34,7 +34,7 @@ import subprocess
 
 from Germinate import Germinator
 import Germinate.Archive
-import Germinate.seeds
+from Germinate.seeds import Seed, SeedError
 import Germinate.version
 
 __pychecker__ = 'maxlocals=80'
@@ -257,7 +257,7 @@ def main():
         try:
             seed_names, seed_inherit, seed_branches, _ = \
                 germinator.parseStructure(seed_base, seed_dist, options.bzr)
-        except Germinate.seeds.SeedError:
+        except SeedError:
             sys.exit(1)
         seed_names, seed_inherit, seed_branches = germinator.expandInheritance(
             seed_names, seed_inherit, seed_branches)
@@ -271,13 +271,10 @@ def main():
         seed_texts = {}
         for seed_name in needed_seeds:
             try:
-                seed_fd = Germinate.seeds.open_seed(seed_base, seed_branches,
-                                                    seed_name, options.bzr)
-                try:
+                with Seed(seed_base, seed_branches, seed_name,
+                          options.bzr) as seed_fd:
                     seed_texts[seed_name] = seed_fd.readlines()
-                finally:
-                    seed_fd.close()
-            except Germinate.seeds.SeedError:
+            except SeedError:
                 sys.exit(1)
             germinator.plantSeed(seed_texts[seed_name], architecture, seed_name,
                                  list(seed_inherit[seed_name]))

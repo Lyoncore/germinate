@@ -27,7 +27,7 @@ import codecs
 import apt_pkg
 
 from Germinate.archive import IndexType
-import Germinate.seeds
+from Germinate.seeds import Seed
 import Germinate.tsort
 
 # TODO: would be much more elegant to reduce our recursion depth!
@@ -170,11 +170,8 @@ class Germinator:
             return all_names, all_inherit, all_branches, all_structure
 
         # Fetch this one
-        seed = Germinate.seeds.open_seed(seed_base, branch, "STRUCTURE", bzr)
-        try:
+        with Seed(seed_base, branch, "STRUCTURE", bzr) as seed:
             names, inherit, branches, structure = self.parseStructureFile(seed)
-        finally:
-            seed.close()
         branches.insert(0, branch)
         got_branches.add(branch)
 
