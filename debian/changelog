@@ -31,6 +31,8 @@ germinate (1.28) UNRELEASED; urgency=low
   * Don't modify level names on the root logger simply as a result of
     importing germinate.germinator; move this into a function.
   * Prefix all private methods with an underscore.
+  * Move canonical source location from people.canonical.com to a hosted
+    branch on Launchpad.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 
