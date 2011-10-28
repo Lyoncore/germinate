@@ -138,7 +138,7 @@ class Globals:
 
             if build_tree:
                 build_depends = dict.fromkeys(g.build_depends[seedname], True)
-                for inner in g.innerSeeds(g.supported):
+                for inner in structure.innerSeeds(g.supported):
                     build_depends.update(dict.fromkeys(g.seed[inner], False))
                     build_depends.update(dict.fromkeys(g.seedrecommends[inner],
                                                        False))

@@ -165,7 +165,7 @@ def main():
 
     g.prune()
     g.grow()
-    g.addExtras(structure)
+    g.addExtras()
     if options.want_rdepends:
         g.reverseDepends()
 
@@ -216,7 +216,7 @@ def main():
         # output.
         build_depends = dict.fromkeys(g.build_depends[seedname], True)
         build_sourcepkgs = dict.fromkeys(g.build_sourcepkgs[seedname], True)
-        for seed in g.innerSeeds(g.supported):
+        for seed in structure.innerSeeds(g.supported):
             build_depends.update(dict.fromkeys(g.seed[seed], False))
             build_depends.update(dict.fromkeys(g.seedrecommends[seed], False))
             build_depends.update(dict.fromkeys(g.depends[seed], False))

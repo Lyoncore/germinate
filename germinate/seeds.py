@@ -331,6 +331,26 @@ class SeedStructure(object):
         self.names.append("extra")
         self.inherit["extra"] = list(self.names)
 
+    def innerSeeds(self, seedname):
+        """Return this seed and the seeds from which it inherits."""
+        innerseeds = list(self.inherit[seedname])
+        innerseeds.append(seedname)
+        return innerseeds
+
+    def strictlyOuterSeeds(self, seedname):
+        """Return the seeds that inherit from this seed."""
+        outerseeds = []
+        for seed in self.names:
+            if seedname in self.inherit[seed]:
+                outerseeds.append(seed)
+        return outerseeds
+
+    def outerSeeds(self, seedname):
+        """Return this seed and the seeds that inherit from it."""
+        outerseeds = [seedname]
+        outerseeds.extend(self.strictlyOuterSeeds(seedname))
+        return outerseeds
+
     def write(self, filename):
         with open(filename, "w") as f:
             for line in self.lines:
