@@ -29,7 +29,7 @@ import logging
 from Germinate import Germinator
 import Germinate.Archive
 import Germinate.defaults
-from Germinate.seeds import Seed, SeedError
+from Germinate.seeds import Seed, SeedError, SeedStructure
 import Germinate.version
 
 
@@ -143,41 +143,21 @@ def main():
         pass
 
     try:
-        seednames, seedinherit, seedbranches, _ = g.parseStructure(
-            options.seeds, options.release, options.bzr)
+        structure = SeedStructure(options.release, options.seeds, options.bzr)
+        for seed_package in options.seed_packages:
+            parent, pkg = seed_package.split('/')
+            structure.add(pkg, [" * " + pkg], parent)
+        g.plantSeeds(structure)
     except SeedError:
         sys.exit(1)
 
-    g.writeStructureDot("structure.dot", seednames, seedinherit)
-
-    seednames, seedinherit, seedbranches = g.expandInheritance(
-        seednames, seedinherit, seedbranches)
-
-    seedtexts = {}
-    for seedname in seednames:
-        try:
-            with Seed(options.seeds, seedbranches, seedname,
-                      options.bzr) as seed_fd:
-                seedtexts[seedname] = seed_fd.readlines()
-        except SeedError:
-            sys.exit(1)
-        g.plantSeed(seedtexts[seedname],
-                    options.arch, seedname, list(seedinherit[seedname]),
-                    options.release)
-    for seed_package in options.seed_packages:
-        (parent, pkg) = seed_package.split('/')
-        g.plantSeed([" * " + pkg], options.arch, pkg,
-                    seedinherit[parent] + [parent], options.release)
-        seednames.append(pkg)
     g.prune()
     g.grow()
-    g.addExtras(options.release)
+    g.addExtras(structure)
     if options.want_rdepends:
         g.reverseDepends()
 
-    seednames_extra = list(seednames)
-    seednames_extra.append('extra')
-    for seedname in seednames_extra:
+    for seedname in structure.names:
         g.writeList(seedname, seedname,
                     set(g.seed[seedname]) | set(g.seedrecommends[seedname]) |
                     set(g.depends[seedname]))
@@ -190,8 +170,8 @@ def main():
         g.writeList(seedname, seedname + ".build-depends",
                     g.build_depends[seedname])
 
-        if seedname != "extra" and seedname in seedtexts:
-            g.writeSeedText(seedname + ".seedtext", seedtexts[seedname])
+        if seedname != "extra" and seedname in structure.texts:
+            g.writeSeedText(seedname + ".seedtext", structure.texts[seedname])
             g.writeSourceList(seedname + ".sources",
                               g.sourcepkgs[seedname])
         g.writeSourceList(seedname + ".build-sources",
@@ -201,7 +181,10 @@ def main():
     sup_bins = set()
     all_srcs = set()
     sup_srcs = set()
-    for seedname in seednames:
+    for seedname in structure.names:
+        if seedname == "extra":
+            continue
+
         all_bins.update(g.seed[seedname])
         all_bins.update(g.seedrecommends[seedname])
         all_bins.update(g.depends[seedname])
@@ -240,7 +223,8 @@ def main():
 
     g.writeProvidesList("provides")
 
-    g.writeStructure("structure")
+    structure.write("structure")
+    structure.writeDot("structure.dot")
 
     if os.path.exists("rdepends"):
         shutil.rmtree("rdepends")

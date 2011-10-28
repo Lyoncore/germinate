@@ -28,7 +28,6 @@ import apt_pkg
 
 from Germinate.archive import IndexType
 from Germinate.seeds import Seed
-import Germinate.tsort
 
 # TODO: would be much more elegant to reduce our recursion depth!
 sys.setrecursionlimit(2000)
@@ -37,7 +36,8 @@ class Germinator:
     PROGRESS = 15
 
     def __init__(self, arch):
-        apt_pkg.config.set("APT::Architecture", arch)
+        self.arch = arch
+        apt_pkg.config.set("APT::Architecture", self.arch)
 
         self.packages = {}
         self.packagetype = {}
@@ -45,8 +45,7 @@ class Germinator:
         self.sources = {}
         self.pruned = {}
 
-        self.structure = []
-        self.features = set()
+        self.structure = None
         self.seeds = []
         self.seed = {}
         self.seedfeatures = {}
@@ -99,145 +98,6 @@ class Germinator:
 
     def error(self, msg, *args, **kwargs):
         logging.error(msg, *args, **kwargs)
-
-    def parseStructureFile(self, f):
-        """Parse a seed structure file. This is an ordered sequence of lines
-        as follows:
-
-        SEED:[ INHERITED]
-
-        INHERITED is a space-separated list of seeds from which SEED
-        inherits. For example, "ship: base desktop" indicates that packages
-        in the "ship" seed may depend on packages in the "base" or "desktop"
-        seeds without requiring those packages to appear in the "ship"
-        output. INHERITED may be empty.
-
-        The lines should be topologically sorted with respect to
-        inheritance, with inherited-from seeds at the start.
-
-        Any line as follows:
-
-        include BRANCH
-
-        causes another seed branch to be included. Seed names will be
-        resolved in included branches if they cannot be found in the current
-        branch.
-
-        Returns (ordered list of seed names, dict of SEED -> INHERITED,
-        branches, structure)."""
-        seednames = []
-        seedinherit = {}
-        seedbranches = []
-        lines = []
-
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            if line.startswith('#'):
-                continue
-            words = line.split()
-            if words[0].endswith(':'):
-                seed = words[0][:-1]
-                seednames.append(seed)
-                seedinherit[seed] = list(words[1:])
-                lines.append(line)
-            elif words[0] == 'include':
-                seedbranches.extend(words[1:])
-            elif words[0] == 'feature':
-                self.features.update(words[1:])
-            else:
-                self.error("Unparseable seed structure entry: %s", line)
-        f.close()
-
-        return (seednames, seedinherit, seedbranches, lines)
-
-    def parseStructure(self, seed_base, branch, bzr=False, got_branches=None):
-        """Like parseStructureFile, but deals with acquiring the seed
-        structure files and recursively acquiring any seed structure files
-        it includes. got_branches is for internal use only."""
-        if got_branches is None:
-            top_level = True
-            got_branches = set()
-        else:
-            top_level = False
-        all_names = []
-        all_inherit = {}
-        all_branches = []
-        all_structure = []
-
-        if branch in got_branches:
-            return all_names, all_inherit, all_branches, all_structure
-
-        # Fetch this one
-        with Seed(seed_base, branch, "STRUCTURE", bzr) as seed:
-            names, inherit, branches, structure = self.parseStructureFile(seed)
-        branches.insert(0, branch)
-        got_branches.add(branch)
-
-        # Recursively expand included branches
-        for child_branch in branches:
-            child_names, child_inherit, child_branches, child_structure = \
-                self.parseStructure(seed_base, child_branch, bzr, got_branches)
-            for grandchild_name in child_names:
-                all_names.append(grandchild_name)
-            all_inherit.update(child_inherit)
-            for grandchild_branch in child_branches:
-                if grandchild_branch not in all_branches:
-                    all_branches.append(grandchild_branch)
-            for child_structure_line in child_structure:
-                child_structure_name = child_structure_line.split()[0][:-1]
-                for i in range(len(all_structure)):
-                    if all_structure[i].split()[0][:-1] == child_structure_name:
-                        del all_structure[i]
-                        break
-                all_structure.append(child_structure_line)
-
-        # Attach the main branch's data to the end
-        for child_name in names:
-            all_names.append(child_name)
-        all_inherit.update(inherit)
-        for child_branch in branches:
-            if child_branch not in all_branches:
-                all_branches.append(child_branch)
-        for structure_line in structure:
-            structure_name = structure_line.split()[0][:-1]
-            for i in range(len(all_structure)):
-                if all_structure[i].split()[0][:-1] == structure_name:
-                    del all_structure[i]
-                    break
-            all_structure.append(structure_line)
-
-        # We generally want to process branches in reverse order, so that
-        # later branches can override seeds from earlier branches
-        all_branches.reverse()
-
-        if top_level:
-            self.structure = all_structure
-            self.supported = all_names[-1]
-            # TODO: The None return here is unsightly; it's due to signature
-            # consistency with the recursive form.
-            return all_names, all_inherit, all_branches, None
-        else:
-            return all_names, all_inherit, all_branches, all_structure
-
-    def expandInheritance(self, unused_all_names, all_inherit, all_branches):
-        """Expand out incomplete inheritance lists"""
-        order = Germinate.tsort.topo_sort(all_inherit)
-        for name in order:
-            seen = set()
-            new_inherit = []
-            for inheritee in all_inherit[name]:
-                for expanded in all_inherit[inheritee]:
-                    if expanded not in seen:
-                        new_inherit.append(expanded)
-                        seen.add(expanded)
-                if inheritee not in seen:
-                    new_inherit.append(inheritee)
-                    seen.add(inheritee)
-            all_inherit[name] = new_inherit
-
-        return order, all_inherit, all_branches
 
     def parseHints(self, f):
         """Parse a hints file."""
@@ -371,7 +231,7 @@ class Germinator:
         self.seed[seedname] = []
         self.seedfeatures[seedname] = set()
         self.seedrecommends[seedname] = []
-        self.seedinherit[seedname] = seedinherit
+        self.seedinherit[seedname] = list(seedinherit)
         self.seedrelease[seedname] = seedrelease
         self.close_seeds[seedname] = set()
         self.depends[seedname] = set()
@@ -475,16 +335,16 @@ class Germinator:
 
         return False
 
-    def plantSeed(self, entries, arch, seedname, seedinherit, seedrelease=None):
+    def _plantSeed(self, structure, seedname):
         """Add a seed."""
         if seedname in self.seeds:
             return
 
-        self.newSeed(seedname, seedinherit, seedrelease)
+        self.newSeed(seedname, structure.inherit[seedname], structure.branch)
         seedpkgs = []
         seedrecommends = []
 
-        for line in entries:
+        for line in structure.texts[seedname]:
             if line.lower().startswith('task-seeds:'):
                 self.close_seeds[seedname].update(line[11:].strip().split())
                 continue
@@ -547,9 +407,9 @@ class Germinator:
                     pkg = pkg[:startarchspec - 1]
                     posarch = [x for x in archspec if not x.startswith('!')]
                     negarch = [x[1:] for x in archspec if x.startswith('!')]
-                    if arch in negarch:
+                    if self.arch in negarch:
                         continue
-                    if posarch and arch not in posarch:
+                    if posarch and self.arch not in posarch:
                         continue
 
             pkg = pkg.split()[0]
@@ -641,6 +501,17 @@ class Germinator:
                 else:
                     self.error("Unknown hinted package: %s", pkg)
 
+    def plantSeeds(self, structure, seeds=None):
+        """Add all seeds found in a seed structure."""
+        if seeds is not None:
+            structure.limit(seeds)
+
+        self.structure = structure
+        self.supported = structure.original_names[-1]
+        for name in structure.names:
+            structure.fetch(name)
+            self._plantSeed(structure, name)
+
     def is_pruned(self, pkg, seed):
         if not self.di_kernel_versions[seed]:
             return False
@@ -710,9 +581,10 @@ class Germinator:
 
         self.rescueIncludes(self.supported, "extra", build_tree=True)
 
-    def addExtras(self, seedrelease=None):
+    def addExtras(self, structure):
         """Add packages generated by the sources but not in any seed."""
-        self.newSeed("extra", self.seeds, seedrelease)
+        structure.addExtra()
+        self.newSeed("extra", self.seeds, structure.branch)
 
         self.progress("Identifying extras ...")
         found = True
@@ -811,7 +683,7 @@ class Germinator:
                 return True
             if "no-follow-recommends" in self.seedfeatures[seed]:
                 return False
-        if "follow-recommends" in self.features:
+        if "follow-recommends" in self.structure.features:
             return True
         return False
 
@@ -1373,25 +1245,6 @@ class Germinator:
                 for pkg in provlist:
                     print >>f, "\t%s" % (pkg,)
                 print >>f
-
-    def writeStructure(self, filename):
-        with open(filename, "w") as f:
-            for line in self.structure:
-                print >>f, line
-
-    def writeStructureDot(self, filename, seednames, seedinherit):
-        """Write a dot file to represent the structure of the seeds"""
-
-        #Initialize dot document
-        with codecs.open(filename, "w", "utf8", "replace") as dotfile:
-            print >>dotfile, "digraph structure {"
-            print >>dotfile, "    node [color=lightblue2, style=filled];"
-
-            for seed in seednames:
-                for inherit in seedinherit[seed]:
-                    print >>dotfile, "    \"%s\" -> \"%s\";" % (inherit, seed)
-
-            print >>dotfile, "}"
 
     def writeSeedText(self, filename, seedtext):
         with open(filename, "w") as f:

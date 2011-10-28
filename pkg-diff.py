@@ -29,7 +29,7 @@ import subprocess
 from Germinate import Germinator
 import Germinate.Archive
 import Germinate.defaults
-from Germinate.seeds import Seed, SeedError
+from Germinate.seeds import Seed, SeedError, SeedStructure
 import Germinate.version
 
 MIRRORS = [Germinate.defaults.mirror]
@@ -97,36 +97,22 @@ class Globals:
             options.dist, COMPONENTS, options.arch, MIRRORS, cleanup=True)
         g.parseSections(archive)
 
-        try:
-            seednames, seedinherit, seedbranches, _ = g.parseStructure(
-                options.seeds, options.release)
-        except SeedError:
-            sys.exit(1)
-        seednames, seedinherit, seedbranches = g.expandInheritance(
-            seednames, seedinherit, seedbranches)
         needed_seeds = []
         build_tree = False
         for seedname in self.seeds:
             if seedname == ('%s+build-depends' % g.supported):
                 seedname = g.supported
                 build_tree = True
-            for inherit in seedinherit[seedname]:
-                if inherit not in needed_seeds:
-                    needed_seeds.append(inherit)
-            if seedname not in needed_seeds:
-                needed_seeds.append(seedname)
-        for seedname in needed_seeds:
-            try:
-                with Seed(options.seeds, seedbranches, seedname) as seed_fd:
-                    g.plantSeed(seed_fd,
-                                options.arch, seedname,
-                                list(seedinherit[seedname]), options.release)
-            except SeedError:
-                sys.exit(1)
+            needed_seeds.append(seedname)
+        try:
+            structure = SeedStructure(options.release, options.seeds)
+            g.plantSeeds(structure, seeds=needed_seeds)
+        except SeedError:
+            sys.exit(1)
         g.prune()
         g.grow()
 
-        for seedname in needed_seeds:
+        for seedname in structure.names:
             for pkg in g.seed[seedname]:
                 self.package.setdefault(pkg, Package(pkg))
                 self.package[pkg].setSeed(seedname + ".seed")

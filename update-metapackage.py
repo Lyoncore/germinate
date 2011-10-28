@@ -34,7 +34,7 @@ import subprocess
 
 from Germinate import Germinator
 import Germinate.Archive
-from Germinate.seeds import Seed, SeedError
+from Germinate.seeds import Seed, SeedError, SeedStructure
 import Germinate.version
 
 __pychecker__ = 'maxlocals=80'
@@ -255,34 +255,15 @@ def main():
 
         print "[%s] Loading seed lists..." % architecture
         try:
-            seed_names, seed_inherit, seed_branches, _ = \
-                germinator.parseStructure(seed_base, seed_dist, options.bzr)
+            structure = SeedStructure(seed_dist, seed_base, options.bzr)
+            germinator.plantSeeds(structure, seeds=seeds)
         except SeedError:
             sys.exit(1)
-        seed_names, seed_inherit, seed_branches = germinator.expandInheritance(
-            seed_names, seed_inherit, seed_branches)
-        needed_seeds = []
-        for seed_name in seeds:
-            for inherit in seed_inherit[seed_name]:
-                if inherit not in needed_seeds:
-                    needed_seeds.append(inherit)
-            if seed_name not in needed_seeds:
-                needed_seeds.append(seed_name)
-        seed_texts = {}
-        for seed_name in needed_seeds:
-            try:
-                with Seed(seed_base, seed_branches, seed_name,
-                          options.bzr) as seed_fd:
-                    seed_texts[seed_name] = seed_fd.readlines()
-            except SeedError:
-                sys.exit(1)
-            germinator.plantSeed(seed_texts[seed_name], architecture, seed_name,
-                                 list(seed_inherit[seed_name]))
 
         print ("[%s] Merging seeds with available package lists..." %
                architecture)
         for seed_name in output_seeds:
-            meta_name = metapackage_name(seed_name, seed_texts[seed_name])
+            meta_name = metapackage_name(seed_name, structure.texts[seed_name])
             metapackage_map[seed_name] = meta_name
 
             output_filename = os.path.join(
@@ -296,7 +277,7 @@ def main():
             # work on the depends
             new_list = []
             for package in seed_packages(germinator.seed, seed_name,
-                                         seed_texts[seed_name]):
+                                         structure.texts[seed_name]):
                 if package == meta_name:
                     print "%s/%s: Skipping package %s (metapackage)" % (seed_name,architecture,package)
                 elif seed_name == 'minimal' and package not in debootstrap_base:
@@ -316,7 +297,7 @@ def main():
             old_recommends_list = None
             new_recommends_list = []
             for package in seed_packages(germinator.seedrecommends, seed_name,
-                                         seed_texts[seed_name]):
+                                         structure.texts[seed_name]):
                 if package == meta_name:
                     print "%s/%s: Skipping package %s (metapackage)" % (seed_name,architecture,package)
                     continue
