@@ -67,9 +67,9 @@ class TagFile(Archive):
             self.source_mirrors = mirrors
         self.cleanup = cleanup
 
-    def open_tag_files(self, mirrors, dirname, tagfile_type,
-                       dist, component, ftppath):
-        def open_tag_file(mirror, suffix):
+    def _open_tag_files(self, mirrors, dirname, tagfile_type,
+                        dist, component, ftppath):
+        def _open_tag_file(mirror, suffix):
             """Download an apt tag file if needed, then open it."""
             url = (mirror + "dists/" + dist + "/" + component + "/" + ftppath +
                    suffix)
@@ -139,7 +139,7 @@ class TagFile(Archive):
             tag_file = None
             for suffix in (".bz2", ".gz", ""):
                 try:
-                    tag_file = open_tag_file(mirror, suffix)
+                    tag_file = _open_tag_file(mirror, suffix)
                     tag_files.append(tag_file)
                     break
                 except (IOError, OSError):
@@ -156,7 +156,7 @@ class TagFile(Archive):
 
         for dist in self.dists:
             for component in self.components:
-                packages = self.open_tag_files(
+                packages = self._open_tag_files(
                     self.mirrors, dirname, "Packages", dist, component,
                     "binary-" + self.arch + "/Packages")
                 for tag_file in packages:
@@ -166,7 +166,7 @@ class TagFile(Archive):
                     finally:
                         tag_file.close()
 
-                sources = self.open_tag_files(
+                sources = self._open_tag_files(
                     self.source_mirrors, dirname, "Sources", dist, component,
                     "source/Sources")
                 for tag_file in sources:
@@ -179,7 +179,7 @@ class TagFile(Archive):
                 instpackages = ""
                 if self.installer_packages:
                     try:
-                        instpackages = self.open_tag_files(
+                        instpackages = self._open_tag_files(
                             self.mirrors, dirname, "InstallerPackages", dist, component,
                             "debian-installer/binary-" + self.arch + "/Packages")
                     except IOError:

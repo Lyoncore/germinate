@@ -209,7 +209,7 @@ class Germinator:
                 blacklist = self.blacklist[pkg]
                 fh.write('%s\t%s\n' % (pkg, blacklist))
 
-    def newSeed(self, seedname):
+    def _newSeed(self, seedname):
         self.seeds.append(seedname)
         self.seed[seedname] = []
         self.seedfeatures[seedname] = set()
@@ -229,7 +229,7 @@ class Germinator:
         self.includes[seedname] = {}
         self.excludes[seedname] = {}
 
-    def filterPackages(self, packages, pattern):
+    def _filterPackages(self, packages, pattern):
         """Filter a list of packages, returning those that match the given
         pattern. The pattern may either be a shell-style glob, or (if
         surrounded by slashes) an extended regular expression."""
@@ -248,7 +248,7 @@ class Germinator:
         filtered.sort()
         return filtered
 
-    def substituteSeedVars(self, pkg):
+    def _substituteSeedVars(self, pkg):
         """Process substitution variables. These look like ${name} (e.g.
         "kernel-image-${Kernel-Version}"). The name is case-insensitive.
         Substitution variables are set with a line that looks like
@@ -285,7 +285,7 @@ class Germinator:
             substpkgs.append("".join(substpieces))
         return substpkgs
 
-    def alreadySeeded(self, seedname, pkg):
+    def _alreadySeeded(self, seedname, pkg):
         """Has pkg already been seeded in this seed or in one from
         which we inherit?"""
 
@@ -301,7 +301,7 @@ class Germinator:
         if seedname in self.seeds:
             return
 
-        self.newSeed(seedname)
+        self._newSeed(seedname)
         seedpkgs = []
         seedrecommends = []
 
@@ -388,11 +388,11 @@ class Germinator:
             # and not a depends
             if pkg.startswith('(') and pkg.endswith(')'):
                 pkg = pkg[1:-1]
-                pkgs =  self.filterPackages(self.packages, pkg)
+                pkgs =  self._filterPackages(self.packages, pkg)
                 if not pkgs:
                     pkgs = [pkg] # virtual or expanded; check again later
                 for pkg in pkgs:
-                    seedrecommends.extend(self.substituteSeedVars(pkg))
+                    seedrecommends.extend(self._substituteSeedVars(pkg))
 
             if pkg.startswith('%'):
                 pkg = pkg[1:]
@@ -403,7 +403,7 @@ class Germinator:
                     logging.warning("Unknown source package: %s", pkg)
                     pkgs = []
             else:
-                pkgs = self.filterPackages(self.packages, pkg)
+                pkgs = self._filterPackages(self.packages, pkg)
                 if not pkgs:
                     pkgs = [pkg] # virtual or expanded; check again later
 
@@ -411,10 +411,10 @@ class Germinator:
                 for pkg in pkgs:
                     logging.info("Blacklisting %s from %s", pkg, seedname)
                     self.seedblacklist[seedname].update(
-                        self.substituteSeedVars(pkg))
+                        self._substituteSeedVars(pkg))
             else:
                 for pkg in pkgs:
-                    seedpkgs.extend(self.substituteSeedVars(pkg))
+                    seedpkgs.extend(self._substituteSeedVars(pkg))
 
         for pkg in seedpkgs:
             if pkg in self.hints and self.hints[pkg] != seedname:
@@ -423,9 +423,9 @@ class Germinator:
 
             if pkg in self.packages:
                 # Ordinary package
-                if self.alreadySeeded(seedname, pkg):
+                if self._alreadySeeded(seedname, pkg):
                     logging.warning("Duplicated seed: %s", pkg)
-                elif self.is_pruned(pkg, seedname):
+                elif self._isPruned(pkg, seedname):
                     logging.warning("Pruned %s from %s", pkg, seedname)
                 else:
                     if pkg in seedrecommends:
@@ -436,7 +436,7 @@ class Germinator:
                 # Virtual package, include everything
                 msg = "Virtual %s package: %s" % (seedname, pkg)
                 for vpkg in self.provides[pkg]:
-                    if self.alreadySeeded(seedname, vpkg):
+                    if self._alreadySeeded(seedname, vpkg):
                         pass
                     elif seedname in self.pruned[vpkg]:
                         pass
@@ -453,7 +453,8 @@ class Germinator:
                 logging.error("Unknown %s package: %s", seedname, pkg)
 
         for pkg in self.hints:
-            if self.hints[pkg] == seedname and not self.alreadySeeded(seedname, pkg):
+            if (self.hints[pkg] == seedname and
+                not self._alreadySeeded(seedname, pkg)):
                 if pkg in self.packages:
                     if pkg in seedrecommends:
                         self.seedrecommends[seedname].append(pkg)
@@ -473,7 +474,7 @@ class Germinator:
             structure.fetch(name)
             self._plantSeed(name)
 
-    def is_pruned(self, pkg, seed):
+    def _isPruned(self, pkg, seed):
         if not self.di_kernel_versions[seed]:
             return False
         kernver = self.packages[pkg]["Kernel-Version"]
@@ -486,10 +487,10 @@ class Germinator:
            being for the wrong d-i kernel version."""
         for pkg in self.packages:
             for seed in self.seeds:
-                if self.is_pruned(pkg, seed):
+                if self._isPruned(pkg, seed):
                     self.pruned[pkg].add(seed)
 
-    def weedBlacklist(self, pkgs, seedname, build_tree, why):
+    def _weedBlacklist(self, pkgs, seedname, build_tree, why):
         """Weed out blacklisted seed entries from a list."""
         white = []
         if build_tree:
@@ -519,9 +520,9 @@ class Germinator:
                        (self.structure.branch.title(), seedname))
 
             # Check for blacklisted seed entries.
-            self.seed[seedname] = self.weedBlacklist(
+            self.seed[seedname] = self._weedBlacklist(
                 self.seed[seedname], seedname, False, why)
-            self.seedrecommends[seedname] = self.weedBlacklist(
+            self.seedrecommends[seedname] = self._weedBlacklist(
                 self.seedrecommends[seedname], seedname, False, why)
 
             # Note that seedrecommends are not processed with
@@ -530,23 +531,23 @@ class Germinator:
             # less helpful output when a package is recommended by an inner
             # seed and required by an outer seed.
             for pkg in self.seed[seedname] + self.seedrecommends[seedname]:
-                self.addPackage(seedname, pkg, why)
+                self._addPackage(seedname, pkg, why)
 
             for rescue_seedname in self.seeds:
-                self.rescueIncludes(seedname, rescue_seedname,
-                                    build_tree=False)
+                self._rescueIncludes(seedname, rescue_seedname,
+                                     build_tree=False)
                 if rescue_seedname == seedname:
                     # only rescue from seeds up to and including the current
                     # seed; later ones have not been grown
                     break
-            self.rescueIncludes(seedname, "extra", build_tree=False)
+            self._rescueIncludes(seedname, "extra", build_tree=False)
 
-        self.rescueIncludes(self.supported, "extra", build_tree=True)
+        self._rescueIncludes(self.supported, "extra", build_tree=True)
 
     def addExtras(self):
         """Add packages generated by the sources but not in any seed."""
         self.structure.addExtra()
-        self.newSeed("extra")
+        self._newSeed("extra")
 
         logging.log(self.PROGRESS, "Identifying extras ...")
         found = True
@@ -568,18 +569,18 @@ class Germinator:
                         continue
 
                     self.seed["extra"].append(pkg)
-                    self.addPackage("extra", pkg, "Generated by " + srcname,
-                                    second_class=True)
+                    self._addPackage("extra", pkg, "Generated by " + srcname,
+                                     second_class=True)
                     found = True
 
-    def allowedDependency(self, pkg, depend, seedname, build_depend):
+    def _allowedDependency(self, pkg, depend, seedname, build_depend):
         """Is pkg allowed to satisfy a (build-)dependency using depend
            within seedname? Note that depend must be a real package.
            
            If seedname is None, check whether the (build-)dependency is
            allowed within any seed."""
         if depend not in self.packages:
-            logging.warning("allowedDependency called with virtual package "
+            logging.warning("_allowedDependency called with virtual package "
                             "%s", depend)
             return False
         if seedname is not None and seedname in self.pruned[depend]:
@@ -595,7 +596,7 @@ class Germinator:
             else:
                 return False
 
-    def allowedVirtualDependency(self, pkg, deptype):
+    def _allowedVirtualDependency(self, pkg, deptype):
         """May pkg's dependency relationship type deptype be satisfied by a
            virtual package? (Versioned dependencies may not be satisfied by
            virtual packages, unless pkg is a udeb.)"""
@@ -606,7 +607,7 @@ class Germinator:
         else:
             return False
 
-    def checkVersionedDependency(self, depname, depver, deptype):
+    def _checkVersionedDependency(self, depname, depver, deptype):
         """Can this versioned dependency be satisfied with the current set
            of packages?"""
         if depname not in self.packages:
@@ -632,14 +633,14 @@ class Germinator:
             logging.error("Unknown dependency comparator: %s" % deptype)
             return False
 
-    def unparseDependency(self, depname, depver, deptype):
+    def _unparseDependency(self, depname, depver, deptype):
         """Return a string representation of a dependency."""
         if deptype == "":
             return depname
         else:
             return "%s (%s %s)" % (depname, deptype, depver)
 
-    def followRecommends(self, seed=None):
+    def _followRecommends(self, seed=None):
         """Should we follow Recommends for this seed?"""
         if seed is not None and seed in self.seedfeatures:
             if "follow-recommends" in self.seedfeatures[seed]:
@@ -650,7 +651,7 @@ class Germinator:
             return True
         return False
 
-    def addReverse(self, pkg, field, rdep):
+    def _addReverse(self, pkg, field, rdep):
         """Add a reverse dependency entry."""
         if "Reverse-Depends" not in self.packages[pkg]:
             self.packages[pkg]["Reverse-Depends"] = {}
@@ -663,30 +664,30 @@ class Germinator:
         """Calculate the reverse dependency relationships."""
         for pkg in self.all:
             fields = ["Pre-Depends", "Depends"]
-            if (self.followRecommends() or
+            if (self._followRecommends() or
                 self.packages[pkg]["Section"] == "metapackages"):
                 fields.append("Recommends")
             for field in fields:
                 for deplist in self.packages[pkg][field]:
                     for dep in deplist:
                         if dep[0] in self.all and \
-                           self.allowedDependency(pkg, dep[0], None, False):
-                            self.addReverse(dep[0], field, pkg)
+                           self._allowedDependency(pkg, dep[0], None, False):
+                            self._addReverse(dep[0], field, pkg)
 
         for src in self.all_srcs:
             for field in "Build-Depends", "Build-Depends-Indep":
                 for deplist in self.sources[src][field]:
                     for dep in deplist:
                         if dep[0] in self.all and \
-                           self.allowedDependency(src, dep[0], None, True):
-                            self.addReverse(dep[0], field, src)
+                           self._allowedDependency(src, dep[0], None, True):
+                            self._addReverse(dep[0], field, src)
 
         for pkg in self.all:
             if "Reverse-Depends" not in self.packages[pkg]:
                 continue
 
             fields = ["Pre-Depends", "Depends"]
-            if (self.followRecommends() or
+            if (self._followRecommends() or
                 self.packages[pkg]["Section"] == "metapackages"):
                 fields.append("Recommends")
             fields.extend(["Build-Depends", "Build-Depends-Indep"])
@@ -696,14 +697,14 @@ class Germinator:
 
                 self.packages[pkg]["Reverse-Depends"][field].sort()
 
-    def alreadySatisfied(self, seedname, pkg, depend, build_depend=False, with_build=False):
+    def _alreadySatisfied(self, seedname, pkg, depend, build_depend=False, with_build=False):
         """Work out whether a dependency has already been satisfied."""
         (depname, depver, deptype) = depend
-        if self.allowedVirtualDependency(pkg, deptype) and depname in self.provides:
+        if self._allowedVirtualDependency(pkg, deptype) and depname in self.provides:
             trylist = [ d for d in self.provides[depname]
-                        if d in self.packages and self.allowedDependency(pkg, d, seedname, build_depend) ]
-        elif (self.checkVersionedDependency(depname, depver, deptype) and
-              self.allowedDependency(pkg, depname, seedname, build_depend)):
+                        if d in self.packages and self._allowedDependency(pkg, d, seedname, build_depend) ]
+        elif (self._checkVersionedDependency(depname, depver, deptype) and
+              self._allowedDependency(pkg, depname, seedname, build_depend)):
             trylist = [ depname ]
         else:
             return False
@@ -723,8 +724,8 @@ class Germinator:
         else:
             return False
 
-    def addDependency(self, seedname, pkg, dependlist, build_depend,
-                      second_class, build_tree, recommends):
+    def _addDependency(self, seedname, pkg, dependlist, build_depend,
+                       second_class, build_tree, recommends):
         """Add a single dependency. Returns True if a dependency was added,
            otherwise False."""
         if build_tree and build_depend:
@@ -734,7 +735,7 @@ class Germinator:
         else:
             why = pkg
 
-        dependlist = self.weedBlacklist(dependlist, seedname, build_tree, why)
+        dependlist = self._weedBlacklist(dependlist, seedname, build_tree, why)
         if not dependlist:
             return False
 
@@ -746,27 +747,27 @@ class Germinator:
                 self.depends[seedname].add(dep)
 
         for dep in dependlist:
-            self.addPackage(seedname, dep, why,
-                            build_tree, second_class, recommends)
+            self._addPackage(seedname, dep, why,
+                             build_tree, second_class, recommends)
 
         return True
 
-    def promoteDependency(self, seedname, pkg, depend, close, build_depend,
-                          second_class, build_tree, recommends):
+    def _promoteDependency(self, seedname, pkg, depend, close, build_depend,
+                           second_class, build_tree, recommends):
         """Try to satisfy a dependency by promoting an item from a lesser
            seed. If close is True, only "close-by" seeds (ones that generate
            the same task, as defined by Task-Seeds headers) are considered.
            Returns True if a dependency was added, otherwise False."""
         (depname, depver, deptype) = depend
-        if (self.checkVersionedDependency(depname, depver, deptype) and
-            self.allowedDependency(pkg, depname, seedname, build_depend)):
+        if (self._checkVersionedDependency(depname, depver, deptype) and
+            self._allowedDependency(pkg, depname, seedname, build_depend)):
             trylist = [ depname ]
-        elif (self.allowedVirtualDependency(pkg, deptype) and
+        elif (self._allowedVirtualDependency(pkg, deptype) and
               depname in self.provides):
             trylist = [ d for d in self.provides[depname]
                         if d in self.packages and
-                           self.allowedDependency(pkg, d, seedname,
-                                                  build_depend) ]
+                           self._allowedDependency(pkg, d, seedname,
+                                                   build_depend) ]
         else:
             return False
 
@@ -797,21 +798,21 @@ class Germinator:
                                         "%s",
                                         trydep, lesserseed, seedname, pkg)
 
-                    return self.addDependency(seedname, pkg, [trydep],
-                                              build_depend, second_class,
-                                              build_tree, recommends)
+                    return self._addDependency(seedname, pkg, [trydep],
+                                               build_depend, second_class,
+                                               build_tree, recommends)
 
         return False
 
-    def newDependency(self, seedname, pkg, depend, build_depend,
-                      second_class, build_tree, recommends):
+    def _newDependency(self, seedname, pkg, depend, build_depend,
+                       second_class, build_tree, recommends):
         """Try to satisfy a dependency by adding a new package to the output
            set. Returns True if a dependency was added, otherwise False."""
         (depname, depver, deptype) = depend
-        if (self.checkVersionedDependency(depname, depver, deptype) and
-            self.allowedDependency(pkg, depname, seedname, build_depend)):
+        if (self._checkVersionedDependency(depname, depver, deptype) and
+            self._allowedDependency(pkg, depname, seedname, build_depend)):
             virtual = None
-        elif self.allowedVirtualDependency(pkg, deptype) and depname in self.provides:
+        elif self._allowedVirtualDependency(pkg, deptype) and depname in self.provides:
             virtual = depname
         else:
             if build_depend:
@@ -821,14 +822,14 @@ class Germinator:
             else:
                 desc = "dependency"
             logging.error("Unknown %s %s by %s", desc,
-                          self.unparseDependency(depname, depver, deptype),
+                          self._unparseDependency(depname, depver, deptype),
                           pkg)
             return False
 
         dependlist = [depname]
         if virtual is not None:
             reallist = [ d for d in self.provides[virtual]
-                         if d in self.packages and self.allowedDependency(pkg, d, seedname, build_depend) ]
+                         if d in self.packages and self._allowedDependency(pkg, d, seedname, build_depend) ]
             if len(reallist):
                 depname = reallist[0]
                 # If this one was a d-i kernel module, pick all the modules
@@ -846,14 +847,14 @@ class Germinator:
                               virtual, pkg)
                 return False
 
-        return self.addDependency(seedname, pkg, dependlist, build_depend,
-                                  second_class, build_tree, recommends)
+        return self._addDependency(seedname, pkg, dependlist, build_depend,
+                                   second_class, build_tree, recommends)
 
-    def addDependencyTree(self, seedname, pkg, depends,
-                          build_depend=False,
-                          second_class=False,
-                          build_tree=False,
-                          recommends=False):
+    def _addDependencyTree(self, seedname, pkg, depends,
+                           build_depend=False,
+                           second_class=False,
+                           build_tree=False,
+                           recommends=False):
         """Add a package's dependency tree."""
         if build_depend: build_tree = True
         if build_tree: second_class = True
@@ -861,10 +862,10 @@ class Germinator:
             for dep in deplist:
                 # TODO cjwatson 2008-07-02: At the moment this check will
                 # catch an existing Recommends and we'll never get as far as
-                # calling rememberWhy with a dependency, so self.why will be
-                # a bit inaccurate. We may need another pass for Recommends
-                # to fix this.
-                if self.alreadySatisfied(seedname, pkg, dep, build_depend, second_class):
+                # calling _rememberWhy with a dependency, so self.why will
+                # be a bit inaccurate. We may need another pass for
+                # Recommends to fix this.
+                if self._alreadySatisfied(seedname, pkg, dep, build_depend, second_class):
                     break
             else:
                 firstdep = True
@@ -878,17 +879,17 @@ class Germinator:
                         # Other alternatives are less favoured, and will
                         # only be promoted from closely-allied seeds.
                         close = True
-                    if self.promoteDependency(seedname, pkg, dep, close,
-                                              build_depend, second_class,
-                                              build_tree, recommends):
+                    if self._promoteDependency(seedname, pkg, dep, close,
+                                               build_depend, second_class,
+                                               build_tree, recommends):
                         if len(deplist) > 1:
                             logging.info("Chose %s to satisfy %s", dep[0], pkg)
                         break
                 else:
                     for dep in deplist:
-                        if self.newDependency(seedname, pkg, dep, build_depend,
-                                              second_class, build_tree,
-                                              recommends):
+                        if self._newDependency(seedname, pkg, dep, build_depend,
+                                               second_class, build_tree,
+                                               recommends):
                             if len(deplist) > 1:
                                 logging.info("Chose %s to satisfy %s", dep[0],
                                              pkg)
@@ -898,8 +899,8 @@ class Germinator:
                             logging.error("Nothing to choose to satisfy %s",
                                           pkg)
 
-    def rememberWhy(self, seedname, pkg, why, build_tree=False,
-                    recommends=False):
+    def _rememberWhy(self, seedname, pkg, why, build_tree=False,
+                     recommends=False):
         """Remember why this package was added to the output for this seed."""
         if pkg in self.why[seedname]:
             (old_why, old_build_tree, old_recommends) = self.why[seedname][pkg]
@@ -914,10 +915,10 @@ class Germinator:
 
         self.why[seedname][pkg] = (why, build_tree, recommends)
 
-    def addPackage(self, seedname, pkg, why,
-                   second_class=False,
-                   build_tree=False,
-                   recommends=False):
+    def _addPackage(self, seedname, pkg, why,
+                    second_class=False,
+                    build_tree=False,
+                    recommends=False):
         """Add a package and its dependency trees."""
         if seedname in self.pruned[pkg]:
             logging.warning("Pruned %s from %s", pkg, seedname)
@@ -956,30 +957,30 @@ class Germinator:
         # Remember why the package was added to the output for this seed.
         # Also remember a reason for "all" too, so that an aggregated list
         # of all selected packages can be constructed easily.
-        self.rememberWhy(seedname, pkg, why, build_tree, recommends)
-        self.rememberWhy("all", pkg, why, build_tree, recommends)
+        self._rememberWhy(seedname, pkg, why, build_tree, recommends)
+        self._rememberWhy("all", pkg, why, build_tree, recommends)
 
         for prov in self.packages[pkg]["Provides"]:
             if prov[0][0] not in self.pkgprovides:
                 self.pkgprovides[prov[0][0]] = set()
             self.pkgprovides[prov[0][0]].add(pkg)
 
-        self.addDependencyTree(seedname, pkg,
-                               self.packages[pkg]["Pre-Depends"],
-                               second_class=second_class,
-                               build_tree=build_tree)
+        self._addDependencyTree(seedname, pkg,
+                                self.packages[pkg]["Pre-Depends"],
+                                second_class=second_class,
+                                build_tree=build_tree)
 
-        self.addDependencyTree(seedname, pkg, self.packages[pkg]["Depends"],
-                               second_class=second_class,
-                               build_tree=build_tree)
+        self._addDependencyTree(seedname, pkg, self.packages[pkg]["Depends"],
+                                second_class=second_class,
+                                build_tree=build_tree)
 
-        if (self.followRecommends(seedname) or
+        if (self._followRecommends(seedname) or
             self.packages[pkg]["Section"] == "metapackages"):
-            self.addDependencyTree(seedname, pkg,
-                                   self.packages[pkg]["Recommends"],
-                                   second_class=second_class,
-                                   build_tree=build_tree,
-                                   recommends=True)
+            self._addDependencyTree(seedname, pkg,
+                                    self.packages[pkg]["Recommends"],
+                                    second_class=second_class,
+                                    build_tree=build_tree,
+                                    recommends=True)
 
         src = self.packages[pkg]["Source"]
         if src not in self.sources:
@@ -1011,14 +1012,14 @@ class Germinator:
         self.all_srcs.add(src)
         self.build_srcs[seedname].add(src)
 
-        self.addDependencyTree(seedname, pkg,
-                               self.sources[src]["Build-Depends"],
-                               build_depend=True)
-        self.addDependencyTree(seedname, pkg,
-                               self.sources[src]["Build-Depends-Indep"],
-                               build_depend=True)
+        self._addDependencyTree(seedname, pkg,
+                                self.sources[src]["Build-Depends"],
+                                build_depend=True)
+        self._addDependencyTree(seedname, pkg,
+                                self.sources[src]["Build-Depends-Indep"],
+                                build_depend=True)
 
-    def rescueIncludes(self, seedname, rescue_seedname, build_tree):
+    def _rescueIncludes(self, seedname, rescue_seedname, build_tree):
         """Automatically rescue packages matching certain patterns from
         other seeds."""
 
@@ -1048,11 +1049,11 @@ class Germinator:
             if (seedname in self.includes and
                 rescue_seedname in self.includes[seedname]):
                 for include in self.includes[seedname][rescue_seedname]:
-                    included |= set(self.filterPackages(rescue, include))
+                    included |= set(self._filterPackages(rescue, include))
             if (seedname in self.excludes and
                 rescue_seedname in self.excludes[seedname]):
                 for exclude in self.excludes[seedname][rescue_seedname]:
-                    included -= set(self.filterPackages(rescue, exclude))
+                    included -= set(self._filterPackages(rescue, exclude))
             for pkg in included:
                 if pkg in self.all:
                     continue
@@ -1070,8 +1071,8 @@ class Germinator:
                     self.build_depends[seedname].add(pkg)
                 else:
                     self.depends[seedname].add(pkg)
-                self.addPackage(seedname, pkg, "Rescued from %s" % src,
-                                build_tree=build_tree)
+                self._addPackage(seedname, pkg, "Rescued from %s" % src,
+                                 build_tree=build_tree)
 
     def writeList(self, whyname, filename, pkgset):
         pkglist = list(pkgset)
