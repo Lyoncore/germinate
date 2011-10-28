@@ -56,16 +56,16 @@ class TagFile(Archive):
 
     def __init__(self, dists, components, arch, mirrors, source_mirrors=None,
                  installer_packages=True, cleanup=False):
-        self.dists = dists
-        self.components = components
-        self.arch = arch
-        self.mirrors = mirrors
-        self.installer_packages = installer_packages
+        self._dists = dists
+        self._components = components
+        self._arch = arch
+        self._mirrors = mirrors
+        self._installer_packages = installer_packages
         if source_mirrors:
-            self.source_mirrors = source_mirrors
+            self._source_mirrors = source_mirrors
         else:
-            self.source_mirrors = mirrors
-        self.cleanup = cleanup
+            self._source_mirrors = mirrors
+        self._cleanup = cleanup
 
     def _open_tag_files(self, mirrors, dirname, tagfile_type,
                         dist, component, ftppath):
@@ -149,16 +149,16 @@ class TagFile(Archive):
         return tag_files
 
     def sections(self):
-        if self.cleanup:
+        if self._cleanup:
             dirname = tempfile.mkdtemp(prefix="germinate-")
         else:
             dirname = '.'
 
-        for dist in self.dists:
-            for component in self.components:
+        for dist in self._dists:
+            for component in self._components:
                 packages = self._open_tag_files(
-                    self.mirrors, dirname, "Packages", dist, component,
-                    "binary-" + self.arch + "/Packages")
+                    self._mirrors, dirname, "Packages", dist, component,
+                    "binary-" + self._arch + "/Packages")
                 for tag_file in packages:
                     try:
                         for section in apt_pkg.TagFile(tag_file):
@@ -167,7 +167,7 @@ class TagFile(Archive):
                         tag_file.close()
 
                 sources = self._open_tag_files(
-                    self.source_mirrors, dirname, "Sources", dist, component,
+                    self._source_mirrors, dirname, "Sources", dist, component,
                     "source/Sources")
                 for tag_file in sources:
                     try:
@@ -177,11 +177,11 @@ class TagFile(Archive):
                         tag_file.close()
 
                 instpackages = ""
-                if self.installer_packages:
+                if self._installer_packages:
                     try:
                         instpackages = self._open_tag_files(
-                            self.mirrors, dirname, "InstallerPackages", dist, component,
-                            "debian-installer/binary-" + self.arch + "/Packages")
+                            self._mirrors, dirname, "InstallerPackages", dist, component,
+                            "debian-installer/binary-" + self._arch + "/Packages")
                     except IOError:
                         # can live without these
                         print "Missing installer Packages file for", component, \
@@ -195,5 +195,5 @@ class TagFile(Archive):
                             finally:
                                 tag_file.close()
 
-        if self.cleanup:
+        if self._cleanup:
             shutil.rmtree(dirname)

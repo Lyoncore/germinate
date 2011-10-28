@@ -185,8 +185,9 @@ def main():
     g.write_all_list("all")
     g.write_all_source_list("all.sources")
 
-    g.write_supported_list("%s+build-depends" % g.supported)
-    g.write_supported_source_list("%s+build-depends.sources" % g.supported)
+    g.write_supported_list("%s+build-depends" % g.get_supported())
+    g.write_supported_source_list(
+        "%s+build-depends.sources" % g.get_supported())
 
     g.write_all_extra_list("all+extra")
     g.write_all_extra_source_list("all+extra.sources")
@@ -201,13 +202,13 @@ def main():
     if options.want_rdepends:
         os.mkdir("rdepends")
         os.mkdir(os.path.join("rdepends", "ALL"))
-        for pkg in g.all:
-            dirname = os.path.join("rdepends", g.packages[pkg]["Source"])
+        for pkg in g.get_all():
+            dirname = os.path.join("rdepends", g.get_source(pkg))
             if not os.path.exists(dirname):
                 os.mkdir(dirname)
 
             g.write_rdepend_list(os.path.join(dirname, pkg), pkg)
-            os.symlink(os.path.join("..", g.packages[pkg]["Source"], pkg),
+            os.symlink(os.path.join("..", g.get_source(pkg), pkg),
                        os.path.join("rdepends", "ALL", pkg))
 
     g.write_blacklisted("blacklisted")

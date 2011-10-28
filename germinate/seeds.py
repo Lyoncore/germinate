@@ -220,9 +220,9 @@ class SeedStructure(object):
     """
 
     def __init__(self, branch, seed_bases=germinate.defaults.seeds, bzr=False):
-        self.seed_bases = seed_bases
+        self._seed_bases = seed_bases
         self.branch = branch
-        self.bzr = bzr
+        self._bzr = bzr
         self.features = set()
         self.names, self.inherit, self.branches, self.lines = \
             self._parse(self.branch, set())
@@ -236,7 +236,7 @@ class SeedStructure(object):
         all_structure = []
 
         # Fetch this one
-        with Seed(self.seed_bases, branch, "STRUCTURE", self.bzr) as seed:
+        with Seed(self._seed_bases, branch, "STRUCTURE", self._bzr) as seed:
             structure = SingleSeedStructure(branch, seed)
         got_branches.add(branch)
 
@@ -315,7 +315,7 @@ class SeedStructure(object):
         if name in self.texts:
             return
 
-        with Seed(self.seed_bases, self.branches, name, self.bzr) as seed_fd:
+        with Seed(self._seed_bases, self.branches, name, self._bzr) as seed_fd:
             self.texts[name] = seed_fd.readlines()
 
     def add(self, name, entries, parent):

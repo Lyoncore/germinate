@@ -41,6 +41,8 @@ germinate (1.28) UNRELEASED; urgency=low
       rather than methodName).
     - Introduce wrapper functions for the various uses of write_list and
       write_source_list, and make the underlying methods private.
+    - Make most instance variables private by prefixing an underscore,
+      adding a few accessor methods.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 

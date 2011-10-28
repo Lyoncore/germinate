@@ -114,8 +114,8 @@ class Globals:
         needed_seeds = []
         build_tree = False
         for seedname in self.seeds:
-            if seedname == ('%s+build-depends' % g.supported):
-                seedname = g.supported
+            if seedname == ('%s+build-depends' % g.get_supported()):
+                seedname = g.get_supported()
                 build_tree = True
             needed_seeds.append(seedname)
         try:
@@ -127,28 +127,31 @@ class Globals:
         g.grow()
 
         for seedname in structure.names:
-            for pkg in g.seed[seedname]:
+            for pkg in g.get_seed(seedname):
                 self.package.setdefault(pkg, Package(pkg))
                 self.package[pkg].set_seed(seedname + ".seed")
-            for pkg in g.seedrecommends[seedname]:
+            for pkg in g.get_seed_recommends(seedname):
                 self.package.setdefault(pkg, Package(pkg))
                 self.package[pkg].set_seed(seedname + ".seed-recommends")
-            for pkg in g.depends[seedname]:
+            for pkg in g.get_depends(seedname):
                 self.package.setdefault(pkg, Package(pkg))
                 self.package[pkg].set_seed(seedname + ".depends")
 
             if build_tree:
-                build_depends = dict.fromkeys(g.build_depends[seedname], True)
-                for inner in structure.inner_seeds(g.supported):
-                    build_depends.update(dict.fromkeys(g.seed[inner], False))
-                    build_depends.update(dict.fromkeys(g.seedrecommends[inner],
-                                                       False))
-                    build_depends.update(dict.fromkeys(g.depends[inner],
-                                                       False))
+                build_depends = dict.fromkeys(
+                    g.get_build_depends(seedname), True)
+                for inner in structure.inner_seeds(g.get_supported()):
+                    build_depends.update(dict.fromkeys(
+                        g.get_seed(inner), False))
+                    build_depends.update(dict.fromkeys(
+                        g.get_seed_recommends(inner), False))
+                    build_depends.update(dict.fromkeys(
+                        g.get_depends(inner), False))
                 for (pkg, use) in build_depends.iteritems():
                     if use:
                         self.package.setdefault(pkg, Package(pkg))
-                        self.package[pkg].set_seed(g.supported + ".build-depends")
+                        self.package[pkg].set_seed(g.get_supported() +
+                                                   ".build-depends")
 
     def parse_dpkg(self, fname):
         if fname is None:
