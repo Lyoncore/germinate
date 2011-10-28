@@ -142,16 +142,16 @@ def main():
         options.dist, options.components, options.arch,
         options.mirrors, source_mirrors=options.source_mirrors,
         installer_packages=options.installer, cleanup=options.cleanup)
-    g.parseArchive(archive)
+    g.parse_archive(archive)
 
     if os.path.isfile("hints"):
         with open("hints") as hints:
-            g.parseHints(hints)
+            g.parse_hints(hints)
 
     try:
         with Seed(options.seeds, options.release, "blacklist",
                   options.bzr) as blacklist:
-            g.parseBlacklist(blacklist)
+            g.parse_blacklist(blacklist)
     except SeedError:
         pass
 
@@ -160,35 +160,36 @@ def main():
         for seed_package in options.seed_packages:
             parent, pkg = seed_package.split('/')
             structure.add(pkg, [" * " + pkg], parent)
-        g.plantSeeds(structure)
+        g.plant_seeds(structure)
     except SeedError:
         sys.exit(1)
 
     g.prune()
     g.grow()
-    g.addExtras()
+    g.add_extras()
     if options.want_rdepends:
-        g.reverseDepends()
+        g.reverse_depends()
 
     for seedname in structure.names:
-        g.writeList(seedname, seedname,
-                    set(g.seed[seedname]) | set(g.seedrecommends[seedname]) |
-                    set(g.depends[seedname]))
-        g.writeList(seedname, seedname + ".seed",
-                    g.seed[seedname])
-        g.writeList(seedname, seedname + ".seed-recommends",
-                    g.seedrecommends[seedname])
-        g.writeList(seedname, seedname + ".depends",
-                    g.depends[seedname])
-        g.writeList(seedname, seedname + ".build-depends",
-                    g.build_depends[seedname])
+        g.write_list(seedname, seedname,
+                     set(g.seed[seedname]) | set(g.seedrecommends[seedname]) |
+                     set(g.depends[seedname]))
+        g.write_list(seedname, seedname + ".seed",
+                     g.seed[seedname])
+        g.write_list(seedname, seedname + ".seed-recommends",
+                     g.seedrecommends[seedname])
+        g.write_list(seedname, seedname + ".depends",
+                     g.depends[seedname])
+        g.write_list(seedname, seedname + ".build-depends",
+                     g.build_depends[seedname])
 
         if seedname != "extra" and seedname in structure.texts:
-            g.writeSeedText(seedname + ".seedtext", structure.texts[seedname])
-            g.writeSourceList(seedname + ".sources",
-                              g.sourcepkgs[seedname])
-        g.writeSourceList(seedname + ".build-sources",
-                          g.build_sourcepkgs[seedname])
+            g.write_seed_text(seedname + ".seedtext",
+                              structure.texts[seedname])
+            g.write_source_list(seedname + ".sources",
+                                g.sourcepkgs[seedname])
+        g.write_source_list(seedname + ".build-sources",
+                            g.build_sourcepkgs[seedname])
 
     all_bins = set()
     sup_bins = set()
@@ -217,7 +218,7 @@ def main():
         # output.
         build_depends = dict.fromkeys(g.build_depends[seedname], True)
         build_sourcepkgs = dict.fromkeys(g.build_sourcepkgs[seedname], True)
-        for seed in structure.innerSeeds(g.supported):
+        for seed in structure.inner_seeds(g.supported):
             build_depends.update(dict.fromkeys(g.seed[seed], False))
             build_depends.update(dict.fromkeys(g.seedrecommends[seed], False))
             build_depends.update(dict.fromkeys(g.depends[seed], False))
@@ -225,19 +226,19 @@ def main():
         sup_bins.update([k for (k, v) in build_depends.iteritems() if v])
         sup_srcs.update([k for (k, v) in build_sourcepkgs.iteritems() if v])
 
-    g.writeList("all", "all", all_bins)
-    g.writeSourceList("all.sources", all_srcs)
+    g.write_list("all", "all", all_bins)
+    g.write_source_list("all.sources", all_srcs)
 
-    g.writeList("all", "%s+build-depends" % g.supported, sup_bins)
-    g.writeSourceList("%s+build-depends.sources" % g.supported, sup_srcs)
+    g.write_list("all", "%s+build-depends" % g.supported, sup_bins)
+    g.write_source_list("%s+build-depends.sources" % g.supported, sup_srcs)
 
-    g.writeList("all", "all+extra", g.all)
-    g.writeSourceList("all+extra.sources", g.all_srcs)
+    g.write_list("all", "all+extra", g.all)
+    g.write_source_list("all+extra.sources", g.all_srcs)
 
-    g.writeProvidesList("provides")
+    g.write_provides_list("provides")
 
     structure.write("structure")
-    structure.writeDot("structure.dot")
+    structure.write_dot("structure.dot")
 
     if os.path.exists("rdepends"):
         shutil.rmtree("rdepends")
@@ -249,11 +250,11 @@ def main():
             if not os.path.exists(dirname):
                 os.mkdir(dirname)
 
-            g.writeRdependList(os.path.join(dirname, pkg), pkg)
+            g.write_rdepend_list(os.path.join(dirname, pkg), pkg)
             os.symlink(os.path.join("..", g.packages[pkg]["Source"], pkg),
                        os.path.join("rdepends", "ALL", pkg))
 
-    g.writeBlacklisted("blacklisted")
+    g.write_blacklisted("blacklisted")
 
 if __name__ == "__main__":
     main()

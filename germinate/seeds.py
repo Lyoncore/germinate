@@ -226,7 +226,7 @@ class SeedStructure(object):
         self.features = set()
         self.names, self.inherit, self.branches, self.lines = \
             self._parse(self.branch, set())
-        self._expandInheritance()
+        self._expand_inheritance()
         self.texts = {}
 
     def _parse(self, branch, got_branches):
@@ -282,7 +282,7 @@ class SeedStructure(object):
 
         return all_names, all_inherit, all_branches, all_structure
 
-    def _expandInheritance(self):
+    def _expand_inheritance(self):
         """Expand out incomplete inheritance lists"""
         self.original_names = self.names
         self.original_inherit = dict(self.inherit)
@@ -323,7 +323,7 @@ class SeedStructure(object):
         self.inherit[name] = self.inherit[parent] + [parent]
         self.texts[name] = list(entries)
 
-    def addExtra(self):
+    def add_extra(self):
         """Add a special "extra" seed."""
         if "extra" in self.names:
             return
@@ -331,13 +331,13 @@ class SeedStructure(object):
         self.names.append("extra")
         self.inherit["extra"] = list(self.names)
 
-    def innerSeeds(self, seedname):
+    def inner_seeds(self, seedname):
         """Return this seed and the seeds from which it inherits."""
         innerseeds = list(self.inherit[seedname])
         innerseeds.append(seedname)
         return innerseeds
 
-    def strictlyOuterSeeds(self, seedname):
+    def strictly_outer_seeds(self, seedname):
         """Return the seeds that inherit from this seed."""
         outerseeds = []
         for seed in self.names:
@@ -345,10 +345,10 @@ class SeedStructure(object):
                 outerseeds.append(seed)
         return outerseeds
 
-    def outerSeeds(self, seedname):
+    def outer_seeds(self, seedname):
         """Return this seed and the seeds that inherit from it."""
         outerseeds = [seedname]
-        outerseeds.extend(self.strictlyOuterSeeds(seedname))
+        outerseeds.extend(self.strictly_outer_seeds(seedname))
         return outerseeds
 
     def write(self, filename):
@@ -356,7 +356,7 @@ class SeedStructure(object):
             for line in self.lines:
                 print >>f, line
 
-    def writeDot(self, filename):
+    def write_dot(self, filename):
         """Write a dot file representing this structure."""
 
         # Initialize dot document

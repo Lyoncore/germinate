@@ -54,10 +54,10 @@ class Package:
         self.seed = {}
         self.installed = 0
 
-    def setSeed(self, seed):
+    def set_seed(self, seed):
         self.seed[seed] = 1
 
-    def setInstalled(self):
+    def set_installed(self):
         self.installed = 1
 
     def output(self, outmode):
@@ -96,7 +96,7 @@ class Globals:
         self.outputs = {}
         self.outmode = ""
 
-    def setSeeds(self, options, seeds):
+    def set_seeds(self, options, seeds):
         self.seeds = seeds
 
         # Suppress most log information
@@ -109,7 +109,7 @@ class Globals:
 
         archive = germinate.archive.TagFile(
             options.dist, COMPONENTS, options.arch, MIRRORS, cleanup=True)
-        g.parseArchive(archive)
+        g.parse_archive(archive)
 
         needed_seeds = []
         build_tree = False
@@ -120,7 +120,7 @@ class Globals:
             needed_seeds.append(seedname)
         try:
             structure = SeedStructure(options.release, options.seeds)
-            g.plantSeeds(structure, seeds=needed_seeds)
+            g.plant_seeds(structure, seeds=needed_seeds)
         except SeedError:
             sys.exit(1)
         g.prune()
@@ -129,17 +129,17 @@ class Globals:
         for seedname in structure.names:
             for pkg in g.seed[seedname]:
                 self.package.setdefault(pkg, Package(pkg))
-                self.package[pkg].setSeed(seedname + ".seed")
+                self.package[pkg].set_seed(seedname + ".seed")
             for pkg in g.seedrecommends[seedname]:
                 self.package.setdefault(pkg, Package(pkg))
-                self.package[pkg].setSeed(seedname + ".seed-recommends")
+                self.package[pkg].set_seed(seedname + ".seed-recommends")
             for pkg in g.depends[seedname]:
                 self.package.setdefault(pkg, Package(pkg))
-                self.package[pkg].setSeed(seedname + ".depends")
+                self.package[pkg].set_seed(seedname + ".depends")
 
             if build_tree:
                 build_depends = dict.fromkeys(g.build_depends[seedname], True)
-                for inner in structure.innerSeeds(g.supported):
+                for inner in structure.inner_seeds(g.supported):
                     build_depends.update(dict.fromkeys(g.seed[inner], False))
                     build_depends.update(dict.fromkeys(g.seedrecommends[inner],
                                                        False))
@@ -148,9 +148,9 @@ class Globals:
                 for (pkg, use) in build_depends.iteritems():
                     if use:
                         self.package.setdefault(pkg, Package(pkg))
-                        self.package[pkg].setSeed(g.supported + ".build-depends")
+                        self.package[pkg].set_seed(g.supported + ".build-depends")
 
-    def parseDpkg(self, fname):
+    def parse_dpkg(self, fname):
         if fname is None:
             dpkg_cmd = subprocess.Popen(['dpkg', '--get-selections'],
                                         stdout=subprocess.PIPE)
@@ -165,9 +165,9 @@ class Globals:
             pkg, st = l.split(None)
             self.package.setdefault(pkg, Package(pkg))
             if st == "install" or st == "hold":
-                self.package[pkg].setInstalled()
+                self.package[pkg].set_installed()
 
-    def setOutput(self, mode):
+    def set_output(self, mode):
         self.outmode = mode
 
     def output(self):
@@ -189,7 +189,7 @@ default is 'desktop'.'''
                                    usage='%prog [options] [seeds]',
                                    version=germinate.version.VERSION,
                                    epilog=epilog)
-    parser.add_option('-l', '--list', dest='dpkgFile', metavar='FILE',
+    parser.add_option('-l', '--list', dest='dpkg_file', metavar='FILE',
                       help='read list of packages from this file '
                            '(default: read from dpkg --get-selections)')
     parser.add_option('-m', '--mode', dest='mode', type='choice',
@@ -223,11 +223,11 @@ def main():
 
     options, args = parse_options()
 
-    g.setOutput(options.mode)
-    g.parseDpkg(options.dpkgFile)
+    g.set_output(options.mode)
+    g.parse_dpkg(options.dpkg_file)
     if not len(args):
         args = ["desktop"]
-    g.setSeeds(options, args)
+    g.set_seeds(options, args)
     g.output()
 
 if __name__ == "__main__":

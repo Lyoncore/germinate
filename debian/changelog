@@ -34,6 +34,8 @@ germinate (1.28) UNRELEASED; urgency=low
   * Move canonical source location from people.canonical.com to a hosted
     branch on Launchpad.
   * Remove germinate.tsort from germinate's public API.
+  * Convert all method names to the PEP-8 preferred style (method_name
+    rather than methodName).
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 

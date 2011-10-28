@@ -263,13 +263,13 @@ def main():
             [dist], components, architecture,
             archive_base[architecture], source_mirrors=archive_base_default,
             cleanup=True)
-        germinator.parseArchive(archive)
+        germinator.parse_archive(archive)
         debootstrap_base = set(debootstrap_packages(architecture))
 
         print "[%s] Loading seed lists..." % architecture
         try:
             structure = SeedStructure(seed_dist, seed_base, options.bzr)
-            germinator.plantSeeds(structure, seeds=seeds)
+            germinator.plant_seeds(structure, seeds=seeds)
         except SeedError:
             sys.exit(1)
 
