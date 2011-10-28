@@ -29,8 +29,8 @@ import re
 import subprocess
 import codecs
 
-import Germinate.defaults
-from Germinate.tsort import topo_sort
+import germinate.defaults
+from germinate.tsort import topo_sort
 
 
 bzr_cache_dir = None
@@ -219,7 +219,7 @@ class SeedStructure(object):
     acquiring any seed structure files it includes.
     """
 
-    def __init__(self, branch, seed_bases=Germinate.defaults.seeds, bzr=False):
+    def __init__(self, branch, seed_bases=germinate.defaults.seeds, bzr=False):
         self.seed_bases = seed_bases
         self.branch = branch
         self.bzr = bzr

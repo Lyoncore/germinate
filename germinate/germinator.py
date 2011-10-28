@@ -26,8 +26,8 @@ import codecs
 
 import apt_pkg
 
-from Germinate.archive import IndexType
-from Germinate.seeds import Seed
+from germinate.archive import IndexType
+from germinate.seeds import Seed
 
 # TODO: would be much more elegant to reduce our recursion depth!
 sys.setrecursionlimit(2000)

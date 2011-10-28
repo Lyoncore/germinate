@@ -22,17 +22,30 @@
 # 02110-1301, USA.
 
 import sys
+import os
 import optparse
 import logging
 import subprocess
 
-from Germinate import Germinator
-import Germinate.Archive
-import Germinate.defaults
-from Germinate.seeds import Seed, SeedError, SeedStructure
-import Germinate.version
+try:
+    import imp
+    imp.find_module('germinate.germinator')
+except ImportError:
+    # Temporary, until the module API is properly public.
+    sys.path.insert(0, '/usr/lib/germinate')
+    try:
+        imp.find_module('germinate.germinator')
+    except ImportError:
+        # Running from build tree?
+        sys.path.insert(0, os.path.join(sys.path[1], os.pardir))
 
-MIRRORS = [Germinate.defaults.mirror]
+from germinate.germinator import Germinator
+import germinate.archive
+import germinate.defaults
+from germinate.seeds import Seed, SeedError, SeedStructure
+import germinate.version
+
+MIRRORS = [germinate.defaults.mirror]
 COMPONENTS = ["main"]
 
 class Package:
@@ -93,7 +106,7 @@ class Globals:
         print "Germinating"
         g = Germinator(options.arch)
 
-        archive = Germinate.Archive.TagFile(
+        archive = germinate.archive.TagFile(
             options.dist, COMPONENTS, options.arch, MIRRORS, cleanup=True)
         g.parseSections(archive)
 
@@ -173,7 +186,7 @@ default is 'desktop'.'''
 
     parser = optparse.OptionParser(prog='germinate-pkg-diff',
                                    usage='%prog [options] [seeds]',
-                                   version=Germinate.version.VERSION,
+                                   version=germinate.version.VERSION,
                                    epilog=epilog)
     parser.add_option('-l', '--list', dest='dpkgFile', metavar='FILE',
                       help='read list of packages from this file '
@@ -182,18 +195,18 @@ default is 'desktop'.'''
                       choices=('i', 'r', 'd'), default='d', metavar='[i|r|d]',
                       help='show packages to install/remove/diff (default: d)')
     parser.add_option('-S', '--seed-source', dest='seeds', metavar='SOURCE',
-                      default=Germinate.defaults.seeds,
+                      default=germinate.defaults.seeds,
                       help='fetch seeds from SOURCE (default: %s)' %
-                           Germinate.defaults.seeds)
+                           germinate.defaults.seeds)
     parser.add_option('-s', '--seed-dist', dest='release', metavar='DIST',
-                      default=Germinate.defaults.release,
+                      default=germinate.defaults.release,
                       help='fetch seeds for distribution DIST '
                            '(default: %default)')
     parser.add_option('-d', '--dist', dest='dist',
-                      default=Germinate.defaults.dist,
+                      default=germinate.defaults.dist,
                       help='operate on distribution DIST (default: %default)')
     parser.add_option('-a', '--arch', dest='arch',
-                      default=Germinate.defaults.arch,
+                      default=germinate.defaults.arch,
                       help='operate on architecture ARCH (default: %default)')
 
     options, args = parser.parse_args()

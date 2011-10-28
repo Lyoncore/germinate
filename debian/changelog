@@ -24,6 +24,9 @@ germinate (1.28) UNRELEASED; urgency=low
   * Turn open_seed into a Seed class, allowing it to be a context manager.
   * Move code pertaining to the structure of seeds into a SeedStructure
     class, simplifying the interface.
+  * Make all module names lower-case, per PEP-8.  Remove the separate
+    Germinate.Archive.tagfile module; this is now in germinate.archive
+    directly.  Adjust build system and pychecker handling to support this.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 
