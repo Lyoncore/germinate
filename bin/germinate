@@ -184,8 +184,7 @@ def main():
                      g.build_depends[seedname])
 
         if seedname != "extra" and seedname in structure.texts:
-            g.write_seed_text(seedname + ".seedtext",
-                              structure.texts[seedname])
+            structure.write_seed_text(seedname + ".seedtext", seedname)
             g.write_source_list(seedname + ".sources",
                                 g.sourcepkgs[seedname])
         g.write_source_list(seedname + ".build-sources",

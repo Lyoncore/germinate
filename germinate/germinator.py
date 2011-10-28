@@ -1215,11 +1215,6 @@ class Germinator:
                     print >>f, "\t%s" % (pkg,)
                 print >>f
 
-    def write_seed_text(self, filename, seedtext):
-        with open(filename, "w") as f:
-            for line in seedtext:
-                print >>f, line.rstrip('\n')
-
 
 def pretty_logging():
     logging.addLevelName(logging.DEBUG, '  ')

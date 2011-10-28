@@ -371,3 +371,8 @@ class SeedStructure(object):
                     print >>dotfile, "    \"%s\" -> \"%s\";" % (inherit, seed)
 
             print >>dotfile, "}"
+
+    def write_seed_text(self, filename, seedname):
+        with open(filename, "w") as f:
+            for line in self.texts[seedname]:
+                print >>f, line.rstrip('\n')
