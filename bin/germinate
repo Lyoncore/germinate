@@ -142,7 +142,7 @@ def main():
         options.dist, options.components, options.arch,
         options.mirrors, source_mirrors=options.source_mirrors,
         installer_packages=options.installer, cleanup=options.cleanup)
-    g.parseSections(archive)
+    g.parseArchive(archive)
 
     if os.path.isfile("hints"):
         with open("hints") as hints:

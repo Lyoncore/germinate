@@ -173,7 +173,7 @@ class Germinator:
         binaries = apt_pkg.parse_depends(section.get("Binary", src))
         self.sources[src]["Binaries"] = [ b[0][0] for b in binaries ]
 
-    def parseSections(self, archive):
+    def parseArchive(self, archive):
         for indextype, section in archive.sections():
             if indextype == IndexType.PACKAGES:
                 self._parsePackage(section, "deb")

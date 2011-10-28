@@ -109,7 +109,7 @@ class Globals:
 
         archive = germinate.archive.TagFile(
             options.dist, COMPONENTS, options.arch, MIRRORS, cleanup=True)
-        g.parseSections(archive)
+        g.parseArchive(archive)
 
         needed_seeds = []
         build_tree = False

@@ -263,7 +263,7 @@ def main():
             [dist], components, architecture,
             archive_base[architecture], source_mirrors=archive_base_default,
             cleanup=True)
-        germinator.parseSections(archive)
+        germinator.parseArchive(archive)
         debootstrap_base = set(debootstrap_packages(architecture))
 
         print "[%s] Loading seed lists..." % architecture
