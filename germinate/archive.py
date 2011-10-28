@@ -38,6 +38,7 @@ class IndexType:
 
 class Archive:
     """An abstract representation of an archive for use by Germinate."""
+
     def sections(self):
         """Yield a sequence of the index sections found in this archive.
 
