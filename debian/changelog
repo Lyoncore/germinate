@@ -6,8 +6,6 @@ germinate (1.28) UNRELEASED; urgency=low
     try/finally blocks in cases that would require that.
   * Remove all uses of os.system and os.popen, replacing them with uses of
     the better-designed subprocess module.
-  * Move output-writing functions from the top-level germinate program into
-    Germinator.
   * Remove all code supporting the germinate -i/--ipv6 option; this has been
     off by default since November 2004, the service behind this was
     discontinued in March 2007
@@ -16,28 +14,33 @@ germinate (1.28) UNRELEASED; urgency=low
   * Convert all option parsing to optparse.  Consolidate defaults into a new
     Germinate.defaults module.
   * Update copyright dates.
-  * Redesign how Germinator gets Packages/Sources sections from the archive.
-    This now works via an abstract interface, which should make it easier to
-    plug in alternative archive sources (e.g. a database).
-  * Move all apt_pkg interaction into library code.  Germinator.__init__ now
-    takes an architecture argument so that it can set APT::Architecture.
-  * Turn open_seed into a Seed class, allowing it to be a context manager.
-  * Move code pertaining to the structure of seeds into a SeedStructure
-    class, simplifying the interface.
-  * Make all module names lower-case, per PEP-8.  Remove the separate
-    Germinate.Archive.tagfile module; this is now in germinate.archive
-    directly.  Adjust build system and pychecker handling to support this.
-  * Remove unnecessary logging helper functions.
-  * Don't modify level names on the root logger simply as a result of
-    importing germinate.germinator; move this into a function.
-  * Prefix all private methods with an underscore.
   * Move canonical source location from people.canonical.com to a hosted
     branch on Launchpad.
-  * Remove germinate.tsort from germinate's public API.
-  * Convert all method names to the PEP-8 preferred style (method_name
-    rather than methodName).
-  * Introduce wrapper functions for the various uses of write_list and
-    write_source_list, and make the underlying methods private.
+
+  * Massive API cleanup:
+    - Move output-writing functions from the top-level germinate program
+      into Germinator.
+    - Redesign how Germinator gets Packages/Sources sections from the
+      archive.  This now works via an abstract interface, which should make
+      it easier to plug in alternative archive sources (e.g. a database).
+    - Move all apt_pkg interaction into library code.  Germinator.__init__
+      now takes an architecture argument so that it can set
+      APT::Architecture.
+    - Turn open_seed into a Seed class, allowing it to be a context manager.
+    - Move code pertaining to the structure of seeds into a SeedStructure
+      class, simplifying the interface.
+    - Make all module names lower-case, per PEP-8.  Remove the separate
+      Germinate.Archive.tagfile module; this is now in germinate.archive
+      directly.  Adjust build system and pychecker handling to support this.
+    - Remove unnecessary logging helper functions.
+    - Don't modify level names on the root logger simply as a result of
+      importing germinate.germinator; move this into a function.
+    - Prefix all private methods with an underscore.
+    - Remove germinate.tsort from germinate's public API.
+    - Convert all method names to the PEP-8 preferred style (method_name
+      rather than methodName).
+    - Introduce wrapper functions for the various uses of write_list and
+      write_source_list, and make the underlying methods private.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 
