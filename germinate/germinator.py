@@ -1076,7 +1076,7 @@ class Germinator:
                 self._add_package(seedname, pkg, "Rescued from %s" % src,
                                   build_tree=build_tree)
 
-    def write_list(self, whyname, filename, pkgset):
+    def _write_list(self, whyname, filename, pkgset):
         pkglist = list(pkgset)
         pkglist.sort()
 
@@ -1129,7 +1129,7 @@ class Germinator:
                   ((pkg_len + src_len + why_len + mnt_len + 9), "",
                    size, installed_size)
 
-    def write_source_list(self, filename, srcset):
+    def _write_source_list(self, filename, srcset):
         srclist = list(srcset)
         srclist.sort()
 
@@ -1152,6 +1152,108 @@ class Germinator:
             for src in srclist:
                 print >>f, fmt % (src_len, src, mnt_len,
                                   self.sources[src]["Maintainer"])
+
+    def write_full_list(self, filename, seedname):
+        self._write_list(seedname, filename,
+                         set(self.seed[seedname]) |
+                         set(self.seedrecommends[seedname]) |
+                         set(self.depends[seedname]))
+
+    def write_seed_list(self, filename, seedname):
+        self._write_list(seedname, filename, self.seed[seedname])
+
+    def write_seed_recommends_list(self, filename, seedname):
+        self._write_list(seedname, filename, self.seedrecommends[seedname])
+
+    def write_depends_list(self, filename, seedname):
+        self._write_list(seedname, filename, self.depends[seedname])
+
+    def write_build_depends_list(self, filename, seedname):
+        self._write_list(seedname, filename, self.build_depends[seedname])
+
+    def write_sources_list(self, filename, seedname):
+        self._write_source_list(filename, self.sourcepkgs[seedname])
+
+    def write_build_sources_list(self, filename, seedname):
+        self._write_source_list(filename, self.build_sourcepkgs[seedname])
+
+    def write_all_list(self, filename):
+        all_bins = set()
+
+        for seedname in self.structure.names:
+            if seedname == "extra":
+                continue
+
+            all_bins.update(self.seed[seedname])
+            all_bins.update(self.seedrecommends[seedname])
+            all_bins.update(self.depends[seedname])
+            all_bins.update(self.build_depends[seedname])
+
+        self._write_list("all", filename, all_bins)
+
+    def write_all_source_list(self, filename):
+        all_srcs = set()
+
+        for seedname in self.structure.names:
+            if seedname == "extra":
+                continue
+
+            all_srcs.update(self.sourcepkgs[seedname])
+            all_srcs.update(self.build_sourcepkgs[seedname])
+
+        self._write_source_list(filename, all_srcs)
+
+    def write_supported_list(self, filename):
+        sup_bins = set()
+
+        for seedname in self.structure.names:
+            if seedname == "extra":
+                continue
+
+            if seedname == self.supported:
+                sup_bins.update(self.seed[seedname])
+                sup_bins.update(self.seedrecommends[seedname])
+                sup_bins.update(self.depends[seedname])
+
+            # Only include those build-dependencies that aren't already in
+            # the dependency outputs for inner seeds of supported. This
+            # allows supported+build-depends to be usable as an "everything
+            # else" output.
+            build_depends = dict.fromkeys(self.build_depends[seedname], True)
+            for seed in self.structure.inner_seeds(self.supported):
+                build_depends.update(dict.fromkeys(self.seed[seed], False))
+                build_depends.update(dict.fromkeys(self.seedrecommends[seed], False))
+                build_depends.update(dict.fromkeys(self.depends[seed], False))
+            sup_bins.update([k for (k, v) in build_depends.iteritems() if v])
+
+        self._write_list("all", filename, sup_bins)
+
+    def write_supported_source_list(self, filename):
+        sup_srcs = set()
+
+        for seedname in self.structure.names:
+            if seedname == "extra":
+                continue
+
+            if seedname == self.supported:
+                sup_srcs.update(self.sourcepkgs[seedname])
+
+            # Only include those build-dependencies that aren't already in
+            # the dependency outputs for inner seeds of supported. This
+            # allows supported+build-depends to be usable as an "everything
+            # else" output.
+            build_sourcepkgs = dict.fromkeys(self.build_sourcepkgs[seedname], True)
+            for seed in self.structure.inner_seeds(self.supported):
+                build_sourcepkgs.update(dict.fromkeys(self.sourcepkgs[seed], False))
+            sup_srcs.update([k for (k, v) in build_sourcepkgs.iteritems() if v])
+
+        self._write_source_list(filename, sup_srcs)
+
+    def write_all_extra_list(self, filename):
+        self._write_list("all", filename, self.all)
+
+    def write_all_extra_source_list(self, filename):
+        self._write_source_list(filename, self.all_srcs)
 
     def write_rdepend_list(self, filename, pkg):
         with open(filename, "w") as f:

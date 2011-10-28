@@ -171,68 +171,25 @@ def main():
         g.reverse_depends()
 
     for seedname in structure.names:
-        g.write_list(seedname, seedname,
-                     set(g.seed[seedname]) | set(g.seedrecommends[seedname]) |
-                     set(g.depends[seedname]))
-        g.write_list(seedname, seedname + ".seed",
-                     g.seed[seedname])
-        g.write_list(seedname, seedname + ".seed-recommends",
-                     g.seedrecommends[seedname])
-        g.write_list(seedname, seedname + ".depends",
-                     g.depends[seedname])
-        g.write_list(seedname, seedname + ".build-depends",
-                     g.build_depends[seedname])
+        g.write_full_list(seedname, seedname)
+        g.write_seed_list(seedname + ".seed", seedname)
+        g.write_seed_recommends_list(seedname + ".seed-recommends", seedname)
+        g.write_depends_list(seedname + ".depends", seedname)
+        g.write_build_depends_list(seedname + ".build-depends", seedname)
 
         if seedname != "extra" and seedname in structure.texts:
             structure.write_seed_text(seedname + ".seedtext", seedname)
-            g.write_source_list(seedname + ".sources",
-                                g.sourcepkgs[seedname])
-        g.write_source_list(seedname + ".build-sources",
-                            g.build_sourcepkgs[seedname])
+            g.write_sources_list(seedname + ".sources", seedname)
+        g.write_build_sources_list(seedname + ".build-sources", seedname)
 
-    all_bins = set()
-    sup_bins = set()
-    all_srcs = set()
-    sup_srcs = set()
-    for seedname in structure.names:
-        if seedname == "extra":
-            continue
+    g.write_all_list("all")
+    g.write_all_source_list("all.sources")
 
-        all_bins.update(g.seed[seedname])
-        all_bins.update(g.seedrecommends[seedname])
-        all_bins.update(g.depends[seedname])
-        all_bins.update(g.build_depends[seedname])
-        all_srcs.update(g.sourcepkgs[seedname])
-        all_srcs.update(g.build_sourcepkgs[seedname])
+    g.write_supported_list("%s+build-depends" % g.supported)
+    g.write_supported_source_list("%s+build-depends.sources" % g.supported)
 
-        if seedname == g.supported:
-            sup_bins.update(g.seed[seedname])
-            sup_bins.update(g.seedrecommends[seedname])
-            sup_bins.update(g.depends[seedname])
-            sup_srcs.update(g.sourcepkgs[seedname])
-
-        # Only include those build-dependencies that aren't already in the
-        # dependency outputs for inner seeds of supported. This allows
-        # supported+build-depends to be usable as an "everything else"
-        # output.
-        build_depends = dict.fromkeys(g.build_depends[seedname], True)
-        build_sourcepkgs = dict.fromkeys(g.build_sourcepkgs[seedname], True)
-        for seed in structure.inner_seeds(g.supported):
-            build_depends.update(dict.fromkeys(g.seed[seed], False))
-            build_depends.update(dict.fromkeys(g.seedrecommends[seed], False))
-            build_depends.update(dict.fromkeys(g.depends[seed], False))
-            build_sourcepkgs.update(dict.fromkeys(g.sourcepkgs[seed], False))
-        sup_bins.update([k for (k, v) in build_depends.iteritems() if v])
-        sup_srcs.update([k for (k, v) in build_sourcepkgs.iteritems() if v])
-
-    g.write_list("all", "all", all_bins)
-    g.write_source_list("all.sources", all_srcs)
-
-    g.write_list("all", "%s+build-depends" % g.supported, sup_bins)
-    g.write_source_list("%s+build-depends.sources" % g.supported, sup_srcs)
-
-    g.write_list("all", "all+extra", g.all)
-    g.write_source_list("all+extra.sources", g.all_srcs)
+    g.write_all_extra_list("all+extra")
+    g.write_all_extra_source_list("all+extra.sources")
 
     g.write_provides_list("provides")
 

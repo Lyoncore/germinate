@@ -36,6 +36,8 @@ germinate (1.28) UNRELEASED; urgency=low
   * Remove germinate.tsort from germinate's public API.
   * Convert all method names to the PEP-8 preferred style (method_name
     rather than methodName).
+  * Introduce wrapper functions for the various uses of write_list and
+    write_source_list, and make the underlying methods private.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 
