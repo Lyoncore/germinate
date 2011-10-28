@@ -27,6 +27,7 @@ germinate (1.28) UNRELEASED; urgency=low
   * Make all module names lower-case, per PEP-8.  Remove the separate
     Germinate.Archive.tagfile module; this is now in germinate.archive
     directly.  Adjust build system and pychecker handling to support this.
+  * Remove unnecessary logging helper functions.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 
