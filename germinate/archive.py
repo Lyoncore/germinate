@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-"""An abstract representation of an archive for use by Germinate."""
+"""Representations of archives for use by Germinate."""
 
 # Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
 #               Canonical Ltd.
@@ -37,6 +37,7 @@ class IndexType:
 
 
 class Archive:
+    """An abstract representation of an archive for use by Germinate."""
     def sections(self):
         """Yield a sequence of the index sections found in this archive.
 
