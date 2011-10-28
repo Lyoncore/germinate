@@ -39,7 +39,7 @@ except ImportError:
         # Running from build tree?
         sys.path.insert(0, os.path.join(sys.path[1], os.pardir))
 
-from germinate.germinator import Germinator
+from germinate.germinator import Germinator, pretty_logging
 import germinate.archive
 import germinate.defaults
 from germinate.seeds import Seed, SeedError, SeedStructure
@@ -101,6 +101,7 @@ class Globals:
 
         # Suppress most log information
         logging.getLogger().setLevel(logging.CRITICAL)
+        pretty_logging()
 
         global MIRRORS, COMPONENTS
         print "Germinating"

@@ -1217,8 +1217,10 @@ class Germinator:
             for line in seedtext:
                 print >>f, line.rstrip('\n')
 
-logging.addLevelName(logging.DEBUG, '  ')
-logging.addLevelName(Germinator.PROGRESS, '')
-logging.addLevelName(logging.INFO, '* ')
-logging.addLevelName(logging.WARNING, '! ')
-logging.addLevelName(logging.ERROR, '? ')
+
+def pretty_logging():
+    logging.addLevelName(logging.DEBUG, '  ')
+    logging.addLevelName(Germinator.PROGRESS, '')
+    logging.addLevelName(logging.INFO, '* ')
+    logging.addLevelName(logging.WARNING, '! ')
+    logging.addLevelName(logging.ERROR, '? ')

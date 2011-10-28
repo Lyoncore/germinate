@@ -28,6 +28,8 @@ germinate (1.28) UNRELEASED; urgency=low
     Germinate.Archive.tagfile module; this is now in germinate.archive
     directly.  Adjust build system and pychecker handling to support this.
   * Remove unnecessary logging helper functions.
+  * Don't modify level names on the root logger simply as a result of
+    importing germinate.germinator; move this into a function.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 
