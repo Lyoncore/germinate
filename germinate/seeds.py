@@ -180,11 +180,7 @@ class SingleSeedStructure(object):
     """
 
     def __init__(self, branch, f):
-        """Parse a single seed structure file.
-
-        Returns (ordered list of seed names, dict of SEED -> INHERITED,
-        branches, structure).
-        """
+        """Parse a single seed structure file."""
 
         self.names = []
         self.inherit = {}
