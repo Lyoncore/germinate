@@ -4,16 +4,29 @@ Priority: optional
 Maintainer: Colin Watson <cjwatson@ubuntu.com>
 Standards-Version: 3.8.4
 Build-Depends: debhelper (>= 7.0.50~)
-Build-Depends-Indep: python (>= 2.6.5-2)
+Build-Depends-Indep: python (>= 2.6.6-3~), python-apt (>= 0.7.93.2~)
 Vcs-Bzr: http://bazaar.launchpad.net/+branch/germinate
 XS-Python-Version: >= 2.6
 
 Package: germinate
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, ${perl:Depends}, python-apt (>= 0.7.93.2~)
-XB-Python-Version: ${python:Versions}
-Description: Expand dependencies in a list of seed packages
+Depends: ${misc:Depends}, ${python:Depends}, ${perl:Depends}, python-germinate (= ${binary:Version})
+Description: expand dependencies in a list of seed packages
  Germinate takes lists of seed packages and expands their dependencies to
  produce a full list of packages. This can be used for purposes such as
  managing the list of packages present in a derived distribution's archive
  or CD builds.
+
+Package: python-germinate
+Section: python
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, python-apt (>= 0.7.93.2~)
+XB-Python-Version: ${python:Versions}
+Description: expand dependencies in seed packages (Python interface)
+ Germinate takes lists of seed packages and expands their dependencies to
+ produce a full list of packages. This can be used for purposes such as
+ managing the list of packages present in a derived distribution's archive
+ or CD builds.
+ .
+ This package provides Python modules used by Germinate, which may also be
+ used directly.

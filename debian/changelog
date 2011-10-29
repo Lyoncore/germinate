@@ -1,4 +1,4 @@
-germinate (1.28) UNRELEASED; urgency=low
+germinate (2.0) UNRELEASED; urgency=low
 
   * Make sure to always close files after finishing with them.  Mostly this
     is done using the 'with' statement in Python 2.6, but pychecker gets
@@ -43,6 +43,8 @@ germinate (1.28) UNRELEASED; urgency=low
       write_source_list, and make the underlying methods private.
     - Make most instance variables private by prefixing an underscore,
       adding a few accessor methods.
+    - Convert build system to distutils, make the germinate Python package
+      public, and create a new python-germinate binary package.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 

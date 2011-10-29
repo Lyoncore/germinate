@@ -1,5 +1,8 @@
+build
 debhelper/*.1
 debian/files
 debian/germinate
+debian/python-germinate
+debian/tmp
 debian/*.debhelper*
 debian/*.substvars

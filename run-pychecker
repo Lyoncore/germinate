@@ -1,6 +1,11 @@
 #! /bin/sh
 set -e
 
+if ! which pychecker >/dev/null 2>&1; then
+	echo "pychecker not installed, so not running it" >&2
+	exit 0
+fi
+
 (cd bin && for x in *; do
 	grep -q '#!.*python' "$x" || continue
 	ln -s "$x" "$(echo "$x" | sed 's/-/_/g; s/^germinate$/germinate_main/').py"
@@ -8,12 +13,12 @@ done)
 
 cleanup () {
 	find bin -name \*.py -type l | xargs -r rm -f
-	find -type f \( -name \*.pyc -o -name \*.pyo \) -print0 | xargs -0r rm -f
+	find germinate -type f \( -name \*.pyc -o -name \*.pyo \) -print0 | xargs -0r rm -f
 }
 trap cleanup EXIT HUP INT QUIT TERM
 
 ret=0
-for x in $(find -name debian -prune -o -name \*.py -printf '%P\n' | sort); do
+for x in $(find bin germinate -name \*.py -printf '%p\n' | sort); do
 	pychecker "$x" | grep "^$x:" && ret=1
 done
 

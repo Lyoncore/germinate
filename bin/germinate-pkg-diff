@@ -31,13 +31,8 @@ try:
     import imp
     imp.find_module('germinate.germinator')
 except ImportError:
-    # Temporary, until the module API is properly public.
-    sys.path.insert(0, '/usr/lib/germinate')
-    try:
-        imp.find_module('germinate.germinator')
-    except ImportError:
-        # Running from build tree?
-        sys.path.insert(0, os.path.join(sys.path[1], os.pardir))
+    # Running from build tree?
+    sys.path.insert(0, os.path.join(sys.path[1], os.pardir))
 
 from germinate.germinator import Germinator, pretty_logging
 import germinate.archive
