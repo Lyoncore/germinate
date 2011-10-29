@@ -16,6 +16,7 @@ germinate (2.0) UNRELEASED; urgency=low
   * Update copyright dates.
   * Move canonical source location from people.canonical.com to a hosted
     branch on Launchpad.
+  * Slightly modernise use of dh_python2.
 
   * Massive API cleanup:
     - Move output-writing functions from the top-level germinate program
