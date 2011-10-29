@@ -201,6 +201,9 @@ class SingleSeedStructure(object):
             words = line.split()
             if words[0].endswith(':'):
                 seed = words[0][:-1]
+                if '/' in seed:
+                    raise SeedError(
+                        "seed name '%s' may not contain '/'" % seed)
                 self.names.append(seed)
                 self.inherit[seed] = list(words[1:])
                 self.lines.append(line)

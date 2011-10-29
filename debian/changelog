@@ -17,6 +17,7 @@ germinate (2.0) UNRELEASED; urgency=low
   * Move canonical source location from people.canonical.com to a hosted
     branch on Launchpad.
   * Slightly modernise use of dh_python2.
+  * Forbid seed names containing slashes.
 
   * Massive API cleanup:
     - Move output-writing functions from the top-level germinate program
