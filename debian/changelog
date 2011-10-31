@@ -47,6 +47,9 @@ germinate (2.0) UNRELEASED; urgency=low
       adding a few accessor methods.
     - Convert build system to distutils, make the germinate Python package
       public, and create a new python-germinate binary package.
+    - Improve the Seed class so that seeds can be read multiple times
+      without having to redownload them, and so that they remember which
+      branch they came from.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 

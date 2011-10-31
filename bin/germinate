@@ -172,7 +172,7 @@ def main():
         g.write_depends_list(seedname + ".depends", seedname)
         g.write_build_depends_list(seedname + ".build-depends", seedname)
 
-        if seedname != "extra" and seedname in structure.texts:
+        if seedname != "extra" and seedname in structure.seeds:
             structure.write_seed_text(seedname + ".seedtext", seedname)
             g.write_sources_list(seedname + ".sources", seedname)
         g.write_build_sources_list(seedname + ".build-sources", seedname)

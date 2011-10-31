@@ -295,7 +295,7 @@ class Germinator:
 
         return False
 
-    def _plant_seed(self, seedname):
+    def _plant_seed(self, seedname, seed):
         """Add a seed."""
         if seedname in self._seeds:
             return
@@ -304,7 +304,7 @@ class Germinator:
         seedpkgs = []
         seedrecommends = []
 
-        for line in self._structure.texts[seedname]:
+        for line in seed:
             if line.lower().startswith('task-seeds:'):
                 self._close_seeds[seedname].update(line[11:].strip().split())
                 continue
@@ -468,10 +468,10 @@ class Germinator:
             structure.limit(seeds)
 
         self._structure = structure
-        self._supported = structure.original_names[-1]
+        self._supported = structure.seed_order[-1]
         for name in structure.names:
-            structure.fetch(name)
-            self._plant_seed(name)
+            with structure.seeds[name] as seed:
+                self._plant_seed(name, seed)
 
     def _is_pruned(self, pkg, seed):
         if not self._di_kernel_versions[seed]:

@@ -28,9 +28,17 @@ import shutil
 import re
 import subprocess
 import codecs
+import io
 
 import germinate.defaults
 from germinate.tsort import topo_sort
+
+
+__all__ = [
+    'SeedError',
+    'Seed',
+    'SeedStructure',
+]
 
 
 bzr_cache_dir = None
@@ -44,58 +52,65 @@ def _cleanup_bzr_cache(directory):
 
 
 class Seed(object):
-    """A single seed from a collection.  May be read from like a file."""
+    """A single seed from a collection."""
 
-    def _open_seed(self, seed_base, seed_branch, seed_file, bzr=False):
-        seed_path = os.path.join(seed_base, seed_branch)
-        if not seed_path.endswith('/'):
-            seed_path += '/'
+    def _open_seed(self, base, branch, name, bzr=False):
+        path = os.path.join(base, branch)
+        if not path.endswith('/'):
+            path += '/'
         if bzr:
             global bzr_cache_dir
             if bzr_cache_dir is None:
                 bzr_cache_dir = tempfile.mkdtemp(prefix='germinate-')
                 atexit.register(_cleanup_bzr_cache, bzr_cache_dir)
-            seed_checkout = os.path.join(bzr_cache_dir, seed_branch)
-            if not os.path.isdir(seed_checkout):
+            checkout = os.path.join(bzr_cache_dir, branch)
+            if not os.path.isdir(checkout):
                 command = ['bzr']
                 # https://launchpad.net/products/bzr/+bug/39542
-                if seed_path.startswith('http:'):
+                if path.startswith('http:'):
                     command.append('branch')
-                    logging.info("Fetching branch of %s", seed_path)
+                    logging.info("Fetching branch of %s", path)
                 else:
                     command.extend(['checkout', '--lightweight'])
-                    logging.info("Checking out %s", seed_path)
-                command.extend([seed_path, seed_checkout])
+                    logging.info("Checking out %s", path)
+                command.extend([path, checkout])
                 status = subprocess.call(command)
                 if status != 0:
                     raise SeedError("Command failed with exit status %d:\n"
                                     "  '%s'" % (status, ' '.join(command)))
-            return open(os.path.join(seed_checkout, seed_file))
+            return open(os.path.join(checkout, name))
         else:
-            url = urlparse.urljoin(seed_path, seed_file)
+            url = urlparse.urljoin(path, name)
             logging.info("Downloading %s", url)
             req = urllib2.Request(url)
             req.add_header('Cache-Control', 'no-cache')
             req.add_header('Pragma', 'no-cache')
             return urllib2.urlopen(req)
 
-    def __init__(self, seed_bases, seed_branches, seed_file, bzr=False):
-        if (isinstance(seed_branches, str) or
-            isinstance(seed_branches, unicode)):
-            seed_branches = [seed_branches]
+    def __init__(self, bases, branches, name, bzr=False):
+        if (isinstance(branches, str) or
+            isinstance(branches, unicode)):
+            branches = [branches]
+
+        self._name = name
+        self._base = None
+        self._branch = None
+        self._file = None
 
         fd = None
-        seed_ssh_host = None
-        for base in seed_bases:
-            for branch in seed_branches:
+        ssh_host = None
+        for base in bases:
+            for branch in branches:
                 try:
-                    fd = self._open_seed(base, branch, seed_file, bzr)
+                    fd = self._open_seed(base, branch, name, bzr)
+                    self._base = base
+                    self._branch = branch
                     break
                 except SeedError:
                     ssh_match = re.match(
                         r'bzr\+ssh://(?:[^/]*?@)?(.*?)(?:/|$)', base)
                     if ssh_match:
-                        seed_ssh_host = ssh_match.group(1)
+                        ssh_host = ssh_match.group(1)
                 except (OSError, IOError, urllib2.URLError):
                     pass
             if fd is not None:
@@ -104,52 +119,85 @@ class Seed(object):
         if fd is None:
             if bzr:
                 logging.warning("Could not open %s from checkout of (any of):",
-                                seed_file)
-                for base in seed_bases:
-                    for branch in seed_branches:
+                                name)
+                for base in bases:
+                    for branch in branches:
                         logging.warning('  %s' % os.path.join(base, branch))
 
-                if seed_ssh_host is not None:
+                if ssh_host is not None:
                     logging.error("Do you need to set your user name on %s?",
-                                  seed_ssh_host)
+                                  ssh_host)
                     logging.error("Try a section such as this in "
                                   "~/.ssh/config:")
                     logging.error("")
-                    logging.error("Host %s", seed_ssh_host)
+                    logging.error("Host %s", ssh_host)
                     logging.error("        User YOUR_USER_NAME")
             else:
                 logging.warning("Could not open (any of):")
-                for base in seed_bases:
-                    for branch in seed_branches:
+                for base in bases:
+                    for branch in branches:
                         path = os.path.join(base, branch)
                         if not path.endswith('/'):
                             path += '/'
                         logging.warning(
-                            '  %s' % urlparse.urljoin(path, seed_file))
-            raise SeedError("Could not open %s" % seed_file)
+                            '  %s' % urlparse.urljoin(path, name))
+            raise SeedError("Could not open %s" % name)
 
-        self.fd = fd
+        try:
+            self._text = fd.read()
+        finally:
+            fd.close()
+
+    def open(self):
+        self._file = io.BytesIO(self._text)
+        return self._file
 
     def read(self, *args, **kwargs):
-        return self.fd.read(*args, **kwargs)
+        return self._file.read(*args, **kwargs)
 
     def readline(self, *args, **kwargs):
-        return self.fd.readline(*args, **kwargs)
+        return self._file.readline(*args, **kwargs)
 
     def readlines(self, *args, **kwargs):
-        return self.fd.readlines(*args, **kwargs)
+        return self._file.readlines(*args, **kwargs)
 
     def next(self):
-        return self.fd.next()
+        return self._file.next()
 
     def close(self):
-        return self.fd.close()
+        self._file.close()
 
     def __enter__(self):
-        return self.fd
+        return self.open()
 
     def __exit__(self, unused_exc_type, unused_exc_value, unused_exc_tb):
-        self.fd.close()
+        self.close()
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def base(self):
+        return self._base
+
+    @property
+    def branch(self):
+        return self._branch
+
+    @property
+    def text(self):
+        return self._text
+
+
+class CustomSeed(Seed):
+    """A seed created from custom input data."""
+
+    def __init__(self, name, entries):
+        self._name = name
+        self._base = None
+        self._branch = None
+        self._text = '\n'.join(entries) + '\n'
 
 
 class SingleSeedStructure(object):
@@ -175,14 +223,14 @@ class SingleSeedStructure(object):
     causes another seed branch to be included.  Seed names will be resolved
     in included branches if they cannot be found in the current branch.
 
-    This is mainly for internal use; applications should typically use the
-    SeedStructure class instead.
+    This is for internal use; applications should use the SeedStructure
+    class instead.
     """
 
-    def __init__(self, branch, f):
+    def __init__(self, bases, branch, f, bzr=False):
         """Parse a single seed structure file."""
 
-        self.names = []
+        self.seed_order = []
         self.inherit = {}
         self.branches = [branch]
         self.lines = []
@@ -200,7 +248,7 @@ class SingleSeedStructure(object):
                 if '/' in seed:
                     raise SeedError(
                         "seed name '%s' may not contain '/'" % seed)
-                self.names.append(seed)
+                self.seed_order.append(seed)
                 self.inherit[seed] = list(words[1:])
                 self.lines.append(line)
             elif words[0] == 'include':
@@ -223,30 +271,32 @@ class SeedStructure(object):
         self.branch = branch
         self._bzr = bzr
         self.features = set()
-        self.names, self.inherit, self.branches, self.lines = \
+        self.seed_order, self.inherit, branches, self.lines = \
             self._parse(self.branch, set())
+        self.seeds = {}
+        for seed in self.seed_order:
+            self.seeds[seed] = Seed(seed_bases, branches, seed, bzr=bzr)
         self._expand_inheritance()
-        self.texts = {}
 
     def _parse(self, branch, got_branches):
-        all_names = []
+        all_seed_order = []
         all_inherit = {}
         all_branches = []
         all_structure = []
 
         # Fetch this one
         with Seed(self._seed_bases, branch, "STRUCTURE", self._bzr) as seed:
-            structure = SingleSeedStructure(branch, seed)
+            structure = SingleSeedStructure(
+                self._seed_bases, branch, seed, bzr=self._bzr)
         got_branches.add(branch)
 
         # Recursively expand included branches
         for child_branch in structure.branches:
             if child_branch in got_branches:
                 continue
-            child_names, child_inherit, child_branches, child_structure = \
-                self._parse(child_branch, got_branches)
-            for grandchild_name in child_names:
-                all_names.append(grandchild_name)
+            (child_seed_order, child_inherit, child_branches,
+             child_structure) = self._parse(child_branch, got_branches)
+            all_seed_order.extend(child_seed_order)
             all_inherit.update(child_inherit)
             for grandchild_branch in child_branches:
                 if grandchild_branch not in all_branches:
@@ -260,8 +310,7 @@ class SeedStructure(object):
                 all_structure.append(child_structure_line)
 
         # Attach the main branch's data to the end
-        for child_name in structure.names:
-            all_names.append(child_name)
+        all_seed_order.extend(structure.seed_order)
         all_inherit.update(structure.inherit)
         for child_branch in structure.branches:
             if child_branch not in all_branches:
@@ -279,11 +328,10 @@ class SeedStructure(object):
         # later branches can override seeds from earlier branches
         all_branches.reverse()
 
-        return all_names, all_inherit, all_branches, all_structure
+        return all_seed_order, all_inherit, all_branches, all_structure
 
     def _expand_inheritance(self):
         """Expand out incomplete inheritance lists"""
-        self.original_names = self.names
         self.original_inherit = dict(self.inherit)
 
         self.names = topo_sort(self.inherit)
@@ -310,23 +358,15 @@ class SeedStructure(object):
             if name not in self.names:
                 self.names.append(name)
 
-    def fetch(self, name):
-        if name in self.texts:
-            return
-
-        with Seed(self._seed_bases, self.branches, name, self._bzr) as seed_fd:
-            self.texts[name] = seed_fd.readlines()
-
     def add(self, name, entries, parent):
         self.names.append(name)
         self.inherit[name] = self.inherit[parent] + [parent]
-        self.texts[name] = list(entries)
+        self.seeds[name] = CustomSeed(name, entries)
 
     def add_extra(self):
         """Add a special "extra" seed."""
         if "extra" in self.names:
             return
-        # Insert this entry before the last one ("supported").
         self.names.append("extra")
         self.inherit["extra"] = list(self.names)
 
@@ -363,7 +403,7 @@ class SeedStructure(object):
             print >>dotfile, "digraph structure {"
             print >>dotfile, "    node [color=lightblue2, style=filled];"
 
-            for seed in self.original_names:
+            for seed in self.seed_order:
                 if seed not in self.original_inherit:
                     continue
                 for inherit in self.original_inherit[seed]:
@@ -373,5 +413,6 @@ class SeedStructure(object):
 
     def write_seed_text(self, filename, seedname):
         with open(filename, "w") as f:
-            for line in self.texts[seedname]:
-                print >>f, line.rstrip('\n')
+            with self.seeds[seedname] as seed:
+                for line in seed:
+                    print >>f, line.rstrip('\n')
