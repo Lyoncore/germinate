@@ -271,7 +271,7 @@ class SeedStructure(object):
         self.branch = branch
         self._bzr = bzr
         self.features = set()
-        self.seed_order, self.inherit, branches, self.lines = \
+        self.seed_order, self._inherit, branches, self._lines = \
             self._parse(self.branch, set())
         self.seeds = {}
         for seed in self.seed_order:
@@ -331,27 +331,27 @@ class SeedStructure(object):
 
     def _expand_inheritance(self):
         """Expand out incomplete inheritance lists"""
-        self.original_inherit = dict(self.inherit)
+        self._original_inherit = dict(self._inherit)
 
-        self.names = topo_sort(self.inherit)
+        self.names = topo_sort(self._inherit)
         for name in self.names:
             seen = set()
             new_inherit = []
-            for inheritee in self.inherit[name]:
-                for expanded in self.inherit[inheritee]:
+            for inheritee in self._inherit[name]:
+                for expanded in self._inherit[inheritee]:
                     if expanded not in seen:
                         new_inherit.append(expanded)
                         seen.add(expanded)
                 if inheritee not in seen:
                     new_inherit.append(inheritee)
                     seen.add(inheritee)
-            self.inherit[name] = new_inherit
+            self._inherit[name] = new_inherit
 
     def limit(self, seeds):
         """Restrict the seeds we care about to this list."""
         self.names = []
         for name in seeds:
-            for inherit in self.inherit[name]:
+            for inherit in self._inherit[name]:
                 if inherit not in self.names:
                     self.names.append(inherit)
             if name not in self.names:
@@ -359,7 +359,7 @@ class SeedStructure(object):
 
     def add(self, name, entries, parent):
         self.names.append(name)
-        self.inherit[name] = self.inherit[parent] + [parent]
+        self._inherit[name] = self._inherit[parent] + [parent]
         self.seeds[name] = CustomSeed(name, entries)
 
     def add_extra(self):
@@ -367,11 +367,11 @@ class SeedStructure(object):
         if "extra" in self.names:
             return
         self.names.append("extra")
-        self.inherit["extra"] = list(self.names)
+        self._inherit["extra"] = list(self.names)
 
     def inner_seeds(self, seedname):
         """Return this seed and the seeds from which it inherits."""
-        innerseeds = list(self.inherit[seedname])
+        innerseeds = list(self._inherit[seedname])
         innerseeds.append(seedname)
         return innerseeds
 
@@ -379,7 +379,7 @@ class SeedStructure(object):
         """Return the seeds that inherit from this seed."""
         outerseeds = []
         for seed in self.names:
-            if seedname in self.inherit[seed]:
+            if seedname in self._inherit[seed]:
                 outerseeds.append(seed)
         return outerseeds
 
@@ -391,7 +391,7 @@ class SeedStructure(object):
 
     def write(self, filename):
         with open(filename, "w") as f:
-            for line in self.lines:
+            for line in self._lines:
                 print >>f, line
 
     def write_dot(self, filename):
@@ -403,9 +403,9 @@ class SeedStructure(object):
             print >>dotfile, "    node [color=lightblue2, style=filled];"
 
             for seed in self.seed_order:
-                if seed not in self.original_inherit:
+                if seed not in self._original_inherit:
                     continue
-                for inherit in self.original_inherit[seed]:
+                for inherit in self._original_inherit[seed]:
                     print >>dotfile, "    \"%s\" -> \"%s\";" % (inherit, seed)
 
             print >>dotfile, "}"
