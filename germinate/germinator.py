@@ -32,7 +32,7 @@ from germinate.seeds import Seed
 # TODO: would be much more elegant to reduce our recursion depth!
 sys.setrecursionlimit(2000)
 
-class Germinator:
+class Germinator(object):
     PROGRESS = 15
 
     # Initialisation.
@@ -1101,12 +1101,13 @@ class Germinator:
         for pkg in self._build_depends[seedname]:
             yield pkg
 
-    def get_supported(self):
+    @property
+    def supported(self):
         return self._supported
 
-    def get_all(self):
-        for pkg in self._all:
-            yield pkg
+    @property
+    def all(self):
+        return list(self._all)
 
     # Methods for writing output to files.
     # ------------------------------------
