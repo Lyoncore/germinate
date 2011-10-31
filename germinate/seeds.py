@@ -227,7 +227,7 @@ class SingleSeedStructure(object):
     class instead.
     """
 
-    def __init__(self, bases, branch, f, bzr=False):
+    def __init__(self, branch, f):
         """Parse a single seed structure file."""
 
         self.seed_order = []
@@ -286,8 +286,7 @@ class SeedStructure(object):
 
         # Fetch this one
         with Seed(self._seed_bases, branch, "STRUCTURE", self._bzr) as seed:
-            structure = SingleSeedStructure(
-                self._seed_bases, branch, seed, bzr=self._bzr)
+            structure = SingleSeedStructure(branch, seed)
         got_branches.add(branch)
 
         # Recursively expand included branches
