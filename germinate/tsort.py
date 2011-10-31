@@ -63,13 +63,13 @@ class TopoSorter(object):
 
     def __init__(self, graph):
         """Topological sorting of a graph.
-    
+
         :param graph: sequence of pairs of node_name->parent_names_list.
                       i.e. [('C', ['B']), ('B', ['A']), ('A', [])]
                       For this input the output from the sort or
                       iter_topo_order routines will be:
                       'A', 'B', 'C'
-        
+
         node identifiers can be any hashable object, and are typically strings.
 
         If you have a graph like [('a', ['b']), ('a', ['c'])] this will only use
@@ -78,7 +78,7 @@ class TopoSorter(object):
         The graph is sorted lazily: until you iterate or sort the input is
         not processed other than to create an internal representation.
 
-        iteration or sorting may raise GraphCycleError if a cycle is present 
+        iteration or sorting may raise GraphCycleError if a cycle is present
         in the graph.
         """
         # a dict of the graph.
@@ -86,11 +86,11 @@ class TopoSorter(object):
         self._visitable = set(self._graph)
         ### if debugging:
         # self._original_graph = dict(graph)
-        
+
         # this is a stack storing the depth first search into the graph.
         self._node_name_stack = []
         # at each level of 'recursion' we have to check each parent. This
-        # stack stores the parents we have not yet checked for the node at the 
+        # stack stores the parents we have not yet checked for the node at the
         # matching depth in _node_name_stack
         self._pending_parents_stack = []
         # this is a set of the completed nodes for fast checking whether a
@@ -100,7 +100,7 @@ class TopoSorter(object):
 
     def sorted(self):
         """Sort the graph and return as a list.
-        
+
         After calling this the sorter is empty and you must create a new one.
         """
         return list(self.iter_topo_order())
@@ -117,7 +117,7 @@ class TopoSorter(object):
 
     def iter_topo_order(self):
         """Yield the nodes of the graph in a topological order.
-        
+
         After finishing iteration the sorter is empty and you cannot continue
         iteration.
         """
@@ -137,7 +137,7 @@ class TopoSorter(object):
                     yield self._pop_node()
                 else:
                     while self._pending_parents_stack[-1]:
-                        # recurse depth first into a single parent 
+                        # recurse depth first into a single parent
                         next_node_name = self._pending_parents_stack[-1].pop()
                         if next_node_name in self._completed_node_names:
                             # this parent was completed by a child on the
@@ -157,13 +157,13 @@ class TopoSorter(object):
                             # this indicates a cycle.
                             raise GraphCycleError(self._node_name_stack)
                         self._push_node(next_node_name, parents)
-                        # and do not continue processing parents until this 'call' 
+                        # and do not continue processing parents until this 'call'
                         # has recursed.
                         break
 
     def _push_node(self, node_name, parents):
         """Add node_name to the pending node stack.
-        
+
         Names in this stack will get emitted into the output as they are popped
         off the stack.
         """
@@ -171,7 +171,7 @@ class TopoSorter(object):
         self._pending_parents_stack.append(list(parents))
 
     def _pop_node(self):
-        """Pop the top node off the stack 
+        """Pop the top node off the stack
 
         The node is appended to the sorted output.
         """

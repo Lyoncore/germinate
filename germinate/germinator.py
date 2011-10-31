@@ -252,7 +252,7 @@ class Germinator(object):
         "kernel-image-${Kernel-Version}"). The name is case-insensitive.
         Substitution variables are set with a line that looks like
         " * name: value [value ...]", values being whitespace-separated.
-        
+
         A package containing substitution variables will be expanded into
         one package for each possible combination of values of those
         variables."""
@@ -575,7 +575,7 @@ class Germinator(object):
     def _allowed_dependency(self, pkg, depend, seedname, build_depend):
         """Is pkg allowed to satisfy a (build-)dependency using depend
            within seedname? Note that depend must be a real package.
-           
+
            If seedname is None, check whether the (build-)dependency is
            allowed within any seed."""
         if depend not in self._packages:
