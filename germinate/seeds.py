@@ -67,7 +67,7 @@ class Seed(object):
             checkout = os.path.join(bzr_cache_dir, branch)
             if not os.path.isdir(checkout):
                 command = ['bzr']
-                # https://launchpad.net/products/bzr/+bug/39542
+                # https://bugs.launchpad.net/bzr/+bug/39542
                 if path.startswith('http:'):
                     command.append('branch')
                     logging.info("Fetching branch of %s", path)
