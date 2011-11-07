@@ -42,7 +42,7 @@ __all__ = [
 ]
 
 
-bzr_cache_dir = None
+_bzr_cache_dir = None
 
 class SeedError(RuntimeError):
     pass
@@ -60,11 +60,11 @@ class Seed(object):
         if not path.endswith('/'):
             path += '/'
         if bzr:
-            global bzr_cache_dir
-            if bzr_cache_dir is None:
-                bzr_cache_dir = tempfile.mkdtemp(prefix='germinate-')
-                atexit.register(_cleanup_bzr_cache, bzr_cache_dir)
-            checkout = os.path.join(bzr_cache_dir, branch)
+            global _bzr_cache_dir
+            if _bzr_cache_dir is None:
+                _bzr_cache_dir = tempfile.mkdtemp(prefix='germinate-')
+                atexit.register(_cleanup_bzr_cache, _bzr_cache_dir)
+            checkout = os.path.join(_bzr_cache_dir, branch)
             if not os.path.isdir(checkout):
                 command = ['bzr']
                 # https://bugs.launchpad.net/bzr/+bug/39542
