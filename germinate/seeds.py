@@ -29,6 +29,7 @@ import re
 import subprocess
 import codecs
 import io
+import collections
 
 import germinate.defaults
 from germinate.tsort import topo_sort
@@ -259,7 +260,7 @@ class SingleSeedStructure(object):
                 logging.error("Unparseable seed structure entry: %s", line)
 
 
-class SeedStructure(object):
+class SeedStructure(collections.Mapping, object):
     """The full structure of a seed collection.
 
     This deals with acquiring the seed structure files and recursively
@@ -268,14 +269,14 @@ class SeedStructure(object):
 
     def __init__(self, branch, seed_bases=germinate.defaults.seeds, bzr=False):
         self._seed_bases = seed_bases
-        self.branch = branch
+        self._branch = branch
         self._bzr = bzr
-        self.features = set()
-        self.seed_order, self._inherit, branches, self._lines = \
-            self._parse(self.branch, set())
-        self.seeds = {}
-        for seed in self.seed_order:
-            self.seeds[seed] = Seed(seed_bases, branches, seed, bzr=bzr)
+        self._features = set()
+        self._seed_order, self._inherit, branches, self._lines = \
+            self._parse(self._branch, set())
+        self._seeds = {}
+        for seed in self._seed_order:
+            self._seeds[seed] = Seed(seed_bases, branches, seed, bzr=bzr)
         self._expand_inheritance()
 
     def _parse(self, branch, got_branches):
@@ -321,7 +322,7 @@ class SeedStructure(object):
                     del all_structure[i]
                     break
             all_structure.append(structure_line)
-        self.features.update(structure.features)
+        self._features.update(structure.features)
 
         # We generally want to process branches in reverse order, so that
         # later branches can override seeds from earlier branches
@@ -333,8 +334,8 @@ class SeedStructure(object):
         """Expand out incomplete inheritance lists"""
         self._original_inherit = dict(self._inherit)
 
-        self.names = topo_sort(self._inherit)
-        for name in self.names:
+        self._names = topo_sort(self._inherit)
+        for name in self._names:
             seen = set()
             new_inherit = []
             for inheritee in self._inherit[name]:
@@ -349,25 +350,25 @@ class SeedStructure(object):
 
     def limit(self, seeds):
         """Restrict the seeds we care about to this list."""
-        self.names = []
+        self._names = []
         for name in seeds:
             for inherit in self._inherit[name]:
-                if inherit not in self.names:
-                    self.names.append(inherit)
-            if name not in self.names:
-                self.names.append(name)
+                if inherit not in self._names:
+                    self._names.append(inherit)
+            if name not in self._names:
+                self._names.append(name)
 
     def add(self, name, entries, parent):
-        self.names.append(name)
+        self._names.append(name)
         self._inherit[name] = self._inherit[parent] + [parent]
-        self.seeds[name] = CustomSeed(name, entries)
+        self._seeds[name] = CustomSeed(name, entries)
 
     def add_extra(self):
         """Add a special "extra" seed."""
-        if "extra" in self.names:
+        if "extra" in self._names:
             return
-        self.names.append("extra")
-        self._inherit["extra"] = list(self.names)
+        self._names.append("extra")
+        self._inherit["extra"] = list(self._names)
 
     def inner_seeds(self, seedname):
         """Return this seed and the seeds from which it inherits."""
@@ -378,7 +379,7 @@ class SeedStructure(object):
     def strictly_outer_seeds(self, seedname):
         """Return the seeds that inherit from this seed."""
         outerseeds = []
-        for seed in self.names:
+        for seed in self._names:
             if seedname in self._inherit[seed]:
                 outerseeds.append(seed)
         return outerseeds
@@ -388,6 +389,31 @@ class SeedStructure(object):
         outerseeds = [seedname]
         outerseeds.extend(self.strictly_outer_seeds(seedname))
         return outerseeds
+
+    def __iter__(self):
+        return iter(self._seeds)
+
+    def __len__(self):
+        return len(self._seeds)
+
+    def __getitem__(self, seedname):
+        return self._seeds[seedname]
+
+    @property
+    def branch(self):
+        return self._branch
+
+    @property
+    def features(self):
+        return set(self._features)
+
+    @property
+    def seed_order(self):
+        return list(self._seed_order)
+
+    @property
+    def names(self):
+        return list(self._names)
 
     def write(self, filename):
         with open(filename, "w") as f:
@@ -402,7 +428,7 @@ class SeedStructure(object):
             print >>dotfile, "digraph structure {"
             print >>dotfile, "    node [color=lightblue2, style=filled];"
 
-            for seed in self.seed_order:
+            for seed in self._seed_order:
                 if seed not in self._original_inherit:
                     continue
                 for inherit in self._original_inherit[seed]:
@@ -412,6 +438,6 @@ class SeedStructure(object):
 
     def write_seed_text(self, filename, seedname):
         with open(filename, "w") as f:
-            with self.seeds[seedname] as seed:
+            with self._seeds[seedname] as seed:
                 for line in seed:
                     print >>f, line.rstrip('\n')

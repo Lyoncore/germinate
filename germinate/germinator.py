@@ -470,7 +470,7 @@ class Germinator(object):
         self._structure = structure
         self._supported = structure.seed_order[-1]
         for name in structure.names:
-            with structure.seeds[name] as seed:
+            with structure[name] as seed:
                 self._plant_seed(name, seed)
 
     def _is_pruned(self, pkg, seed):

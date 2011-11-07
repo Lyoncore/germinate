@@ -145,7 +145,7 @@ def main():
         else:
             mapped_seeds = []
             task_seeds_re = re.compile('^Task-Seeds:\s*(.*)', re.I)
-            with structure.seeds[seed_name] as seed:
+            with structure[seed_name] as seed:
                 for line in seed:
                     task_seeds_match = task_seeds_re.match(line)
                     if task_seeds_match is not None:
@@ -163,7 +163,7 @@ def main():
             return config.get(dist, "metapackage_map/%s" % seed_name)
         else:
             task_meta_re = re.compile('^Task-Metapackage:\s*(.*)', re.I)
-            with structure.seeds[seed_name] as seed:
+            with structure[seed_name] as seed:
                 for line in seed:
                     task_meta_match = task_meta_re.match(line)
                     if task_meta_match is not None:
