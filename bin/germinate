@@ -180,9 +180,9 @@ def main():
     g.write_all_list("all")
     g.write_all_source_list("all.sources")
 
-    g.write_supported_list("%s+build-depends" % g.supported)
+    g.write_supported_list("%s+build-depends" % structure.supported)
     g.write_supported_source_list(
-        "%s+build-depends.sources" % g.supported)
+        "%s+build-depends.sources" % structure.supported)
 
     g.write_all_extra_list("all+extra")
     g.write_all_extra_source_list("all+extra.sources")

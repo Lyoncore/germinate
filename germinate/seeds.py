@@ -408,8 +408,8 @@ class SeedStructure(collections.Mapping, object):
         return set(self._features)
 
     @property
-    def seed_order(self):
-        return list(self._seed_order)
+    def supported(self):
+        return self._seed_order[-1]
 
     @property
     def names(self):

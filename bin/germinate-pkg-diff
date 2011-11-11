@@ -108,13 +108,13 @@ class Globals:
 
         needed_seeds = []
         build_tree = False
-        for seedname in self.seeds:
-            if seedname == ('%s+build-depends' % g.supported):
-                seedname = g.supported
-                build_tree = True
-            needed_seeds.append(seedname)
         try:
             structure = SeedStructure(options.release, options.seeds)
+            for seedname in self.seeds:
+                if seedname == ('%s+build-depends' % structure.supported):
+                    seedname = structure.supported
+                    build_tree = True
+                needed_seeds.append(seedname)
             g.plant_seeds(structure, seeds=needed_seeds)
         except SeedError:
             sys.exit(1)
@@ -135,7 +135,7 @@ class Globals:
             if build_tree:
                 build_depends = dict.fromkeys(
                     g.get_build_depends(seedname), True)
-                for inner in structure.inner_seeds(g.supported):
+                for inner in structure.inner_seeds(structure.supported):
                     build_depends.update(dict.fromkeys(
                         g.get_seed(inner), False))
                     build_depends.update(dict.fromkeys(
@@ -145,7 +145,7 @@ class Globals:
                 for (pkg, use) in build_depends.iteritems():
                     if use:
                         self.package.setdefault(pkg, Package(pkg))
-                        self.package[pkg].set_seed(g.supported +
+                        self.package[pkg].set_seed(structure.supported +
                                                    ".build-depends")
 
     def parse_dpkg(self, fname):
