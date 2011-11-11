@@ -313,7 +313,7 @@ class Germinator(object):
 
         return False
 
-    def _plant_seed(self, branch, seedname, raw_seed):
+    def _plant_seed(self, seedname, raw_seed):
         """Add a seed."""
         if seedname in self._seeds:
             return
@@ -487,7 +487,7 @@ class Germinator(object):
         self._structure = structure
         for name in structure.names:
             with structure[name] as seed:
-                self._plant_seed(structure.branch, name, seed)
+                self._plant_seed(name, seed)
         try:
             self._supported = self._seeds[structure.supported]
         except KeyError:
