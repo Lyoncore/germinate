@@ -190,6 +190,12 @@ class Seed(object):
     def text(self):
         return self._text
 
+    def __cmp__(self, other):
+        if isinstance(other, Seed):
+            return cmp(self.text, other.text)
+        else:
+            return cmp(self.text, other)
+
 
 class CustomSeed(Seed):
     """A seed created from custom input data."""
