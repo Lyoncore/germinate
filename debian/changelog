@@ -50,6 +50,8 @@ germinate (2.0) UNRELEASED; urgency=low
     - Improve the Seed class so that seeds can be read multiple times
       without having to redownload them, and so that they remember which
       branch they came from.
+    - Don't modify inner seeds when processing outer ones; filter
+      build-dependencies on output instead.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 

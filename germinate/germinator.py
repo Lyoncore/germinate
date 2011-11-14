@@ -66,6 +66,22 @@ class GerminatedSeed(object):
     def __str__(self):
         return self._name
 
+    @property
+    def entries(self):
+        return list(self._entries)
+
+    @property
+    def recommends_entries(self):
+        return list(self._recommends_entries)
+
+    @property
+    def depends(self):
+        return set(self._depends)
+
+    @property
+    def build_depends(self):
+        return set(self._build_depends)
+
 
 class Germinator(object):
     PROGRESS = 15
@@ -956,9 +972,6 @@ class Germinator(object):
 
         if pkg not in self._all:
             self._all.add(pkg)
-        elif not build_tree:
-            for buildseed in self._inner_seeds(seed):
-                buildseed._build_depends.discard(pkg)
 
         for innerseed in self._inner_seeds(seed):
             if pkg in innerseed._build:
@@ -1105,20 +1118,22 @@ class Germinator(object):
         return self._packages[pkg].get("Essential", "no") == "yes"
 
     def get_seed(self, seedname):
-        for pkg in self._seeds[seedname]._entries:
-            yield pkg
+        return self._seeds[seedname].entries
 
     def get_seed_recommends(self, seedname):
-        for pkg in self._seeds[seedname]._recommends_entries:
-            yield pkg
+        return self._seeds[seedname].recommends_entries
 
     def get_depends(self, seedname):
-        for pkg in self._seeds[seedname]._depends:
-            yield pkg
+        return self._seeds[seedname].depends
 
     def get_build_depends(self, seedname):
-        for pkg in self._seeds[seedname]._build_depends:
-            yield pkg
+        seed = self._seeds[seedname]
+        output = set(seed._build_depends)
+        for outerseed in self._outer_seeds(seed):
+            output -= set(outerseed._entries)
+            output -= set(outerseed._recommends_entries)
+            output -= outerseed._depends
+        return output
 
     @property
     def all(self):
@@ -1209,7 +1224,7 @@ class Germinator(object):
         self._write_list(seed._reasons, filename,
                          set(seed._entries) |
                          set(seed._recommends_entries) |
-                         set(seed._depends))
+                         seed._depends)
 
     def write_seed_list(self, filename, seedname):
         seed = self._seeds[seedname]
@@ -1225,7 +1240,8 @@ class Germinator(object):
 
     def write_build_depends_list(self, filename, seedname):
         seed = self._seeds[seedname]
-        self._write_list(seed._reasons, filename, seed._build_depends)
+        self._write_list(seed._reasons, filename,
+                         self.get_build_depends(seedname))
 
     def write_sources_list(self, filename, seedname):
         seed = self._seeds[seedname]
@@ -1243,10 +1259,10 @@ class Germinator(object):
                 continue
             seed = self._seeds[seedname]
 
-            all_bins.update(seed._entries)
-            all_bins.update(seed._recommends_entries)
-            all_bins.update(seed._depends)
-            all_bins.update(seed._build_depends)
+            all_bins |= set(seed._entries)
+            all_bins |= set(seed._recommends_entries)
+            all_bins |= seed._depends
+            all_bins |= self.get_build_depends(seedname)
 
         self._write_list(self._all_reasons, filename, all_bins)
 
@@ -1258,8 +1274,8 @@ class Germinator(object):
                 continue
             seed = self._seeds[seedname]
 
-            all_srcs.update(seed._sourcepkgs)
-            all_srcs.update(seed._build_sourcepkgs)
+            all_srcs |= seed._sourcepkgs
+            all_srcs |= seed._build_sourcepkgs
 
         self._write_source_list(filename, all_srcs)
 
@@ -1272,20 +1288,20 @@ class Germinator(object):
             seed = self._seeds[seedname]
 
             if seedname == self._supported.name:
-                sup_bins.update(seed._entries)
-                sup_bins.update(seed._recommends_entries)
-                sup_bins.update(seed._depends)
+                sup_bins |= set(seed._entries)
+                sup_bins |= set(seed._recommends_entries)
+                sup_bins |= seed._depends
 
             # Only include those build-dependencies that aren't already in
             # the dependency outputs for inner seeds of supported. This
             # allows supported+build-depends to be usable as an "everything
             # else" output.
-            build_depends = dict.fromkeys(seed._build_depends, True)
+            build_depends = set(self.get_build_depends(seedname))
             for innerseed in self._inner_seeds(self._supported):
-                build_depends.update(dict.fromkeys(innerseed._entries, False))
-                build_depends.update(dict.fromkeys(innerseed._recommends_entries, False))
-                build_depends.update(dict.fromkeys(innerseed._depends, False))
-            sup_bins.update([k for (k, v) in build_depends.iteritems() if v])
+                build_depends -= set(innerseed._entries)
+                build_depends -= set(innerseed._recommends_entries)
+                build_depends -= innerseed._depends
+            sup_bins |= build_depends
 
         self._write_list(self._all_reasons, filename, sup_bins)
 
@@ -1298,16 +1314,16 @@ class Germinator(object):
             seed = self._seeds[seedname]
 
             if seedname == self._supported.name:
-                sup_srcs.update(seed._sourcepkgs)
+                sup_srcs |= seed._sourcepkgs
 
             # Only include those build-dependencies that aren't already in
             # the dependency outputs for inner seeds of supported. This
             # allows supported+build-depends to be usable as an "everything
             # else" output.
-            build_sourcepkgs = dict.fromkeys(seed._build_sourcepkgs, True)
+            build_sourcepkgs = set(seed._build_sourcepkgs)
             for innerseed in self._inner_seeds(self._supported):
-                build_sourcepkgs.update(dict.fromkeys(innerseed._sourcepkgs, False))
-            sup_srcs.update([k for (k, v) in build_sourcepkgs.iteritems() if v])
+                build_sourcepkgs -= innerseed._sourcepkgs
+            sup_srcs |= build_sourcepkgs
 
         self._write_source_list(filename, sup_srcs)
 

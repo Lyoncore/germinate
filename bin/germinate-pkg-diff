@@ -133,20 +133,15 @@ class Globals:
                 self.package[pkg].set_seed(seedname + ".depends")
 
             if build_tree:
-                build_depends = dict.fromkeys(
-                    g.get_build_depends(seedname), True)
+                build_depends = set(g.get_build_depends(seedname))
                 for inner in structure.inner_seeds(structure.supported):
-                    build_depends.update(dict.fromkeys(
-                        g.get_seed(inner), False))
-                    build_depends.update(dict.fromkeys(
-                        g.get_seed_recommends(inner), False))
-                    build_depends.update(dict.fromkeys(
-                        g.get_depends(inner), False))
-                for (pkg, use) in build_depends.iteritems():
-                    if use:
-                        self.package.setdefault(pkg, Package(pkg))
-                        self.package[pkg].set_seed(structure.supported +
-                                                   ".build-depends")
+                    build_depends -= set(g.get_seed(inner))
+                    build_depends -= set(g.get_seed_recommends(inner))
+                    build_depends -= g.get_depends(inner)
+                for pkg in build_depends:
+                    self.package.setdefault(pkg, Package(pkg))
+                    self.package[pkg].set_seed(structure.supported +
+                                               ".build-depends")
 
     def parse_dpkg(self, fname):
         if fname is None:
