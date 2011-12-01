@@ -54,8 +54,8 @@ germinate (2.0) UNRELEASED; urgency=low
       build-dependencies on output instead.
     - Don't plant or grow seeds that have already had functionally-identical
       versions planted or grown respectively.
-    - Automatically convert string mirrors/source_mirrors arguments to lists
-      in TagFile constructor.
+    - Automatically convert string dists/components/mirrors/source_mirrors
+      arguments to lists in TagFile constructor.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 

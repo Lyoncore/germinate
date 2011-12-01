@@ -56,6 +56,10 @@ class TagFile(Archive):
 
     def __init__(self, dists, components, arch, mirrors, source_mirrors=None,
                  installer_packages=True, cleanup=False):
+        if isinstance(dists, str) or isinstance(dists, unicode):
+            dists = [dists]
+        if isinstance(components, str) or isinstance(components, unicode):
+            components = [components]
         if isinstance(mirrors, str) or isinstance(mirrors, unicode):
             mirrors = [mirrors]
         if (isinstance(source_mirrors, str) or
