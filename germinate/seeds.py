@@ -89,8 +89,7 @@ class Seed(object):
             return urllib2.urlopen(req)
 
     def __init__(self, bases, branches, name, bzr=False):
-        if (isinstance(branches, str) or
-            isinstance(branches, unicode)):
+        if isinstance(branches, str) or isinstance(branches, unicode):
             branches = [branches]
 
         self._name = name
