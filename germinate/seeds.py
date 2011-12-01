@@ -273,7 +273,14 @@ class SeedStructure(collections.Mapping, object):
     acquiring any seed structure files it includes.
     """
 
-    def __init__(self, branch, seed_bases=germinate.defaults.seeds, bzr=False):
+    def __init__(self, branch, seed_bases=None, bzr=False):
+        if seed_bases is None:
+            if bzr:
+                seed_bases = germinate.defaults.seeds_bzr
+            else:
+                seed_bases = germinate.defaults.seeds
+            seed_bases = seed_bases.split(',')
+
         self._seed_bases = seed_bases
         self._branch = branch
         self._bzr = bzr
