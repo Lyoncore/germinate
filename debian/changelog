@@ -52,6 +52,8 @@ germinate (2.0) UNRELEASED; urgency=low
       branch they came from.
     - Don't modify inner seeds when processing outer ones; filter
       build-dependencies on output instead.
+    - Don't plant or grow seeds that have already had functionally-identical
+      versions planted or grown respectively.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 
