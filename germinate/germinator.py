@@ -52,6 +52,7 @@ class GerminatedSeed(object):
         self._build_depends = set()
         self._sourcepkgs = set()
         self._build_sourcepkgs = set()
+        self._pkgprovides = {}
         self._build = set()
         self._not_build = set()
         self._build_srcs = set()
@@ -59,6 +60,9 @@ class GerminatedSeed(object):
         self._reasons = {}
         self._blacklist = set()
         self._blacklist_seen = False
+        # Note that this relates to the vestigial global blacklist file, not
+        # to the per-seed blacklist entries in _blacklist.
+        self._blacklisted = set()
         self._di_kernel_versions = set()
         self._includes = {}
         self._excludes = {}
@@ -87,6 +91,7 @@ class GerminatedSeed(object):
         new._reasons = self._reasons
         new._blacklist = self._blacklist
         new._blacklist_seen = False
+        new._blacklisted = self._blacklisted
         new._di_kernel_versions = self._di_kernel_versions
         new._includes = self._includes
         new._excludes = self._excludes
@@ -166,14 +171,11 @@ class GerminatedSeedStructure(object):
         # TODO: move to collections.OrderedDict with 2.7
         self._seednames = []
 
-        self._pkgprovides = {}
-
         self._all = set()
         self._all_srcs = set()
         self._all_reasons = {}
 
         self._blacklist = {}
-        self._blacklisted = set()
 
 class GerminatorOutput(collections.MutableMapping, object):
     def __init__(self):
@@ -669,6 +671,15 @@ class Germinator(object):
             seed = self.get_seed(structure, seedname)
             if seed._grown:
                 logging.info("Already grown seed %s" % seed)
+
+                # We still need to update a few structure-wide outputs.
+                output._all.update(seed._build)
+                output._all_srcs.update(seed._build_srcs)
+                for pkg, (why, build_tree,
+                          recommends) in seed._reasons.iteritems():
+                    self._remember_why(output._all_reasons, pkg, why,
+                                       build_tree, recommends)
+
                 continue
 
             logging.log(self.PROGRESS, "Resolving %s dependencies ...", seed)
@@ -1134,9 +1145,9 @@ class Germinator(object):
                            recommends)
 
         for prov in self._packages[pkg]["Provides"]:
-            if prov[0][0] not in output._pkgprovides:
-                output._pkgprovides[prov[0][0]] = set()
-            output._pkgprovides[prov[0][0]].add(pkg)
+            if prov[0][0] not in seed._pkgprovides:
+                seed._pkgprovides[prov[0][0]] = set()
+            seed._pkgprovides[prov[0][0]].add(pkg)
 
         self._add_dependency_tree(seed, pkg,
                                   self._packages[pkg]["Pre-Depends"],
@@ -1173,7 +1184,7 @@ class Germinator(object):
         if build_tree:
             seed._build_sourcepkgs.add(src)
             if src in output._blacklist:
-                output._blacklisted.add(src)
+                seed._blacklisted.add(src)
 
         else:
             if src in output._all_srcs:
@@ -1527,9 +1538,17 @@ class Germinator(object):
         output = self._output[structure]
 
         with open(filename, "w") as f:
-            for prov in sorted(output._pkgprovides.keys()):
+            all_pkgprovides = {}
+            for seedname in output._seednames:
+                seed = self.get_seed(structure, seedname)
+                for prov, provset in seed._pkgprovides.iteritems():
+                    if prov not in all_pkgprovides:
+                        all_pkgprovides[prov] = set()
+                    all_pkgprovides[prov].update(provset)
+
+            for prov in sorted(all_pkgprovides.keys()):
                 print >>f, prov
-                for pkg in sorted(output._pkgprovides[prov]):
+                for pkg in sorted(all_pkgprovides[prov]):
                     print >>f, "\t%s" % (pkg,)
                 print >>f
 
@@ -1539,7 +1558,12 @@ class Germinator(object):
         output = self._output[structure]
 
         with open(filename, 'w') as fh:
-            for pkg in sorted(output._blacklisted):
+            all_blacklisted = set()
+            for seedname in output._seednames:
+                seed = self.get_seed(structure, seedname)
+                all_blacklisted.update(seed._blacklisted)
+
+            for pkg in sorted(all_blacklisted):
                 blacklist = output._blacklist[pkg]
                 fh.write('%s\t%s\n' % (pkg, blacklist))
 
