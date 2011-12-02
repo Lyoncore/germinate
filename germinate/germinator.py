@@ -1274,13 +1274,16 @@ class Germinator(object):
     def get_depends(self, structure, seedname):
         return self.get_seed(structure, seedname).depends
 
-    def get_build_depends(self, structure, seedname):
+    def get_full(self, structure, seedname):
         seed = self.get_seed(structure, seedname)
-        output = set(seed._build_depends)
-        for outerseed in self._outer_seeds(seed):
-            output -= set(outerseed._entries)
-            output -= set(outerseed._recommends_entries)
-            output -= outerseed._depends
+        return (set(seed._entries) |
+                set(seed._recommends_entries) |
+                seed._depends)
+
+    def get_build_depends(self, structure, seedname):
+        output = set(self.get_seed(structure, seedname)._build_depends)
+        for outerseedname in structure.outer_seeds(seedname):
+            output -= self.get_full(structure, outerseedname)
         return output
 
     def get_all(self, structure):
@@ -1365,9 +1368,7 @@ class Germinator(object):
     def write_full_list(self, structure, filename, seedname):
         seed = self.get_seed(structure, seedname)
         self._write_list(seed._reasons, filename,
-                         set(seed._entries) |
-                         set(seed._recommends_entries) |
-                         seed._depends)
+                         self.get_full(structure, seedname))
 
     def write_seed_list(self, structure, filename, seedname):
         seed = self.get_seed(structure, seedname)
@@ -1400,11 +1401,8 @@ class Germinator(object):
         for seedname in structure.names:
             if seedname == "extra":
                 continue
-            seed = self.get_seed(structure, seedname)
 
-            all_bins |= set(seed._entries)
-            all_bins |= set(seed._recommends_entries)
-            all_bins |= seed._depends
+            all_bins |= self.get_full(structure, seedname)
             all_bins |= self.get_build_depends(structure, seedname)
 
         self._write_list(self._output[structure]._all_reasons, filename,
@@ -1429,22 +1427,17 @@ class Germinator(object):
         for seedname in structure.names:
             if seedname == "extra":
                 continue
-            seed = self.get_seed(structure, seedname)
 
             if seedname == structure.supported:
-                sup_bins |= set(seed._entries)
-                sup_bins |= set(seed._recommends_entries)
-                sup_bins |= seed._depends
+                sup_bins |= self.get_full(structure, seedname)
 
             # Only include those build-dependencies that aren't already in
             # the dependency outputs for inner seeds of supported. This
             # allows supported+build-depends to be usable as an "everything
             # else" output.
             build_depends = set(self.get_build_depends(structure, seedname))
-            for innerseed in self._inner_seeds(self._supported(seed)):
-                build_depends -= set(innerseed._entries)
-                build_depends -= set(innerseed._recommends_entries)
-                build_depends -= innerseed._depends
+            for innerseedname in structure.inner_seeds(structure.supported):
+                build_depends -= self.get_full(structure, innerseedname)
             sup_bins |= build_depends
 
         self._write_list(self._output[structure]._all_reasons, filename,
