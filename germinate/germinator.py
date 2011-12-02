@@ -170,6 +170,7 @@ class GerminatedSeed(object):
         else:
             return cmp(self.name, other)
 
+
 class GerminatedSeedStructure(object):
     def __init__(self, structure):
         self._structure = structure
@@ -182,6 +183,7 @@ class GerminatedSeedStructure(object):
         self._all_reasons = {}
 
         self._blacklist = {}
+
 
 class GerminatorOutput(collections.MutableMapping, object):
     def __init__(self):
@@ -210,6 +212,7 @@ class GerminatorOutput(collections.MutableMapping, object):
             del self._dict[key.branch]
         else:
             del self._dict[key]
+
 
 class Germinator(object):
     PROGRESS = 15
