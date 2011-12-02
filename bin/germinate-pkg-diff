@@ -78,9 +78,7 @@ class Package:
                 ret = "+ " + ret
             else:
                 ret = "  " + ret
-            k = self.seed.keys()
-            k.sort()
-            ret += ",".join(k)
+            ret += ",".join(sorted(self.seed.keys()))
         return ret
 
 
@@ -164,9 +162,7 @@ class Globals:
         self.outmode = mode
 
     def output(self):
-        keys = self.package.keys()
-        keys.sort()
-        for k in keys:
+        for k in sorted(self.package.keys()):
             l = self.package[k].output(self.outmode)
             if len(l):
                 print l

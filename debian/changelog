@@ -18,6 +18,7 @@ germinate (2.0) UNRELEASED; urgency=low
     branch on Launchpad.
   * Slightly modernise use of dh_python2.
   * Forbid seed names containing slashes.
+  * Eliminate most uses of list.sort() in favour of sorted(iterable).
 
   * Massive API cleanup:
     - Move output-writing functions from the top-level germinate program

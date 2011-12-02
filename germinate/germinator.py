@@ -392,8 +392,7 @@ class Germinator(object):
                 filtered = [pattern]
             else:
                 filtered = []
-        filtered.sort()
-        return filtered
+        return sorted(filtered)
 
     def _substitute_seed_vars(self, substvars, pkg):
         """Process substitution variables. These look like ${name} (e.g.
@@ -726,8 +725,7 @@ class Germinator(object):
         found = True
         while found:
             found = False
-            sorted_srcs = list(output._all_srcs)
-            sorted_srcs.sort()
+            sorted_srcs = sorted(output._all_srcs)
             for srcname in sorted_srcs:
                 for pkg in self._sources[srcname]["Binaries"]:
                     if pkg not in self._packages:
@@ -1292,8 +1290,7 @@ class Germinator(object):
     # ------------------------------------
 
     def _write_list(self, reasons, filename, pkgset):
-        pkglist = list(pkgset)
-        pkglist.sort()
+        pkglist = sorted(pkgset)
 
         pkg_len = len("Package")
         src_len = len("Source")
@@ -1316,7 +1313,6 @@ class Germinator(object):
         size = 0
         installed_size = 0
 
-        pkglist.sort()
         with codecs.open(filename, "w", "utf8", "replace") as f:
             print >>f, "%-*s | %-*s | %-*s | %-*s | %-15s | %-15s" % \
                   (pkg_len, "Package",
@@ -1345,8 +1341,7 @@ class Germinator(object):
                    size, installed_size)
 
     def _write_source_list(self, filename, srcset):
-        srclist = list(srcset)
-        srclist.sort()
+        srclist = sorted(srcset)
 
         src_len = len("Source")
         mnt_len = len("Maintainer")
@@ -1358,7 +1353,6 @@ class Germinator(object):
             _mnt_len = len(self._sources[src]["Maintainer"])
             if _mnt_len > mnt_len: mnt_len = _mnt_len
 
-        srclist.sort()
         with codecs.open(filename, "w", "utf8", "replace") as f:
             fmt = "%-*s | %-*s"
 
@@ -1539,16 +1533,10 @@ class Germinator(object):
     def write_provides_list(self, structure, filename):
         output = self._output[structure]
 
-        provides = output._pkgprovides.keys()
-        provides.sort()
-
         with open(filename, "w") as f:
-            for prov in provides:
+            for prov in sorted(output._pkgprovides.keys()):
                 print >>f, prov
-
-                provlist = list(output._pkgprovides[prov])
-                provlist.sort()
-                for pkg in provlist:
+                for pkg in sorted(output._pkgprovides[prov]):
                     print >>f, "\t%s" % (pkg,)
                 print >>f
 
@@ -1558,9 +1546,7 @@ class Germinator(object):
         output = self._output[structure]
 
         with open(filename, 'w') as fh:
-            sorted_blacklisted = list(output._blacklisted)
-            sorted_blacklisted.sort()
-            for pkg in sorted_blacklisted:
+            for pkg in sorted(output._blacklisted):
                 blacklist = output._blacklist[pkg]
                 fh.write('%s\t%s\n' % (pkg, blacklist))
 

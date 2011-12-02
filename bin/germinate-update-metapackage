@@ -197,11 +197,10 @@ def main():
         if debootstrap.returncode != 0:
             error_exit('Unable to retrieve package list from debootstrap; stdout: %s\nstderr: %s' % (debootstrap_stdout, debootstrap_stderr))
 
-        packages = filter(None, debootstrap_stdout.split())
         # sometimes debootstrap gives empty packages / multiple separators
-        packages.sort()
+        packages = filter(None, debootstrap_stdout.split())
 
-        return packages
+        return sorted(packages)
 
     def check_debootstrap_version():
         if os.path.exists(debootstrap_version_file):
@@ -226,15 +225,13 @@ def main():
         for (pkg, arch) in items:
             by_arch.setdefault(pkg, [])
             by_arch[pkg].append(arch)
-        all_pkgs = by_arch.keys()
-        all_pkgs.sort()
+        all_pkgs = sorted(by_arch.keys())
         chunks = []
         for pkg in all_pkgs:
             arches = by_arch[pkg]
             if set(architectures) - set(arches):
                 # only some architectures
-                arches.sort()
-                chunks.append('%s [%s]' % (pkg, ' '.join(arches)))
+                chunks.append('%s [%s]' % (pkg, ' '.join(sorted(arches))))
             else:
                 # all architectures
                 chunks.append(pkg)
@@ -351,8 +348,7 @@ def main():
                     recommends_merged.setdefault(package, 0)
                     recommends_merged[package] -= 1
 
-            mergeditems = merged.items()
-            mergeditems.sort()
+            mergeditems = sorted(merged.items())
             for package, value in mergeditems:
                 #print package, value
                 if value == 1:
@@ -373,8 +369,7 @@ def main():
                         removals.setdefault(package,[])
                         removals[package].append([seed_name, architecture])
 
-            mergedrecitems = recommends_merged.items()
-            mergedrecitems.sort()
+            mergedrecitems = sorted(recommends_merged.items())
             for package, value in mergedrecitems:
                 #print package, value
                 if value == 1:
@@ -401,19 +396,13 @@ def main():
         else:
             subprocess.check_call(['dch', '-i', 'Refreshed dependencies'])
         changes = []
-        addition_keys = additions.keys()
-        addition_keys.sort()
-        for package in addition_keys:
+        for package in sorted(additions.keys()):
             changes.append('Added %s to %s' %
                            (package, format_changes(additions[package])))
-        removal_keys = removals.keys()
-        removal_keys.sort()
-        for package in removal_keys:
+        for package in sorted(removals.keys()):
             changes.append('Removed %s from %s' %
                            (package, format_changes(removals[package])))
-        move_keys = moves.keys()
-        move_keys.sort()
-        for package in move_keys:
+        for package in sorted(moves.keys()):
             # TODO: We should really list where it moved from as well, but
             # that gets wordy very quickly, and at the moment this is only
             # implemented for depends->recommends or vice versa. In future,
