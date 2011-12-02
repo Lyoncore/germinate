@@ -375,13 +375,6 @@ class SeedStructure(collections.Mapping, object):
         self._inherit[name] = self._inherit[parent] + [parent]
         self._seeds[name] = CustomSeed(name, entries)
 
-    def add_extra(self):
-        """Add a special "extra" seed."""
-        if "extra" in self._names:
-            return
-        self._names.append("extra")
-        self._inherit["extra"] = list(self._names)
-
     def inner_seeds(self, seedname):
         """Return this seed and the seeds from which it inherits."""
         innerseeds = list(self._inherit[seedname])

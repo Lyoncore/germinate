@@ -154,7 +154,7 @@ def main():
     if options.want_rdepends:
         g.reverse_depends(structure)
 
-    for seedname in structure.names:
+    for seedname in structure.names + ["extra"]:
         g.write_full_list(structure, seedname, seedname)
         g.write_seed_list(structure, seedname + ".seed", seedname)
         g.write_seed_recommends_list(structure,

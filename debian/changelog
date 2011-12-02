@@ -61,6 +61,9 @@ germinate (2.0) UNRELEASED; urgency=low
       structures, reusing the work done on common seeds.
     - Canonicalise mirrors (by appending '/' if necessary) in TagFile rather
       than in the main germinate program.
+    - Handle the extra seed entirely within Germinator rather than modifying
+      SeedStructure (which doesn't fit well with processing the same seed
+      structure on multiple architectures).
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 
