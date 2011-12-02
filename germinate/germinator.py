@@ -40,7 +40,8 @@ __all__ = [
 
 
 class GerminatedSeed(object):
-    def __init__(self, name, structure):
+    def __init__(self, germinator, name, structure):
+        self._germinator = germinator
         self._name = name
         self._structure = structure
         self._entries = []
@@ -57,6 +58,7 @@ class GerminatedSeed(object):
         self._not_build_srcs = set()
         self._reasons = {}
         self._blacklist = set()
+        self._blacklist_seen = False
         self._di_kernel_versions = set()
         self._includes = {}
         self._excludes = {}
@@ -66,7 +68,7 @@ class GerminatedSeed(object):
     def copy(self, structure):
         assert self._grown
 
-        new = GerminatedSeed(self._name, structure)
+        new = GerminatedSeed(self._germinator, self._name, structure)
         # We deliberately don't take copies of anything; this seed has been
         # grown and thus should not be modified further, and deep copies
         # would take up substantial amounts of memory.
@@ -84,6 +86,7 @@ class GerminatedSeed(object):
         new._not_build_srcs = self._not_build_srcs
         new._reasons = self._reasons
         new._blacklist = self._blacklist
+        new._blacklist_seen = False
         new._di_kernel_versions = self._di_kernel_versions
         new._includes = self._includes
         new._excludes = self._excludes
@@ -125,10 +128,33 @@ class GerminatedSeed(object):
             ret = cmp(len(left_inherit), len(right_inherit))
             if ret != 0:
                 return ret
+            left_branch = self.structure.branch
+            right_branch = other.structure.branch
             for left, right in zip(left_inherit, right_inherit):
                 ret = cmp(left, right)
                 if ret != 0:
                     return ret
+                left_seedname = self._germinator._make_seed_name(
+                    left_branch, left)
+                right_seedname = other._germinator._make_seed_name(
+                    right_branch, right)
+                # Ignore KeyError in the following; if seeds haven't been
+                # planted yet, they can't have seen blacklist entries from
+                # outer seeds.
+                try:
+                    left_seed = self._germinator._seeds[left_seedname]
+                    if left_seed._blacklist_seen:
+                        return -1
+                except KeyError:
+                    pass
+                try:
+                    right_seed = other._germinator._seeds[right_seedname]
+                    if right_seed._blacklist_seen:
+                        return -1
+                except KeyError:
+                    pass
+            if self._blacklist_seen or other._blacklist_seen:
+                return -1
             return 0
         else:
             return cmp(self.name, other)
@@ -422,7 +448,7 @@ class Germinator(object):
 
     def _plant_seed(self, structure, seedname, raw_seed):
         """Add a seed."""
-        seed = GerminatedSeed(seedname, structure)
+        seed = GerminatedSeed(self, seedname, structure)
         full_seedname = self._make_seed_name(structure.branch, seedname)
         for existing in self._seeds.itervalues():
             if seed == existing:
@@ -630,6 +656,7 @@ class Germinator(object):
                 if outerseed is not None and pkg in outerseed._blacklist:
                     logging.error("Package %s blacklisted in %s but seeded in "
                                   "%s (%s)", pkg, outerseed, seed, why)
+                    seed._blacklist_seen = True
                     break
             else:
                 white.append(pkg)
@@ -691,7 +718,7 @@ class Germinator(object):
         output = self._output[structure]
 
         structure.add_extra()
-        seed = GerminatedSeed("extra", structure)
+        seed = GerminatedSeed(self, "extra", structure)
         self._seeds[self._make_seed_name(structure.branch, "extra")] = seed
         output._seednames.append("extra")
 
@@ -1079,6 +1106,7 @@ class Germinator(object):
             if outerseed is not None and pkg in outerseed._blacklist:
                 logging.error("Package %s blacklisted in %s but seeded in %s "
                               "(%s)", pkg, outerseed, seed, why)
+                seed._blacklist_seen = True
                 return
         if build_tree: second_class=True
 
