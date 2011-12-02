@@ -59,6 +59,8 @@ germinate (2.0) UNRELEASED; urgency=low
       arguments to lists in TagFile constructor.
     - Make it possible for a single Germinator to process multiple seed
       structures, reusing the work done on common seeds.
+    - Canonicalise mirrors (by appending '/' if necessary) in TagFile rather
+      than in the main germinate program.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 

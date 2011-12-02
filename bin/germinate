@@ -98,16 +98,6 @@ def parse_options():
     if options.mirrors is None:
         options.mirrors = [germinate.defaults.mirror]
 
-    def canonicalise_mirror(mirror):
-        if not mirror.endswith('/'):
-            mirror += '/'
-        return mirror
-
-    options.mirrors = map(canonicalise_mirror, options.mirrors)
-    if options.source_mirrors is not None:
-        options.source_mirrors = map(canonicalise_mirror,
-                                     options.source_mirrors)
-
     options.dist = options.dist.split(',')
     options.components = options.components.split(',')
     if options.seed_packages is None:

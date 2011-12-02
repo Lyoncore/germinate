@@ -81,6 +81,8 @@ class TagFile(Archive):
                         dist, component, ftppath):
         def _open_tag_file(mirror, suffix):
             """Download an apt tag file if needed, then open it."""
+            if not mirror.endswith('/'):
+                mirror += '/'
             url = (mirror + "dists/" + dist + "/" + component + "/" + ftppath +
                    suffix)
             req = urllib2.Request(url)
