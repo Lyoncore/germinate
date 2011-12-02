@@ -118,26 +118,26 @@ class Globals:
             g.plant_seeds(structure, seeds=needed_seeds)
         except SeedError:
             sys.exit(1)
-        g.prune()
-        g.grow()
+        g.grow(structure)
 
         for seedname in structure.names:
-            for pkg in g.get_seed(seedname):
+            for pkg in g.get_seed_entries(structure, seedname):
                 self.package.setdefault(pkg, Package(pkg))
                 self.package[pkg].set_seed(seedname + ".seed")
-            for pkg in g.get_seed_recommends(seedname):
+            for pkg in g.get_seed_recommends_entries(structure, seedname):
                 self.package.setdefault(pkg, Package(pkg))
                 self.package[pkg].set_seed(seedname + ".seed-recommends")
-            for pkg in g.get_depends(seedname):
+            for pkg in g.get_depends(structure, seedname):
                 self.package.setdefault(pkg, Package(pkg))
                 self.package[pkg].set_seed(seedname + ".depends")
 
             if build_tree:
-                build_depends = set(g.get_build_depends(seedname))
+                build_depends = set(g.get_build_depends(structure, seedname))
                 for inner in structure.inner_seeds(structure.supported):
-                    build_depends -= set(g.get_seed(inner))
-                    build_depends -= set(g.get_seed_recommends(inner))
-                    build_depends -= g.get_depends(inner)
+                    build_depends -= set(g.get_seed_entries(structure, inner))
+                    build_depends -= set(g.get_seed_recommends_entries(
+                        structure, inner))
+                    build_depends -= g.get_depends(structure, inner)
                 for pkg in build_depends:
                     self.package.setdefault(pkg, Package(pkg))
                     self.package[pkg].set_seed(structure.supported +

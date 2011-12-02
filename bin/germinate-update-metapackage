@@ -155,7 +155,7 @@ def main():
                 mapped_seeds.append(seed_name)
         packages = []
         for mapped_seed in mapped_seeds:
-            packages.extend(germinator_method(mapped_seed))
+            packages.extend(germinator_method(structure, mapped_seed))
         return packages
 
     def metapackage_name(structure, seed_name):
@@ -286,8 +286,9 @@ def main():
 
             # work on the depends
             new_list = []
-            for package in seed_packages(germinator.get_seed,
-                                         structure, seed_name):
+            packages = seed_packages(germinator.get_seed_entries,
+                                     structure, seed_name)
+            for package in packages:
                 if package == meta_name:
                     print "%s/%s: Skipping package %s (metapackage)" % (seed_name,architecture,package)
                 elif seed_name == 'minimal' and package not in debootstrap_base:
@@ -306,8 +307,9 @@ def main():
             # work on the recommends
             old_recommends_list = None
             new_recommends_list = []
-            for package in seed_packages(germinator.get_seed_recommends,
-                                         structure, seed_name):
+            packages = seed_packages(germinator.get_seed_recommends_entries,
+                                     structure, seed_name)
+            for package in packages:
                 if package == meta_name:
                     print "%s/%s: Skipping package %s (metapackage)" % (seed_name,architecture,package)
                     continue

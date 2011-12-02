@@ -56,6 +56,8 @@ germinate (2.0) UNRELEASED; urgency=low
       versions planted or grown respectively.
     - Automatically convert string dists/components/mirrors/source_mirrors
       arguments to lists in TagFile constructor.
+    - Make it possible for a single Germinator to process multiple seed
+      structures, reusing the work done on common seeds.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 

@@ -144,13 +144,6 @@ def main():
             g.parse_hints(hints)
 
     try:
-        with Seed(options.seeds, options.release, "blacklist",
-                  options.bzr) as blacklist:
-            g.parse_blacklist(blacklist)
-    except SeedError:
-        pass
-
-    try:
         structure = SeedStructure(options.release, options.seeds, options.bzr)
         for seed_package in options.seed_packages:
             parent, pkg = seed_package.split('/')
@@ -159,35 +152,44 @@ def main():
     except SeedError:
         sys.exit(1)
 
-    g.prune()
-    g.grow()
-    g.add_extras()
+    try:
+        with Seed(options.seeds, options.release, "blacklist",
+                  options.bzr) as blacklist:
+            g.parse_blacklist(structure, blacklist)
+    except SeedError:
+        pass
+
+    g.grow(structure)
+    g.add_extras(structure)
     if options.want_rdepends:
-        g.reverse_depends()
+        g.reverse_depends(structure)
 
     for seedname in structure.names:
-        g.write_full_list(seedname, seedname)
-        g.write_seed_list(seedname + ".seed", seedname)
-        g.write_seed_recommends_list(seedname + ".seed-recommends", seedname)
-        g.write_depends_list(seedname + ".depends", seedname)
-        g.write_build_depends_list(seedname + ".build-depends", seedname)
+        g.write_full_list(structure, seedname, seedname)
+        g.write_seed_list(structure, seedname + ".seed", seedname)
+        g.write_seed_recommends_list(structure,
+                                     seedname + ".seed-recommends", seedname)
+        g.write_depends_list(structure, seedname + ".depends", seedname)
+        g.write_build_depends_list(structure,
+                                   seedname + ".build-depends", seedname)
 
         if seedname != "extra" and seedname in structure:
             structure.write_seed_text(seedname + ".seedtext", seedname)
-            g.write_sources_list(seedname + ".sources", seedname)
-        g.write_build_sources_list(seedname + ".build-sources", seedname)
+            g.write_sources_list(structure, seedname + ".sources", seedname)
+        g.write_build_sources_list(structure,
+                                   seedname + ".build-sources", seedname)
 
-    g.write_all_list("all")
-    g.write_all_source_list("all.sources")
+    g.write_all_list(structure, "all")
+    g.write_all_source_list(structure, "all.sources")
 
-    g.write_supported_list("%s+build-depends" % structure.supported)
+    g.write_supported_list(structure, "%s+build-depends" % structure.supported)
     g.write_supported_source_list(
-        "%s+build-depends.sources" % structure.supported)
+        structure, "%s+build-depends.sources" % structure.supported)
 
-    g.write_all_extra_list("all+extra")
-    g.write_all_extra_source_list("all+extra.sources")
+    g.write_all_extra_list(structure, "all+extra")
+    g.write_all_extra_source_list(structure, "all+extra.sources")
 
-    g.write_provides_list("provides")
+    g.write_provides_list(structure, "provides")
 
     structure.write("structure")
     structure.write_dot("structure.dot")
@@ -197,16 +199,16 @@ def main():
     if options.want_rdepends:
         os.mkdir("rdepends")
         os.mkdir(os.path.join("rdepends", "ALL"))
-        for pkg in g.all:
+        for pkg in g.get_all(structure):
             dirname = os.path.join("rdepends", g.get_source(pkg))
             if not os.path.exists(dirname):
                 os.mkdir(dirname)
 
-            g.write_rdepend_list(os.path.join(dirname, pkg), pkg)
+            g.write_rdepend_list(structure, os.path.join(dirname, pkg), pkg)
             os.symlink(os.path.join("..", g.get_source(pkg), pkg),
                        os.path.join("rdepends", "ALL", pkg))
 
-    g.write_blacklisted("blacklisted")
+    g.write_blacklisted(structure, "blacklisted")
 
 if __name__ == "__main__":
     main()
