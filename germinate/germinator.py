@@ -96,6 +96,7 @@ class GerminatedSeed(object):
         self._germinator = germinator
         self._name = name
         self._structure = structure
+        self._copy = None
         self._entries = []
         self._features = set()
         self._recommends_entries = []
@@ -121,37 +122,59 @@ class GerminatedSeed(object):
         self._seed_reason = SeedReason(structure.branch, name)
         self._grown = False
 
-    """Return a copy of this seed attached to a different structure."""
-    def copy(self, structure):
-        assert self._grown
+    def copy_plant(self, structure):
+        """Return a copy of this seed attached to a different structure.
 
+        At this point, we only copy the parts of this seed that were filled
+        in by planting; the copy may be aborted if it transpires that it
+        needs to be grown independently after all.  The copy may be
+        completed after all seeds have been planted by calling copy_grow."""
         new = GerminatedSeed(self._germinator, self._name, structure)
-        # We deliberately don't take copies of anything; this seed has been
-        # grown and thus should not be modified further, and deep copies
-        # would take up substantial amounts of memory.
+        new._copy = self
+        # We deliberately don't take copies of anything; deep copies would
+        # take up substantial amounts of memory.
         new._entries = self._entries
         new._features = self._features
         new._recommends_entries = self._recommends_entries
         new._close_seeds = self._close_seeds
-        new._depends = self._depends
-        new._build_depends = self._build_depends
-        new._sourcepkgs = self._sourcepkgs
-        new._build_sourcepkgs = self._build_sourcepkgs
-        new._build = self._build
-        new._not_build = self._not_build
-        new._build_srcs = self._build_srcs
-        new._not_build_srcs = self._not_build_srcs
-        new._reasons = self._reasons
         new._blacklist = self._blacklist
-        new._blacklist_seen = False
-        new._blacklisted = self._blacklisted
         new._di_kernel_versions = self._di_kernel_versions
         new._includes = self._includes
         new._excludes = self._excludes
         new._seed_reason = SeedReason(structure.branch, self._name)
-        new._grown = True
 
         return new
+
+    def copy_growth(self):
+        """Complete copying of this seed."""
+        if self._copy is None:
+            return
+        # Does this seed still look the same as the one it was copied from
+        # after we've finished planting it?
+        if self != self._copy:
+            self._copy = None
+            return
+        copy = self._copy
+
+        assert copy._grown
+
+        # We deliberately don't take copies of anything; this seed has been
+        # grown and thus should not be modified further, and deep copies
+        # would take up substantial amounts of memory.
+        self._entries = copy._entries
+        self._recommends_entries = copy._recommends_entries
+        self._depends = copy._depends
+        self._build_depends = copy._build_depends
+        self._sourcepkgs = copy._sourcepkgs
+        self._build_sourcepkgs = copy._build_sourcepkgs
+        self._build = copy._build
+        self._not_build = copy._not_build
+        self._build_srcs = copy._build_srcs
+        self._not_build_srcs = copy._not_build_srcs
+        self._reasons = copy._reasons
+        self._blacklist_seen = False
+        self._blacklisted = copy._blacklisted
+        self._grown = True
 
     @property
     def name(self):
@@ -181,15 +204,33 @@ class GerminatedSeed(object):
         return set(self._build_depends)
 
     def __cmp__(self, other):
-        if isinstance(other, GerminatedSeed):
-            if self.name == "extra":
+        def cmp_blacklist_seen(left_name, right_name):
+            # Ignore KeyError in the following; if seeds haven't been
+            # planted yet, they can't have seen blacklist entries from outer
+            # seeds.
+            try:
+                left_seed = self._germinator._seeds[left_name]
+                if left_seed._blacklist_seen:
+                    return -1
+            except KeyError:
+                pass
+            try:
+                right_seed = other._germinator._seeds[right_name]
+                if right_seed._blacklist_seen:
+                    return -1
+            except KeyError:
+                pass
+            return 0
+
+        def cmp_inheritance(left_name, right_name):
+            if left_name == "extra":
                 left_inherit = self.structure.names + ["extra"]
             else:
-                left_inherit = self.structure.inner_seeds(self.name)
-            if other.name == "extra":
+                left_inherit = self.structure.inner_seeds(left_name)
+            if right_name == "extra":
                 right_inherit = other.structure.names + ["extra"]
             else:
-                right_inherit = other.structure.inner_seeds(other.name)
+                right_inherit = other.structure.inner_seeds(right_name)
             ret = cmp(len(left_inherit), len(right_inherit))
             if ret != 0:
                 return ret
@@ -203,23 +244,38 @@ class GerminatedSeed(object):
                     left_branch, left)
                 right_seedname = other._germinator._make_seed_name(
                     right_branch, right)
-                # Ignore KeyError in the following; if seeds haven't been
-                # planted yet, they can't have seen blacklist entries from
-                # outer seeds.
-                try:
-                    left_seed = self._germinator._seeds[left_seedname]
-                    if left_seed._blacklist_seen:
-                        return -1
-                except KeyError:
-                    pass
-                try:
-                    right_seed = other._germinator._seeds[right_seedname]
-                    if right_seed._blacklist_seen:
-                        return -1
-                except KeyError:
-                    pass
-            if self._blacklist_seen or other._blacklist_seen:
-                return -1
+                ret = cmp_blacklist_seen(left_seedname, right_seedname)
+                if ret != 0:
+                    return ret
+            return 0
+
+        if isinstance(other, GerminatedSeed):
+            ret = cmp_inheritance(self.name, other.name)
+            if ret != 0:
+                return ret
+
+            try:
+                left_lesser = self._germinator._strictly_outer_seeds(self)
+                right_lesser = other._germinator._strictly_outer_seeds(other)
+                left_close = [l for l in left_lesser
+                                if self.name in l._close_seeds]
+                right_close = [l for l in right_lesser
+                                 if other.name in l._close_seeds]
+                if left_close != right_close:
+                    return -1
+                left_branch = self.structure.branch
+                right_branch = other.structure.branch
+                for close_seed in left_close:
+                    left_seedname = self._germinator._make_seed_name(
+                        left_branch, close_seed)
+                    right_seedname = self._germinator._make_seed_name(
+                        right_branch, close_seed)
+                    ret = cmp_inheritance(left_seedname, right_seedname)
+                    if ret != 0:
+                        return ret
+            except KeyError:
+                pass
+
             return 0
         else:
             return cmp(self.name, other)
@@ -532,7 +588,7 @@ class Germinator(object):
         for existing in self._seeds.itervalues():
             if seed == existing:
                 logging.info("Already planted seed %s" % seed)
-                self._seeds[full_seedname] = existing.copy(structure)
+                self._seeds[full_seedname] = existing.copy_plant(structure)
                 self._output[structure]._seednames.append(seedname)
                 return
         self._seeds[full_seedname] = seed
@@ -545,6 +601,7 @@ class Germinator(object):
         for line in raw_seed:
             if line.lower().startswith('task-seeds:'):
                 seed._close_seeds.update(line[11:].strip().split())
+                seed._close_seeds.discard(seedname)
                 continue
 
             if not line.startswith(" * "):
@@ -747,6 +804,9 @@ class Germinator(object):
 
         for seedname in output._seednames:
             seed = self.get_seed(structure, seedname)
+            if seed._copy:
+                seed.copy_growth()
+
             if seed._grown:
                 logging.info("Already grown seed %s" % seed)
 
