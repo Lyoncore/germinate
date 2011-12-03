@@ -42,6 +42,9 @@ __all__ = [
 ]
 
 
+_logger = logging.getLogger(__name__)
+
+
 _bzr_cache_dir = None
 
 class SeedError(RuntimeError):
@@ -70,10 +73,10 @@ class Seed(object):
                 # https://bugs.launchpad.net/bzr/+bug/39542
                 if path.startswith('http:'):
                     command.append('branch')
-                    logging.info("Fetching branch of %s", path)
+                    _logger.info("Fetching branch of %s", path)
                 else:
                     command.extend(['checkout', '--lightweight'])
-                    logging.info("Checking out %s", path)
+                    _logger.info("Checking out %s", path)
                 command.extend([path, checkout])
                 status = subprocess.call(command)
                 if status != 0:
@@ -82,7 +85,7 @@ class Seed(object):
             return open(os.path.join(checkout, name))
         else:
             url = urlparse.urljoin(path, name)
-            logging.info("Downloading %s", url)
+            _logger.info("Downloading %s", url)
             req = urllib2.Request(url)
             req.add_header('Cache-Control', 'no-cache')
             req.add_header('Pragma', 'no-cache')
@@ -118,28 +121,28 @@ class Seed(object):
 
         if fd is None:
             if bzr:
-                logging.warning("Could not open %s from checkout of (any of):",
+                _logger.warning("Could not open %s from checkout of (any of):",
                                 name)
                 for base in bases:
                     for branch in branches:
-                        logging.warning('  %s' % os.path.join(base, branch))
+                        _logger.warning('  %s' % os.path.join(base, branch))
 
                 if ssh_host is not None:
-                    logging.error("Do you need to set your user name on %s?",
+                    _logger.error("Do you need to set your user name on %s?",
                                   ssh_host)
-                    logging.error("Try a section such as this in "
+                    _logger.error("Try a section such as this in "
                                   "~/.ssh/config:")
-                    logging.error("")
-                    logging.error("Host %s", ssh_host)
-                    logging.error("        User YOUR_USER_NAME")
+                    _logger.error("")
+                    _logger.error("Host %s", ssh_host)
+                    _logger.error("        User YOUR_USER_NAME")
             else:
-                logging.warning("Could not open (any of):")
+                _logger.warning("Could not open (any of):")
                 for base in bases:
                     for branch in branches:
                         path = os.path.join(base, branch)
                         if not path.endswith('/'):
                             path += '/'
-                        logging.warning(
+                        _logger.warning(
                             '  %s' % urlparse.urljoin(path, name))
             raise SeedError("Could not open %s" % name)
 
@@ -262,7 +265,7 @@ class SingleSeedStructure(object):
             elif words[0] == 'feature':
                 self.features.update(words[1:])
             else:
-                logging.error("Unparseable seed structure entry: %s", line)
+                _logger.error("Unparseable seed structure entry: %s", line)
 
 
 class SeedStructure(collections.Mapping, object):

@@ -39,6 +39,9 @@ __all__ = [
 ]
 
 
+_logger = logging.getLogger(__name__)
+
+
 class SeedReason(object):
     def __init__(self, branch, name):
         self._branch = branch
@@ -557,7 +560,7 @@ class Germinator(object):
                             newsubst.append(newsubstpieces)
                     substituted = newsubst
                 else:
-                    logging.error("Undefined seed substvar: %s", name)
+                    _logger.error("Undefined seed substvar: %s", name)
             else:
                 for substpieces in substituted:
                     substpieces.append(piece)
@@ -587,7 +590,7 @@ class Germinator(object):
         full_seedname = self._make_seed_name(structure.branch, seedname)
         for existing in self._seeds.itervalues():
             if seed == existing:
-                logging.info("Already planted seed %s" % seed)
+                _logger.info("Already planted seed %s" % seed)
                 self._seeds[full_seedname] = existing.copy_plant(structure)
                 self._output[structure]._seednames.append(seedname)
                 return
@@ -620,20 +623,20 @@ class Germinator(object):
                 values = value.strip().split()
                 if name == "kernel-version":
                     # Allows us to pick the right modules later
-                    logging.warning("Allowing d-i kernel versions: %s", values)
+                    _logger.warning("Allowing d-i kernel versions: %s", values)
                     seed._di_kernel_versions.update(values)
                 elif name == "feature":
-                    logging.warning("Setting features {%s} for seed %s",
+                    _logger.warning("Setting features {%s} for seed %s",
                                     ', '.join(values), seed)
                     seed._features.update(values)
                 elif name.endswith("-include"):
                     included_seed = name[:-8]
                     if (included_seed not in self._seeds and
                         included_seed != "extra"):
-                        logging.error("Cannot include packages from unknown "
+                        _logger.error("Cannot include packages from unknown "
                                       "seed: %s", included_seed)
                     else:
-                        logging.warning("Including packages from %s: %s",
+                        _logger.warning("Including packages from %s: %s",
                                         included_seed, values)
                         if included_seed not in seed._includes:
                             seed._includes[included_seed] = []
@@ -642,10 +645,10 @@ class Germinator(object):
                     excluded_seed = name[:-8]
                     if (excluded_seed not in self._seeds and
                         excluded_seed != "extra"):
-                        logging.error("Cannot exclude packages from unknown "
+                        _logger.error("Cannot exclude packages from unknown "
                                       "seed: %s", excluded_seed)
                     else:
-                        logging.warning("Excluding packages from %s: %s",
+                        _logger.warning("Excluding packages from %s: %s",
                                         excluded_seed, values)
                         if excluded_seed not in seed._excludes:
                             seed._excludes[excluded_seed] = []
@@ -695,7 +698,7 @@ class Germinator(object):
                     pkgs = [p for p in self._sources[pkg]["Binaries"]
                               if p in self._packages]
                 else:
-                    logging.warning("Unknown source package: %s", pkg)
+                    _logger.warning("Unknown source package: %s", pkg)
                     pkgs = []
             else:
                 pkgs = self._filter_packages(self._packages, pkg)
@@ -704,7 +707,7 @@ class Germinator(object):
 
             if is_blacklist:
                 for pkg in pkgs:
-                    logging.info("Blacklisting %s from %s", pkg, seed)
+                    _logger.info("Blacklisting %s from %s", pkg, seed)
                     seed._blacklist.update(self._substitute_seed_vars(
                         substvars, pkg))
             else:
@@ -713,15 +716,15 @@ class Germinator(object):
 
         for pkg in seedpkgs:
             if pkg in self._hints and self._hints[pkg] != seed.name:
-                logging.warning("Taking the hint: %s", pkg)
+                _logger.warning("Taking the hint: %s", pkg)
                 continue
 
             if pkg in self._packages:
                 # Ordinary package
                 if self._already_seeded(seed, pkg):
-                    logging.warning("Duplicated seed: %s", pkg)
+                    _logger.warning("Duplicated seed: %s", pkg)
                 elif self._is_pruned(seed, pkg):
-                    logging.warning("Pruned %s from %s", pkg, seed)
+                    _logger.warning("Pruned %s from %s", pkg, seed)
                 else:
                     if pkg in seedrecommends:
                         seed._recommends_entries.append(pkg)
@@ -741,11 +744,11 @@ class Germinator(object):
                             seed._recommends_entries.append(vpkg)
                         else:
                             seed._entries.append(vpkg)
-                logging.info("%s", msg)
+                _logger.info("%s", msg)
 
             else:
                 # No idea
-                logging.error("Unknown %s package: %s", seed, pkg)
+                _logger.error("Unknown %s package: %s", seed, pkg)
 
         for pkg in self._hints:
             if (self._hints[pkg] == seed.name and
@@ -756,7 +759,7 @@ class Germinator(object):
                     else:
                         seed._entries.append(pkg)
                 else:
-                    logging.error("Unknown hinted package: %s", pkg)
+                    _logger.error("Unknown hinted package: %s", pkg)
 
     def plant_seeds(self, structure, seeds=None):
         """Add all seeds found in a seed structure."""
@@ -790,7 +793,7 @@ class Germinator(object):
         for pkg in pkgs:
             for outerseed in outerseeds:
                 if outerseed is not None and pkg in outerseed._blacklist:
-                    logging.error("Package %s blacklisted in %s but seeded in "
+                    _logger.error("Package %s blacklisted in %s but seeded in "
                                   "%s (%s)", pkg, outerseed, seed, why)
                     seed._blacklist_seen = True
                     break
@@ -808,7 +811,7 @@ class Germinator(object):
                 seed.copy_growth()
 
             if seed._grown:
-                logging.info("Already grown seed %s" % seed)
+                _logger.info("Already grown seed %s" % seed)
 
                 # We still need to update a few structure-wide outputs.
                 output._all.update(seed._build)
@@ -824,7 +827,7 @@ class Germinator(object):
 
                 continue
 
-            logging.log(self.PROGRESS, "Resolving %s dependencies ...", seed)
+            _logger.log(self.PROGRESS, "Resolving %s dependencies ...", seed)
 
             # Check for blacklisted seed entries.
             seed._entries = self._weed_blacklist(
@@ -868,7 +871,7 @@ class Germinator(object):
         self._seeds[self._make_seed_name(structure.branch, "extra")] = seed
         output._seednames.append("extra")
 
-        logging.log(self.PROGRESS, "Identifying extras ...")
+        _logger.log(self.PROGRESS, "Identifying extras ...")
         found = True
         while found:
             found = False
@@ -883,7 +886,7 @@ class Germinator(object):
                         continue
 
                     if pkg in self._hints and self._hints[pkg] != "extra":
-                        logging.warning("Taking the hint: %s", pkg)
+                        _logger.warning("Taking the hint: %s", pkg)
                         continue
 
                     seed._entries.append(pkg)
@@ -898,7 +901,7 @@ class Germinator(object):
            If seed is None, check whether the (build-)dependency is allowed
            within any seed."""
         if depend not in self._packages:
-            logging.warning("_allowed_dependency called with virtual package "
+            _logger.warning("_allowed_dependency called with virtual package "
                             "%s", depend)
             return False
         if seed is not None and self._is_pruned(seed, depend):
@@ -948,7 +951,7 @@ class Germinator(object):
         elif deptype == "!=":
             return compare != 0
         else:
-            logging.error("Unknown dependency comparator: %s" % deptype)
+            _logger.error("Unknown dependency comparator: %s" % deptype)
             return False
 
     def _unparse_dependency(self, depname, depver, deptype):
@@ -1114,7 +1117,7 @@ class Germinator(object):
                             lesserseed._entries.remove(trydep)
                         if trydep in lesserseed._recommends_entries:
                             lesserseed._recommends_entries.remove(trydep)
-                        logging.warning("Promoted %s from %s to %s to satisfy "
+                        _logger.warning("Promoted %s from %s to %s to satisfy "
                                         "%s", trydep, lesserseed, seed, pkg)
 
                     return self._add_dependency(seed, pkg, [trydep],
@@ -1140,7 +1143,7 @@ class Germinator(object):
                 desc = "recommendation"
             else:
                 desc = "dependency"
-            logging.error("Unknown %s %s by %s", desc,
+            _logger.error("Unknown %s %s by %s", desc,
                           self._unparse_dependency(depname, depver, deptype),
                           pkg)
             return False
@@ -1159,10 +1162,10 @@ class Germinator(object):
                                       self._packages[d]["Kernel-Version"] in seed._di_kernel_versions ]
                 else:
                     dependlist = [depname]
-                logging.info("Chose %s out of %s to satisfy %s",
+                _logger.info("Chose %s out of %s to satisfy %s",
                              ", ".join(dependlist), virtual, pkg)
             else:
-                logging.error("Nothing to choose out of %s to satisfy %s",
+                _logger.error("Nothing to choose out of %s to satisfy %s",
                               virtual, pkg)
                 return False
 
@@ -1202,7 +1205,7 @@ class Germinator(object):
                                                 build_depend, second_class,
                                                 build_tree, recommends):
                         if len(deplist) > 1:
-                            logging.info("Chose %s to satisfy %s", dep[0], pkg)
+                            _logger.info("Chose %s to satisfy %s", dep[0], pkg)
                         break
                 else:
                     for dep in deplist:
@@ -1211,12 +1214,12 @@ class Germinator(object):
                                                 second_class, build_tree,
                                                 recommends):
                             if len(deplist) > 1:
-                                logging.info("Chose %s to satisfy %s", dep[0],
+                                _logger.info("Chose %s to satisfy %s", dep[0],
                                              pkg)
                             break
                     else:
                         if len(deplist) > 1:
-                            logging.error("Nothing to choose to satisfy %s",
+                            _logger.error("Nothing to choose to satisfy %s",
                                           pkg)
 
     def _remember_why(self, reasons, pkg, why, build_tree=False,
@@ -1241,7 +1244,7 @@ class Germinator(object):
                      recommends=False):
         """Add a package and its dependency trees."""
         if self._is_pruned(seed, pkg):
-            logging.warning("Pruned %s from %s", pkg, seed)
+            _logger.warning("Pruned %s from %s", pkg, seed)
             return
         if build_tree:
             outerseeds = [self._supported(seed)]
@@ -1249,7 +1252,7 @@ class Germinator(object):
             outerseeds = self._outer_seeds(seed)
         for outerseed in outerseeds:
             if outerseed is not None and pkg in outerseed._blacklist:
-                logging.error("Package %s blacklisted in %s but seeded in %s "
+                _logger.error("Package %s blacklisted in %s but seeded in %s "
                               "(%s)", pkg, outerseed, seed, why)
                 seed._blacklist_seen = True
                 return
@@ -1305,7 +1308,7 @@ class Germinator(object):
 
         src = self._packages[pkg]["Source"]
         if src not in self._sources:
-            logging.error("Missing source package: %s (for %s)", src, pkg)
+            _logger.error("Missing source package: %s (for %s)", src, pkg)
             return
 
         if second_class:
@@ -1385,12 +1388,12 @@ class Germinator(object):
                 for lesserseed in self._strictly_outer_seeds(seed):
                     if pkg in lesserseed._entries:
                         seed._entries.remove(pkg)
-                        logging.warning("Promoted %s from %s to %s due to "
+                        _logger.warning("Promoted %s from %s to %s due to "
                                         "%s-Includes",
                                         pkg, lesserseed, seed,
                                         rescue_seedname.title())
                         break
-                logging.debug("Rescued %s from %s to %s", pkg,
+                _logger.debug("Rescued %s from %s to %s", pkg,
                               rescue_seedname, seed)
                 if build_tree:
                     seed._build_depends.add(pkg)

@@ -93,7 +93,8 @@ class Globals:
         self.seeds = seeds
 
         # Suppress most log information
-        logging.getLogger().setLevel(logging.CRITICAL)
+        logging.basicConfig()
+        logging.getLogger('germinate').setLevel(logging.CRITICAL)
         pretty_logging()
 
         global MIRRORS, COMPONENTS

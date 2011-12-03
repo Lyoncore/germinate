@@ -237,11 +237,13 @@ def main():
                 chunks.append(pkg)
         return ', '.join(chunks)
 
-    logger = logging.getLogger()
+    logging.basicConfig()
+    logger = logging.getLogger('germinate')
     logger.setLevel(logging.DEBUG)
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(logging.Formatter('%(levelname)s%(message)s'))
     logger.addHandler(handler)
+    logger.propagate = False
     pretty_logging()
 
     check_debootstrap_version()

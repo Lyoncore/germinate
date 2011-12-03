@@ -64,6 +64,7 @@ germinate (2.0) UNRELEASED; urgency=low
     - Handle the extra seed entirely within Germinator rather than modifying
       SeedStructure (which doesn't fit well with processing the same seed
       structure on multiple architectures).
+    - Use module-level loggers.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 
