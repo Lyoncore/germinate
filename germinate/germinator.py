@@ -127,6 +127,9 @@ class GerminatedSeed(object):
         self._excludes = {}
         self._seed_reason = SeedReason(structure.branch, name)
         self._grown = False
+        self._cache_inner_seeds = None
+        self._cache_strictly_outer_seeds = None
+        self._cache_outer_seeds = None
 
     def copy_plant(self, structure):
         """Return a copy of this seed attached to a different structure.
@@ -477,35 +480,43 @@ class Germinator(object):
     # --------------------------------------------------------
 
     def _inner_seeds(self, seed):
-        branch = seed.structure.branch
-        if seed.name == "extra":
-            return [self._seeds[self._make_seed_name(branch, seedname)]
+        if seed._cache_inner_seeds is None:
+            branch = seed.structure.branch
+            if seed.name == "extra":
+                seed._cache_inner_seeds = [
+                    self._seeds[self._make_seed_name(branch, seedname)]
                     for seedname in seed.structure.names + ["extra"]]
-        else:
-            return [self._seeds[self._make_seed_name(branch, seedname)]
+            else:
+                seed._cache_inner_seeds = [
+                    self._seeds[self._make_seed_name(branch, seedname)]
                     for seedname in seed.structure.inner_seeds(seed.name)]
+        return seed._cache_inner_seeds
 
     def _strictly_outer_seeds(self, seed):
-        branch = seed.structure.branch
-        ret = []
-        for seedname in seed.structure.strictly_outer_seeds(seed.name):
-            ret.append(self._seeds[self._make_seed_name(branch, seedname)])
-        try:
-            ret.append(self._seeds[self._make_seed_name(branch, "extra")])
-        except KeyError:
-            pass
-        return ret
+        if seed._cache_strictly_outer_seeds is None:
+            branch = seed.structure.branch
+            ret = []
+            for seedname in seed.structure.strictly_outer_seeds(seed.name):
+                ret.append(self._seeds[self._make_seed_name(branch, seedname)])
+            try:
+                ret.append(self._seeds[self._make_seed_name(branch, "extra")])
+            except KeyError:
+                pass
+            seed._cache_strictly_outer_seeds = ret
+        return seed._cache_strictly_outer_seeds
 
     def _outer_seeds(self, seed):
-        branch = seed.structure.branch
-        ret = []
-        for seedname in seed.structure.outer_seeds(seed.name):
-            ret.append(self._seeds[self._make_seed_name(branch, seedname)])
-        try:
-            ret.append(self._seeds[self._make_seed_name(branch, "extra")])
-        except KeyError:
-            pass
-        return ret
+        if seed._cache_outer_seeds is None:
+            branch = seed.structure.branch
+            ret = []
+            for seedname in seed.structure.outer_seeds(seed.name):
+                ret.append(self._seeds[self._make_seed_name(branch, seedname)])
+            try:
+                ret.append(self._seeds[self._make_seed_name(branch, "extra")])
+            except KeyError:
+                pass
+            seed._cache_outer_seeds = ret
+        return seed._cache_outer_seeds
 
     def _supported(self, seed):
         try:

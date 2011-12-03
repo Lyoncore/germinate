@@ -24,6 +24,9 @@ germinate (2.0) UNRELEASED; urgency=low
     mostly to make it easier to process multiple seed structures, but also
     fixes a long-standing bug where promoted dependencies were only removed
     from a single arbitrary lesser seed rather than from all possible ones.
+  * Memoise the results of Germinator's _inner_seeds, _strictly_outer_seeds,
+    and _outer_seeds methods.  This saves nearly a third of germinate's
+    runtime in common cases.
 
   * Massive API cleanup:
     - Move output-writing functions from the top-level germinate program
