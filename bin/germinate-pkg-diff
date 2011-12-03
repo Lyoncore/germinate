@@ -95,6 +95,7 @@ class Globals:
 
         # Suppress most log information
         germinate_logging(logging.CRITICAL)
+        logging.getLogger('germinate.archive').setLevel(logging.INFO)
 
         global MIRRORS, COMPONENTS
         print "Germinating"

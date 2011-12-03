@@ -66,6 +66,7 @@ germinate (2.0) UNRELEASED; urgency=low
       structure on multiple architectures).
     - Use module-level loggers.
     - Get rid of the custom PROGRESS log level.
+    - Change germinate.archive to use logging rather than print.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 

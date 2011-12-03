@@ -25,8 +25,15 @@ import urllib
 import urllib2
 import tempfile
 import shutil
+import logging
 
 import apt_pkg
+
+
+_logger = logging.getLogger(__name__)
+
+def _progress(msg, *args, **kwargs):
+    _logger.info(msg, *args, extra={'progress': True}, **kwargs)
 
 
 class IndexType:
@@ -104,7 +111,7 @@ class TagFile(Archive):
                 except OSError:
                     pass
             if not os.path.exists(fullname):
-                print "Downloading", req.get_full_url(), "file ..."
+                _progress("Downloading %s file ...", req.get_full_url())
 
                 compressed = os.path.join(dirname, filename + suffix)
                 try:
@@ -117,7 +124,8 @@ class TagFile(Archive):
 
                     # apt_pkg is weird and won't accept GzipFile
                     if suffix:
-                        print "Decompressing", req.get_full_url(), "file ..."
+                        _progress("Decompressing %s file ...",
+                                  req.get_full_url())
 
                         if suffix == ".gz":
                             import gzip
@@ -196,8 +204,8 @@ class TagFile(Archive):
                             "debian-installer/binary-" + self._arch + "/Packages")
                     except IOError:
                         # can live without these
-                        print "Missing installer Packages file for", component, \
-                              "(ignoring)"
+                        _progress("Missing installer Packages file for %s "
+                                  "(ignoring)", component)
                     else:
                         for tag_file in instpackages:
                             try:
