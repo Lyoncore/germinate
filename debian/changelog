@@ -19,6 +19,11 @@ germinate (2.0) UNRELEASED; urgency=low
   * Slightly modernise use of dh_python2.
   * Forbid seed names containing slashes.
   * Eliminate most uses of list.sort() in favour of sorted(iterable).
+  * When promoting dependencies from lesser seeds, remove them from the
+    lesser seed lists at output time rather than immediately.  This is
+    mostly to make it easier to process multiple seed structures, but also
+    fixes a long-standing bug where promoted dependencies were only removed
+    from a single arbitrary lesser seed rather than from all possible ones.
 
   * Massive API cleanup:
     - Move output-writing functions from the top-level germinate program

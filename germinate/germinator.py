@@ -841,7 +841,11 @@ class Germinator(object):
             # not packages recommended by the seed. Changing this results in
             # less helpful output when a package is recommended by an inner
             # seed and required by an outer seed.
-            for pkg in seed._entries + seed._recommends_entries:
+            # We go through get_seed_entries/get_seed_recommends_entries
+            # here so that promoted dependencies are filtered out.
+            for pkg in self.get_seed_entries(structure, seedname):
+                self._add_package(seed, pkg, seed._seed_reason)
+            for pkg in self.get_seed_recommends_entries(structure, seedname):
                 self._add_package(seed, pkg, seed._seed_reason)
 
             for rescue_seedname in output._seednames:
@@ -1103,6 +1107,17 @@ class Germinator(object):
             for lesserseed in lesserseeds:
                 if (trydep in lesserseed._entries or
                     trydep in lesserseed._recommends_entries):
+                    # Has it already been promoted from this seed?
+                    already_promoted = False
+                    for innerseed in self._inner_seeds(lesserseed):
+                        if innerseed.name == lesserseed.name:
+                            continue
+                        if trydep in innerseed._depends:
+                            already_promoted = True
+                            break
+                    if already_promoted:
+                        continue
+
                     if second_class:
                         # "I'll get you next time, Gadget!"
                         # When processing the build tree, we don't promote
@@ -1114,10 +1129,12 @@ class Germinator(object):
                         # an or-ed build-dependency.
                         pass
                     else:
-                        if trydep in lesserseed._entries:
-                            lesserseed._entries.remove(trydep)
-                        if trydep in lesserseed._recommends_entries:
-                            lesserseed._recommends_entries.remove(trydep)
+                        # We want to remove trydep from lesserseed._entries
+                        # and lesserseed._recommends_entries, but we can't
+                        # because those might need to be copied for another
+                        # seed structure; the removal is handled on output
+                        # instead.  Even so, it's still useful to log it
+                        # here.
                         _logger.warning("Promoted %s from %s to %s to satisfy "
                                         "%s", trydep, lesserseed, seed, pkg)
 
@@ -1417,18 +1434,32 @@ class Germinator(object):
         return self._seeds[full_seedname]
 
     def get_seed_entries(self, structure, seedname):
-        return self.get_seed(structure, seedname).entries
+        seed = self.get_seed(structure, seedname)
+        output = set(seed._entries)
+        for innerseed in self._inner_seeds(seed):
+            if innerseed.name == seed.name:
+                continue
+            output -= innerseed._depends
+        # Take care to preserve the original ordering.
+        return [e for e in seed._entries if e in output]
 
     def get_seed_recommends_entries(self, structure, seedname):
-        return self.get_seed(structure, seedname).recommends_entries
+        seed = self.get_seed(structure, seedname)
+        output = set(seed._recommends_entries)
+        for innerseed in self._inner_seeds(seed):
+            if innerseed.name == seed.name:
+                continue
+            output -= innerseed._depends
+        # Take care to preserve the original ordering.
+        return [e for e in seed._recommends_entries if e in output]
 
     def get_depends(self, structure, seedname):
         return self.get_seed(structure, seedname).depends
 
     def get_full(self, structure, seedname):
         seed = self.get_seed(structure, seedname)
-        return (set(seed._entries) |
-                set(seed._recommends_entries) |
+        return (set(self.get_seed_entries(structure, seedname)) |
+                set(self.get_seed_recommends_entries(structure, seedname)) |
                 seed._depends)
 
     def get_build_depends(self, structure, seedname):
@@ -1523,11 +1554,13 @@ class Germinator(object):
 
     def write_seed_list(self, structure, filename, seedname):
         seed = self.get_seed(structure, seedname)
-        self._write_list(seed._reasons, filename, seed._entries)
+        self._write_list(seed._reasons, filename,
+                         self.get_seed_entries(structure, seedname))
 
     def write_seed_recommends_list(self, structure, filename, seedname):
         seed = self.get_seed(structure, seedname)
-        self._write_list(seed._reasons, filename, seed._recommends_entries)
+        self._write_list(seed._reasons, filename,
+                         self.get_seed_recommends_entries(structure, seedname))
 
     def write_depends_list(self, structure, filename, seedname):
         seed = self.get_seed(structure, seedname)
