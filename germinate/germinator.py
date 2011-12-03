@@ -540,9 +540,9 @@ class Germinator(object):
         else:
             # optimisation for common case
             if pattern in packages:
-                filtered = [pattern]
+                return [pattern]
             else:
-                filtered = []
+                return []
         return sorted(filtered)
 
     def _substitute_seed_vars(self, substvars, pkg):
