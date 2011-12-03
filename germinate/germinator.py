@@ -41,6 +41,9 @@ __all__ = [
 
 _logger = logging.getLogger(__name__)
 
+def _progress(msg, *args, **kwargs):
+    _logger.info(msg, *args, extra={'progress': True}, **kwargs)
+
 
 class SeedReason(object):
     def __init__(self, branch, name):
@@ -328,8 +331,6 @@ class GerminatorOutput(collections.MutableMapping, object):
 
 
 class Germinator(object):
-    PROGRESS = 15
-
     # Initialisation.
     # ---------------
 
@@ -827,7 +828,7 @@ class Germinator(object):
 
                 continue
 
-            _logger.log(self.PROGRESS, "Resolving %s dependencies ...", seed)
+            _progress("Resolving %s dependencies ...", seed)
 
             # Check for blacklisted seed entries.
             seed._entries = self._weed_blacklist(
@@ -871,7 +872,7 @@ class Germinator(object):
         self._seeds[self._make_seed_name(structure.branch, "extra")] = seed
         output._seednames.append("extra")
 
-        _logger.log(self.PROGRESS, "Identifying extras ...")
+        _progress("Identifying extras ...")
         found = True
         while found:
             found = False
@@ -1695,11 +1696,3 @@ class Germinator(object):
             for pkg in sorted(all_blacklisted):
                 blacklist = output._blacklist[pkg]
                 fh.write('%s\t%s\n' % (pkg, blacklist))
-
-
-def pretty_logging():
-    logging.addLevelName(logging.DEBUG, '  ')
-    logging.addLevelName(Germinator.PROGRESS, '')
-    logging.addLevelName(logging.INFO, '* ')
-    logging.addLevelName(logging.WARNING, '! ')
-    logging.addLevelName(logging.ERROR, '? ')

@@ -33,9 +33,10 @@ except ImportError:
     # Running from build tree?
     sys.path.insert(0, os.path.join(sys.path[0], os.pardir))
 
-from germinate.germinator import Germinator, pretty_logging
+from germinate.germinator import Germinator
 import germinate.archive
 import germinate.defaults
+from germinate.log import germinate_logging
 from germinate.seeds import Seed, SeedError, SeedStructure
 import germinate.version
 
@@ -111,17 +112,10 @@ def parse_options():
 def main():
     options = parse_options()
 
-    logging.basicConfig()
-    logger = logging.getLogger('germinate')
     if options.verbose:
-        logger.setLevel(logging.DEBUG)
+        germinate_logging(logging.DEBUG)
     else:
-        logger.setLevel(Germinator.PROGRESS)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter('%(levelname)s%(message)s'))
-    logger.addHandler(handler)
-    logger.propagate = False
-    pretty_logging()
+        germinate_logging(logging.INFO)
 
     g = Germinator(options.arch)
 

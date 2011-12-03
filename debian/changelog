@@ -65,6 +65,7 @@ germinate (2.0) UNRELEASED; urgency=low
       SeedStructure (which doesn't fit well with processing the same seed
       structure on multiple architectures).
     - Use module-level loggers.
+    - Get rid of the custom PROGRESS log level.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 
