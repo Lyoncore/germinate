@@ -54,6 +54,7 @@ class Archive:
 
         Each yielded value should be an (IndexType, section) pair, where
         section is a dictionary mapping control file keys to their values.
+
         """
         raise NotImplementedError
 
@@ -63,6 +64,7 @@ class TagFile(Archive):
 
     def __init__(self, dists, components, arch, mirrors, source_mirrors=None,
                  installer_packages=True, cleanup=False):
+        """Create a representation of a Debian-format apt archive."""
         if isinstance(dists, str) or isinstance(dists, unicode):
             dists = [dists]
         if isinstance(components, str) or isinstance(components, unicode):
@@ -169,6 +171,15 @@ class TagFile(Archive):
         return tag_files
 
     def sections(self):
+        """Yield a sequence of the index sections found in this archive.
+
+        A section is an entry in an index file corresponding to a single binary
+        or source package.
+
+        Each yielded value is an (IndexType, section) pair, where section is
+        a dictionary mapping control file keys to their values.
+
+        """
         if self._cleanup:
             dirname = tempfile.mkdtemp(prefix="germinate-")
         else:

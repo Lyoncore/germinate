@@ -76,6 +76,8 @@ germinate (2.0) UNRELEASED; urgency=low
     - Use module-level loggers.
     - Get rid of the custom PROGRESS log level.
     - Change germinate.archive to use logging rather than print.
+    - Add docstrings for all public classes and methods, and tidy up a few
+      existing ones per PEP-257.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 19 Oct 2011 22:53:40 +0100
 

@@ -76,6 +76,8 @@ class AtomicUTF8File(AtomicFile):
 
 
 class SeedError(RuntimeError):
+    """An error opening or parsing a seed."""
+
     pass
 
 
@@ -120,6 +122,7 @@ class Seed(object):
             return urllib2.urlopen(req)
 
     def __init__(self, bases, branches, name, bzr=False):
+        """Read a seed from a collection."""
         if isinstance(branches, str) or isinstance(branches, unicode):
             branches = [branches]
 
@@ -180,47 +183,60 @@ class Seed(object):
             fd.close()
 
     def open(self):
+        """Open a file object with the text of this seed."""
         self._file = io.BytesIO(self._text)
         return self._file
 
     def read(self, *args, **kwargs):
+        """Read text from this seed."""
         return self._file.read(*args, **kwargs)
 
     def readline(self, *args, **kwargs):
+        """Read a line from this seed."""
         return self._file.readline(*args, **kwargs)
 
     def readlines(self, *args, **kwargs):
+        """Read a list of lines from this seed."""
         return self._file.readlines(*args, **kwargs)
 
     def next(self):
+        """Read the next line from this seed."""
         return self._file.next()
 
     def close(self):
+        """Close the file object for this seed."""
         self._file.close()
 
     def __enter__(self):
+        """Open a seed context, returning a file object."""
         return self.open()
 
     def __exit__(self, unused_exc_type, unused_exc_value, unused_exc_tb):
+        """Close a seed context."""
         self.close()
 
     @property
     def name(self):
+        """The seed's name."""
         return self._name
 
     @property
     def base(self):
+        """The base URL where this seed was found."""
         return self._base
 
     @property
     def branch(self):
+        """The name of the branch containing this seed."""
         return self._branch
 
     @property
     def text(self):
+        """The text of this seed."""
         return self._text
 
     def __cmp__(self, other):
+        """Compare two seeds."""
         if isinstance(other, Seed):
             return cmp(self.text, other.text)
         else:
@@ -262,11 +278,11 @@ class SingleSeedStructure(object):
 
     This is for internal use; applications should use the SeedStructure
     class instead.
+
     """
 
     def __init__(self, branch, f):
         """Parse a single seed structure file."""
-
         self.seed_order = []
         self.inherit = {}
         self.branches = [branch]
@@ -301,9 +317,11 @@ class SeedStructure(collections.Mapping, object):
 
     This deals with acquiring the seed structure files and recursively
     acquiring any seed structure files it includes.
+
     """
 
     def __init__(self, branch, seed_bases=None, bzr=False):
+        """Open a seed collection and read all the seeds it contains."""
         if seed_bases is None:
             if bzr:
                 seed_bases = germinate.defaults.seeds_bzr
@@ -374,7 +392,7 @@ class SeedStructure(collections.Mapping, object):
         return all_seed_order, all_inherit, all_branches, all_structure
 
     def _expand_inheritance(self):
-        """Expand out incomplete inheritance lists"""
+        """Expand out incomplete inheritance lists."""
         self._original_inherit = dict(self._inherit)
 
         self._names = topo_sort(self._inherit)
@@ -402,6 +420,7 @@ class SeedStructure(collections.Mapping, object):
                 self._names.append(name)
 
     def add(self, name, entries, parent):
+        """Add a custom seed."""
         self._names.append(name)
         self._inherit[name] = self._inherit[parent] + [parent]
         self._seeds[name] = CustomSeed(name, entries)
@@ -427,39 +446,45 @@ class SeedStructure(collections.Mapping, object):
         return outerseeds
 
     def __iter__(self):
+        """Return an iterator over the seeds in this collection."""
         return iter(self._seeds)
 
     def __len__(self):
+        """Return the number of seeds in this collection."""
         return len(self._seeds)
 
     def __getitem__(self, seedname):
+        """Get a particular seed from this collection."""
         return self._seeds[seedname]
 
     @property
     def branch(self):
+        """The name of this seed collection branch."""
         return self._branch
 
     @property
     def features(self):
+        """The feature flags set for this seed collection."""
         return set(self._features)
 
     @property
     def supported(self):
+        """The name of the "supported" seed (the last one in the structure)."""
         return self._seed_order[-1]
 
     @property
     def names(self):
+        """All the seed names in this collection."""
         return list(self._names)
 
     def write(self, filename):
+        """Write the text of the seed STRUCTURE file."""
         with AtomicFile(filename) as f:
             for line in self._lines:
                 print >>f, line
 
     def write_dot(self, filename):
         """Write a dot file representing this structure."""
-
-        # Initialize dot document
         with AtomicUTF8File(filename) as dotfile:
             print >>dotfile, "digraph structure {"
             print >>dotfile, "    node [color=lightblue2, style=filled];"
@@ -473,6 +498,7 @@ class SeedStructure(collections.Mapping, object):
             print >>dotfile, "}"
 
     def write_seed_text(self, filename, seedname):
+        """Write the text of a seed in this collection."""
         with AtomicFile(filename) as f:
             with self._seeds[seedname] as seed:
                 for line in seed:
