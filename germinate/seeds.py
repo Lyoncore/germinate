@@ -47,6 +47,30 @@ _logger = logging.getLogger(__name__)
 
 _bzr_cache_dir = None
 
+
+class AtomicFile(object):
+    """Facilitate atomic writing of files."""
+
+    def __init__(self, filename):
+        self.filename = filename
+        self.fd = open('%s.new' % self.filename, 'w')
+
+    def __enter__(self):
+        return self.fd
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        self.fd.close()
+        os.rename('%s.new' % self.filename, self.filename)
+
+
+class AtomicUTF8File(AtomicFile):
+    """As AtomicFile, but forces UTF-8 encoding."""
+
+    def __init__(self, filename):
+        self.filename = filename
+        self.fd = codecs.open('%s.new' % self.filename, 'w', 'utf8', 'replace')
+
+
 class SeedError(RuntimeError):
     pass
 
@@ -424,7 +448,7 @@ class SeedStructure(collections.Mapping, object):
         return list(self._names)
 
     def write(self, filename):
-        with open(filename, "w") as f:
+        with AtomicFile(filename) as f:
             for line in self._lines:
                 print >>f, line
 
@@ -432,7 +456,7 @@ class SeedStructure(collections.Mapping, object):
         """Write a dot file representing this structure."""
 
         # Initialize dot document
-        with codecs.open(filename, "w", "utf8", "replace") as dotfile:
+        with AtomicUTF8File(filename) as dotfile:
             print >>dotfile, "digraph structure {"
             print >>dotfile, "    node [color=lightblue2, style=filled];"
 
@@ -445,7 +469,7 @@ class SeedStructure(collections.Mapping, object):
             print >>dotfile, "}"
 
     def write_seed_text(self, filename, seedname):
-        with open(filename, "w") as f:
+        with AtomicFile(filename) as f:
             with self._seeds[seedname] as seed:
                 for line in seed:
                     print >>f, line.rstrip('\n')

@@ -27,6 +27,7 @@ germinate (2.0) UNRELEASED; urgency=low
   * Memoise the results of Germinator's _inner_seeds, _strictly_outer_seeds,
     and _outer_seeds methods.  This saves nearly a third of germinate's
     runtime in common cases.
+  * Write all output files atomically.
 
   * Massive API cleanup:
     - Move output-writing functions from the top-level germinate program
