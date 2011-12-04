@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Colin Watson <cjwatson@ubuntu.com>
 Standards-Version: 3.9.2
 Build-Depends: debhelper (>= 7.0.50~)
-Build-Depends-Indep: python (>= 2.6.6-3~), python-apt (>= 0.7.93.2~)
+Build-Depends-Indep: python (>= 2.6.6-3~), python-all, python-apt (>= 0.7.93.2~)
 Vcs-Bzr: http://bazaar.launchpad.net/+branch/germinate
 X-Python-Version: >= 2.6
 

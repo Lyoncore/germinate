@@ -1,6 +1,7 @@
 germinate (2.1) UNRELEASED; urgency=low
 
   * Call superclass constructor in GerminateFormatter's constructor.
+  * Build-depend on python-all.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Sun, 04 Dec 2011 16:44:01 +0000
 
