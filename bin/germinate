@@ -42,8 +42,9 @@ import germinate.version
 
 
 def parse_options():
-    parser = optparse.OptionParser(prog='germinate',
-                                   version=germinate.version.VERSION)
+    parser = optparse.OptionParser(
+        prog='germinate',
+        version='%prog ' + germinate.version.VERSION)
     parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
                       default=False,
                       help='be more verbose when processing seeds')

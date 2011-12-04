@@ -175,10 +175,11 @@ A list of seeds against which to compare may be supplied as non-option
 arguments.  Seeds from which they inherit will be added automatically.  The
 default is 'desktop'.'''
 
-    parser = optparse.OptionParser(prog='germinate-pkg-diff',
-                                   usage='%prog [options] [seeds]',
-                                   version=germinate.version.VERSION,
-                                   epilog=epilog)
+    parser = optparse.OptionParser(
+        prog='germinate-pkg-diff',
+        usage='%prog [options] [seeds]',
+        version='%prog ' + germinate.version.VERSION,
+        epilog=epilog)
     parser.add_option('-l', '--list', dest='dpkg_file', metavar='FILE',
                       help='read list of packages from this file '
                            '(default: read from dpkg --get-selections)')

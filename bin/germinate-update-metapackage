@@ -58,10 +58,11 @@ def parse_options():
 Update metapackage lists for distribution 'dist' as defined in
 update.cfg.'''
 
-    parser = optparse.OptionParser(prog='germinate-update-metapackage',
-                                   usage='%prog [options] [dist]',
-                                   version=germinate.version.VERSION,
-                                   description=description)
+    parser = optparse.OptionParser(
+        prog='germinate-update-metapackage',
+        usage='%prog [options] [dist]',
+        version='%prog ' + germinate.version.VERSION,
+        description=description)
     parser.add_option('-o', '--output-directory', dest='outdir',
                       default='.', metavar='DIR',
                       help='output in specific directory')
