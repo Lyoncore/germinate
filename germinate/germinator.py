@@ -1457,7 +1457,9 @@ class Germinator(object):
                 continue
             output -= innerseed._depends
         # Take care to preserve the original ordering.
-        return [e for e in seed._entries if e in output]
+        # Use a temporary variable to work around a pychecker bug.
+        ret = [e for e in seed._entries if e in output]
+        return ret
 
     def get_seed_recommends_entries(self, structure, seedname):
         seed = self.get_seed(structure, seedname)
@@ -1467,7 +1469,9 @@ class Germinator(object):
                 continue
             output -= innerseed._depends
         # Take care to preserve the original ordering.
-        return [e for e in seed._recommends_entries if e in output]
+        # Use a temporary variable to work around a pychecker bug.
+        ret = [e for e in seed._recommends_entries if e in output]
+        return ret
 
     def get_depends(self, structure, seedname):
         return self.get_seed(structure, seedname).depends
