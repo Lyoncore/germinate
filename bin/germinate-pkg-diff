@@ -38,7 +38,7 @@ from germinate.germinator import Germinator
 import germinate.archive
 import germinate.defaults
 from germinate.log import germinate_logging
-from germinate.seeds import Seed, SeedError, SeedStructure
+from germinate.seeds import SeedError, SeedStructure
 import germinate.version
 
 MIRRORS = [germinate.defaults.mirror]
