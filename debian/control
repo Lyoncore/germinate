@@ -2,7 +2,7 @@ Source: germinate
 Section: utils
 Priority: optional
 Maintainer: Colin Watson <cjwatson@ubuntu.com>
-Standards-Version: 3.8.4
+Standards-Version: 3.9.2
 Build-Depends: debhelper (>= 7.0.50~)
 Build-Depends-Indep: python (>= 2.6.6-3~), python-apt (>= 0.7.93.2~)
 Vcs-Bzr: http://bazaar.launchpad.net/+branch/germinate

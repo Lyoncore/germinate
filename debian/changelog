@@ -31,6 +31,7 @@ germinate (2.0) UNRELEASED; urgency=low
   * Change default distribution to precise.
   * Update kubuntu-meta example in germinate-update-metapackage(1).
   * Refer to versioned GPL file in debian/copyright.
+  * Policy version 3.9.2: no changes required.
 
   * Massive API cleanup:
     - Move output-writing functions from the top-level germinate program
