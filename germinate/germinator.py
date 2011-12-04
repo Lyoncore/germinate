@@ -537,7 +537,7 @@ class Germinator(object):
 
     def _supported(self, seed):
         try:
-            return self.get_seed(seed.structure, seed.structure.supported)
+            return self._get_seed(seed.structure, seed.structure.supported)
         except KeyError:
             return None
 
@@ -839,7 +839,7 @@ class Germinator(object):
         output = self._output[structure]
 
         for seedname in output._seednames:
-            seed = self.get_seed(structure, seedname)
+            seed = self._get_seed(structure, seedname)
             if seed._copy:
                 seed.copy_growth()
 
@@ -893,7 +893,7 @@ class Germinator(object):
             seed._grown = True
 
         try:
-            supported = self.get_seed(structure, structure.supported)
+            supported = self._get_seed(structure, structure.supported)
         except KeyError:
             supported = None
         if supported is not None:
@@ -1415,7 +1415,7 @@ class Germinator(object):
         output = self._output[structure]
 
         try:
-            seed = self.get_seed(structure, seedname)
+            seed = self._get_seed(structure, seedname)
         except KeyError:
             return
 
@@ -1427,7 +1427,7 @@ class Germinator(object):
         if rescue_seedname == "extra":
             rescue_seeds = self._inner_seeds(seed)
         else:
-            rescue_seeds = [self.get_seed(structure, rescue_seedname)]
+            rescue_seeds = [self._get_seed(structure, rescue_seedname)]
         for one_rescue_seed in rescue_seeds:
             if build_tree:
                 rescue_srcs |= one_rescue_seed._build_srcs
@@ -1477,14 +1477,14 @@ class Germinator(object):
         """Test whether pkg is Essential."""
         return self._packages[pkg].get("Essential", "no") == "yes"
 
-    def get_seed(self, structure, seedname):
+    def _get_seed(self, structure, seedname):
         """Return the GerminatedSeed for this structure and seed name."""
         full_seedname = self._make_seed_name(structure.branch, seedname)
         return self._seeds[full_seedname]
 
     def get_seed_entries(self, structure, seedname):
         """Return the explicitly seeded entries for this seed."""
-        seed = self.get_seed(structure, seedname)
+        seed = self._get_seed(structure, seedname)
         output = set(seed._entries)
         for innerseed in self._inner_seeds(seed):
             if innerseed.name == seed.name:
@@ -1497,7 +1497,7 @@ class Germinator(object):
 
     def get_seed_recommends_entries(self, structure, seedname):
         """Return the explicitly seeded Recommends entries for this seed."""
-        seed = self.get_seed(structure, seedname)
+        seed = self._get_seed(structure, seedname)
         output = set(seed._recommends_entries)
         for innerseed in self._inner_seeds(seed):
             if innerseed.name == seed.name:
@@ -1510,18 +1510,18 @@ class Germinator(object):
 
     def get_depends(self, structure, seedname):
         """Return the dependencies of this seed."""
-        return self.get_seed(structure, seedname).depends
+        return self._get_seed(structure, seedname).depends
 
     def get_full(self, structure, seedname):
         """Return the full (run-time) dependency expansion of this seed."""
-        seed = self.get_seed(structure, seedname)
+        seed = self._get_seed(structure, seedname)
         return (set(self.get_seed_entries(structure, seedname)) |
                 set(self.get_seed_recommends_entries(structure, seedname)) |
                 seed._depends)
 
     def get_build_depends(self, structure, seedname):
         """Return the build-dependencies of this seed."""
-        output = set(self.get_seed(structure, seedname)._build_depends)
+        output = set(self._get_seed(structure, seedname)._build_depends)
         for outerseedname in structure.outer_seeds(seedname):
             output -= self.get_full(structure, outerseedname)
         return output
@@ -1608,41 +1608,41 @@ class Germinator(object):
 
     def write_full_list(self, structure, filename, seedname):
         """Write the full (run-time) dependency expansion of this seed."""
-        seed = self.get_seed(structure, seedname)
+        seed = self._get_seed(structure, seedname)
         self._write_list(seed._reasons, filename,
                          self.get_full(structure, seedname))
 
     def write_seed_list(self, structure, filename, seedname):
         """Write the explicitly seeded entries for this seed."""
-        seed = self.get_seed(structure, seedname)
+        seed = self._get_seed(structure, seedname)
         self._write_list(seed._reasons, filename,
                          self.get_seed_entries(structure, seedname))
 
     def write_seed_recommends_list(self, structure, filename, seedname):
         """Write the explicitly seeded Recommends entries for this seed."""
-        seed = self.get_seed(structure, seedname)
+        seed = self._get_seed(structure, seedname)
         self._write_list(seed._reasons, filename,
                          self.get_seed_recommends_entries(structure, seedname))
 
     def write_depends_list(self, structure, filename, seedname):
         """Write the dependencies of this seed."""
-        seed = self.get_seed(structure, seedname)
+        seed = self._get_seed(structure, seedname)
         self._write_list(seed._reasons, filename, seed._depends)
 
     def write_build_depends_list(self, structure, filename, seedname):
         """Write the build-dependencies of this seed."""
-        seed = self.get_seed(structure, seedname)
+        seed = self._get_seed(structure, seedname)
         self._write_list(seed._reasons, filename,
                          self.get_build_depends(structure, seedname))
 
     def write_sources_list(self, structure, filename, seedname):
         """Write the source packages for this seed and its dependencies."""
-        seed = self.get_seed(structure, seedname)
+        seed = self._get_seed(structure, seedname)
         self._write_source_list(filename, seed._sourcepkgs)
 
     def write_build_sources_list(self, structure, filename, seedname):
         """Write the source packages for this seed's build-dependencies."""
-        seed = self.get_seed(structure, seedname)
+        seed = self._get_seed(structure, seedname)
         self._write_source_list(filename, seed._build_sourcepkgs)
 
     def write_all_list(self, structure, filename):
@@ -1661,7 +1661,7 @@ class Germinator(object):
         all_srcs = set()
 
         for seedname in structure.names:
-            seed = self.get_seed(structure, seedname)
+            seed = self._get_seed(structure, seedname)
 
             all_srcs |= seed._sourcepkgs
             all_srcs |= seed._build_sourcepkgs
@@ -1693,7 +1693,7 @@ class Germinator(object):
         sup_srcs = set()
 
         for seedname in structure.names:
-            seed = self.get_seed(structure, seedname)
+            seed = self._get_seed(structure, seedname)
 
             if seedname == structure.supported:
                 sup_srcs |= seed._sourcepkgs
@@ -1777,7 +1777,7 @@ class Germinator(object):
         with AtomicFile(filename) as f:
             all_pkgprovides = {}
             for seedname in output._seednames:
-                seed = self.get_seed(structure, seedname)
+                seed = self._get_seed(structure, seedname)
                 for prov, provset in seed._pkgprovides.iteritems():
                     if prov not in all_pkgprovides:
                         all_pkgprovides[prov] = set()
@@ -1796,7 +1796,7 @@ class Germinator(object):
         with AtomicFile(filename) as fh:
             all_blacklisted = set()
             for seedname in output._seednames:
-                seed = self.get_seed(structure, seedname)
+                seed = self._get_seed(structure, seedname)
                 all_blacklisted.update(seed._blacklisted)
 
             for pkg in sorted(all_blacklisted):
