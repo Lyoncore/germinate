@@ -26,6 +26,7 @@ class GerminateFormatter(logging.Formatter):
     """Format messages in Germinate's preferred concise style."""
 
     def __init__(self):
+        logging.Formatter.__init__(self)
         self.levels = {
             logging.DEBUG: '  ',
             logging.INFO: '* ',
