@@ -615,7 +615,7 @@ class Germinator(object):
 
     def _plant_seed(self, structure, seedname, raw_seed):
         """Add a seed."""
-        seed = GerminatedSeed(self, seedname, structure, raw_seed)
+        seed = GerminatedSeed(self, seedname, structure, structure[seedname])
         full_seedname = self._make_seed_name(structure.branch, seedname)
         for existing in self._seeds.itervalues():
             if seed == existing:
