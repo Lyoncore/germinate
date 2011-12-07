@@ -5,6 +5,13 @@ germinate (2.1) UNRELEASED; urgency=low
   * Store instances of Seed as GerminatedSeed._raw_seed, rather than
     instances of BytesIO which are transient and won't compare the way we
     need them to.
+  * Remove build-sources entries that also appear in sources outputs at
+    output time rather than immediately, which has the effect of removing
+    sources that appear in any seed in the structure rather than just those
+    processed earlier.  This fixes behaviour when processing multiple seed
+    structures, but also seems to fit more closely with the original intent
+    of build-sources as documented in README, which I think was broken all
+    the way back in r70 when seed hierarchies were first allowed to fork.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Sun, 04 Dec 2011 16:44:01 +0000
 

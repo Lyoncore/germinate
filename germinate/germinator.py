@@ -1392,10 +1392,6 @@ class Germinator(object):
                 seed._blacklisted.add(src)
 
         else:
-            if src in output._all_srcs:
-                for buildseed in self._seeds.itervalues():
-                    buildseed._build_sourcepkgs.discard(src)
-
             seed._not_build_srcs.add(src)
             seed._sourcepkgs.add(src)
 
@@ -1643,7 +1639,11 @@ class Germinator(object):
     def write_build_sources_list(self, structure, filename, seedname):
         """Write the source packages for this seed's build-dependencies."""
         seed = self._get_seed(structure, seedname)
-        self._write_source_list(filename, seed._build_sourcepkgs)
+        build_sourcepkgs = seed._build_sourcepkgs
+        for buildseedname in structure.names:
+            buildseed = self._get_seed(structure, buildseedname)
+            build_sourcepkgs -= buildseed._sourcepkgs
+        self._write_source_list(filename, build_sourcepkgs)
 
     def write_all_list(self, structure, filename):
         """Write all the packages in this structure."""
