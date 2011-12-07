@@ -1,4 +1,4 @@
-germinate (2.1) UNRELEASED; urgency=low
+germinate (2.1) unstable; urgency=low
 
   * Call superclass constructor in GerminateFormatter's constructor.
   * Build-depend on python-all.
@@ -14,7 +14,7 @@ germinate (2.1) UNRELEASED; urgency=low
     the way back in r70 when seed hierarchies were first allowed to fork.
   * Fix inclusion/exclusion of packages from seeds other than "extra".
 
- -- Colin Watson <cjwatson@ubuntu.com>  Sun, 04 Dec 2011 16:44:01 +0000
+ -- Colin Watson <cjwatson@debian.org>  Wed, 07 Dec 2011 00:51:12 +0000
 
 germinate (2.0) unstable; urgency=low
 
