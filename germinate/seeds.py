@@ -58,9 +58,10 @@ class AtomicFile(object):
     def __enter__(self):
         return self.fd
 
-    def __exit__(self, unused_exc_type, unused_exc_value, unused_exc_tb):
+    def __exit__(self, exc_type, unused_exc_value, unused_exc_tb):
         self.fd.close()
-        os.rename('%s.new' % self.filename, self.filename)
+        if exc_type is None:
+            os.rename('%s.new' % self.filename, self.filename)
 
     # Not really necessary, but reduces pychecker confusion.
     def write(self, s):

@@ -1,3 +1,10 @@
+germinate (2.3) UNRELEASED; urgency=low
+
+  * Adjust AtomicFile to not rename the .new file into place if the context
+    exited with an exception (thanks, Jeroen T. Vermeulen).
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 07 Dec 2011 09:47:03 +0000
+
 germinate (2.2) unstable; urgency=low
 
   * Fix Germinator._follow_recommends to prevent a crash while calculating
