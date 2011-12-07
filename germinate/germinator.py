@@ -660,7 +660,7 @@ class Germinator(object):
                     seed._features.update(values)
                 elif name.endswith("-include"):
                     included_seed = name[:-8]
-                    if (included_seed not in self._seeds and
+                    if (included_seed not in structure.names and
                         included_seed != "extra"):
                         _logger.error("Cannot include packages from unknown "
                                       "seed: %s", included_seed)
@@ -672,7 +672,7 @@ class Germinator(object):
                         seed._includes[included_seed].extend(values)
                 elif name.endswith("-exclude"):
                     excluded_seed = name[:-8]
-                    if (excluded_seed not in self._seeds and
+                    if (excluded_seed not in structure.names and
                         excluded_seed != "extra"):
                         _logger.error("Cannot exclude packages from unknown "
                                       "seed: %s", excluded_seed)
@@ -1415,7 +1415,8 @@ class Germinator(object):
         except KeyError:
             return
 
-        if rescue_seedname not in self._seeds and rescue_seedname != "extra":
+        if (rescue_seedname not in structure.names and
+            rescue_seedname != "extra"):
             return
 
         # Find all the source packages.

@@ -12,6 +12,7 @@ germinate (2.1) UNRELEASED; urgency=low
     structures, but also seems to fit more closely with the original intent
     of build-sources as documented in README, which I think was broken all
     the way back in r70 when seed hierarchies were first allowed to fork.
+  * Fix inclusion/exclusion of packages from seeds other than "extra".
 
  -- Colin Watson <cjwatson@ubuntu.com>  Sun, 04 Dec 2011 16:44:01 +0000
 
