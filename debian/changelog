@@ -1,3 +1,10 @@
+germinate (2.2) UNRELEASED; urgency=low
+
+  * Fix Germinator._follow_recommends to prevent a crash while calculating
+    reverse-dependencies (LP: #900404).
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 07 Dec 2011 01:47:19 +0000
+
 germinate (2.1) unstable; urgency=low
 
   * Call superclass constructor in GerminateFormatter's constructor.

@@ -1005,14 +1005,14 @@ class Germinator(object):
         else:
             return "%s (%s %s)" % (depname, deptype, depver)
 
-    def _follow_recommends(self, seed=None):
+    def _follow_recommends(self, structure, seed=None):
         """Test whether we should follow Recommends for this seed."""
         if seed is not None:
             if "follow-recommends" in seed._features:
                 return True
             if "no-follow-recommends" in seed._features:
                 return False
-        if "follow-recommends" in seed.structure.features:
+        if "follow-recommends" in structure.features:
             return True
         return False
 
@@ -1031,7 +1031,7 @@ class Germinator(object):
 
         for pkg in output._all:
             fields = ["Pre-Depends", "Depends"]
-            if (self._follow_recommends() or
+            if (self._follow_recommends(structure) or
                 self._packages[pkg]["Section"] == "metapackages"):
                 fields.append("Recommends")
             for field in fields:
@@ -1054,7 +1054,7 @@ class Germinator(object):
                 continue
 
             fields = ["Pre-Depends", "Depends"]
-            if (self._follow_recommends() or
+            if (self._follow_recommends(structure) or
                 self._packages[pkg]["Section"] == "metapackages"):
                 fields.append("Recommends")
             fields.extend(["Build-Depends", "Build-Depends-Indep"])
@@ -1364,7 +1364,7 @@ class Germinator(object):
                                   second_class=second_class,
                                   build_tree=build_tree)
 
-        if (self._follow_recommends(seed) or
+        if (self._follow_recommends(seed.structure, seed) or
             self._packages[pkg]["Section"] == "metapackages"):
             self._add_dependency_tree(seed, pkg,
                                       self._packages[pkg]["Recommends"],
