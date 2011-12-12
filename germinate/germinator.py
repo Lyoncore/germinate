@@ -44,6 +44,13 @@ def _progress(msg, *args, **kwargs):
     _logger.info(msg, *args, extra={'progress': True}, **kwargs)
 
 
+def _ensure_unicode(s):
+    if isinstance(s, unicode):
+        return s
+    else:
+        return unicode(s, "utf8", "replace")
+
+
 class SeedReason(object):
     def __init__(self, branch, name):
         self._branch = branch
@@ -405,7 +412,7 @@ class Germinator(object):
         self._packages[pkg]["Version"] = ver
 
         self._packages[pkg]["Maintainer"] = \
-            unicode(section.get("Maintainer", ""), "utf8", "replace")
+            _ensure_unicode(section.get("Maintainer", ""))
 
         self._packages[pkg]["Essential"] = section.get("Essential", "")
 
@@ -452,7 +459,7 @@ class Germinator(object):
         self._sources[src] = {}
 
         self._sources[src]["Maintainer"] = \
-            unicode(section.get("Maintainer", ""), "utf8", "replace")
+            _ensure_unicode(section.get("Maintainer", ""))
         self._sources[src]["Version"] = ver
 
         for field in "Build-Depends", "Build-Depends-Indep":

@@ -2,6 +2,8 @@ germinate (2.3) UNRELEASED; urgency=low
 
   * Adjust AtomicFile to not rename the .new file into place if the context
     exited with an exception (thanks, Jeroen T. Vermeulen).
+  * Cope with an Archive implementation returning Maintainer values that are
+    already unicode.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 07 Dec 2011 09:47:03 +0000
 
