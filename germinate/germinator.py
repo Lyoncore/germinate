@@ -1546,9 +1546,11 @@ class Germinator(object):
 
     def get_seed_entries(self, structure, seedname):
         """Return the explicitly seeded entries for this seed."""
-        return [
+        # Use a temporary variable to work around a pychecker bug.
+        ret = [
             e for e in self._get_seed_entries(structure, seedname)
             if not isinstance(e, SeedKernelVersions)]
+        return ret
 
     def _get_seed_recommends_entries(self, structure, seedname):
         """Return the explicitly seeded Recommends entries for this seed.
@@ -1569,9 +1571,11 @@ class Germinator(object):
 
     def get_seed_recommends_entries(self, structure, seedname):
         """Return the explicitly seeded Recommends entries for this seed."""
-        return [
+        # Use a temporary variable to work around a pychecker bug.
+        ret = [
             e for e in self._get_seed_recommends_entries(structure, seedname)
             if not isinstance(e, SeedKernelVersions)]
+        return ret
 
     def get_depends(self, structure, seedname):
         """Return the dependencies of this seed."""
