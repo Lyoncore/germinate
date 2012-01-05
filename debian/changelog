@@ -1,4 +1,4 @@
-germinate (2.4) UNRELEASED; urgency=low
+germinate (2.4) unstable; urgency=low
 
   * Make Kernel-Version lexically scoped from the point in the seed where
     it's encountered to either the end of the seed or the next
@@ -7,7 +7,7 @@ germinate (2.4) UNRELEASED; urgency=low
     Kernel-Version entries in the seed, which is not what we want in
     practice.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Thu, 05 Jan 2012 17:36:55 +0000
+ -- Colin Watson <cjwatson@ubuntu.com>  Thu, 05 Jan 2012 17:48:31 +0000
 
 germinate (2.3) unstable; urgency=low
 
