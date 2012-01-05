@@ -103,6 +103,13 @@ class RescueReason(object):
         return 'Rescued from %s' % self._src
 
 
+class SeedKernelVersions(object):
+    """A virtual seed entry representing lexically scoped Kernel-Version."""
+
+    def __init__(self, kernel_versions):
+        self.kernel_versions = set(kernel_versions)
+
+
 class GerminatedSeed(object):
     def __init__(self, germinator, name, structure, raw_seed):
         self._germinator = germinator
@@ -129,7 +136,6 @@ class GerminatedSeed(object):
         # Note that this relates to the vestigial global blacklist file, not
         # to the per-seed blacklist entries in _blacklist.
         self._blacklisted = set()
-        self._di_kernel_versions = set()
         self._includes = {}
         self._excludes = {}
         self._seed_reason = SeedReason(structure.branch, name)
@@ -155,7 +161,6 @@ class GerminatedSeed(object):
         new._recommends_entries = self._recommends_entries
         new._close_seeds = self._close_seeds
         new._blacklist = self._blacklist
-        new._di_kernel_versions = self._di_kernel_versions
         new._includes = self._includes
         new._excludes = self._excludes
         new._seed_reason = SeedReason(structure.branch, self._name)
@@ -206,11 +211,15 @@ class GerminatedSeed(object):
 
     @property
     def entries(self):
-        return list(self._entries)
+        return [
+            e for e in self._entries
+            if not isinstance(e, SeedKernelVersions)]
 
     @property
     def recommends_entries(self):
-        return list(self._recommends_entries)
+        return [
+            e for e in self._recommends_entries
+            if not isinstance(e, SeedKernelVersions)]
 
     @property
     def depends(self):
@@ -372,6 +381,11 @@ class Germinator(object):
 
         # All the seeds we know about, regardless of seed structure.
         self._seeds = {}
+
+        # The current Kernel-Version value for the seed currently being
+        # processed.  This just saves us passing a lot of extra method
+        # arguments around.
+        self._di_kernel_versions = None
 
         # Results of germination for each seed structure.
         self._output = GerminatorOutput()
@@ -660,7 +674,10 @@ class Germinator(object):
                 if name == "kernel-version":
                     # Allows us to pick the right modules later
                     _logger.warning("Allowing d-i kernel versions: %s", values)
-                    seed._di_kernel_versions.update(values)
+                    # Remember the point in the seed at which we saw this,
+                    # so that we can handle it correctly while expanding
+                    # dependencies.
+                    seedpkgs.append(SeedKernelVersions(values))
                 elif name == "feature":
                     _logger.warning("Setting features {%s} for seed %s",
                                     ', '.join(values), seed)
@@ -750,7 +767,13 @@ class Germinator(object):
                 for pkg in pkgs:
                     seedpkgs.extend(self._substitute_seed_vars(substvars, pkg))
 
+        di_kernel_versions = None
+
         for pkg in seedpkgs:
+            if isinstance(pkg, SeedKernelVersions):
+                di_kernel_versions = pkg
+                continue
+
             if pkg in self._hints and self._hints[pkg] != seed.name:
                 _logger.warning("Taking the hint: %s", pkg)
                 continue
@@ -759,7 +782,7 @@ class Germinator(object):
                 # Ordinary package
                 if self._already_seeded(seed, pkg):
                     _logger.warning("Duplicated seed: %s", pkg)
-                elif self._is_pruned(seed, pkg):
+                elif self._is_pruned(di_kernel_versions, pkg):
                     _logger.warning("Pruned %s from %s", pkg, seed)
                 else:
                     if pkg in seedrecommends:
@@ -772,7 +795,7 @@ class Germinator(object):
                 for vpkg in self._provides[pkg]:
                     if self._already_seeded(seed, vpkg):
                         pass
-                    elif self._is_pruned(seed, vpkg):
+                    elif self._is_pruned(di_kernel_versions, vpkg):
                         pass
                     else:
                         msg += "\n  - %s" % vpkg
@@ -809,17 +832,13 @@ class Germinator(object):
             with structure[name] as seed:
                 self._plant_seed(structure, name, seed)
 
-    def _is_pruned(self, seed, pkg):
-        """Test whether pkg is inapplicable in seed.
-
-        Return True if pkg is inapplicable in seed for some reason, such as
-        being for the wrong d-i kernel version.  Otherwise, return False.
-
-        """
-        if not seed._di_kernel_versions:
+    def _is_pruned(self, di_kernel_versions, pkg):
+        """Test whether pkg is for a forbidden d-i kernel version."""
+        if not di_kernel_versions or not di_kernel_versions.kernel_versions:
             return False
+        kernvers = di_kernel_versions.kernel_versions
         kernver = self._packages[pkg]["Kernel-Version"]
-        if kernver != "" and kernver not in seed._di_kernel_versions:
+        if kernver != "" and kernver not in kernvers:
             return True
         return False
 
@@ -846,6 +865,8 @@ class Germinator(object):
         output = self._output[structure]
 
         for seedname in output._seednames:
+            self._di_kernel_versions = None
+
             seed = self._get_seed(structure, seedname)
             if seed._copy:
                 seed.copy_growth()
@@ -880,12 +901,20 @@ class Germinator(object):
             # not packages recommended by the seed. Changing this results in
             # less helpful output when a package is recommended by an inner
             # seed and required by an outer seed.
-            # We go through get_seed_entries/get_seed_recommends_entries
+            # We go through _get_seed_entries/_get_seed_recommends_entries
             # here so that promoted dependencies are filtered out.
-            for pkg in self.get_seed_entries(structure, seedname):
-                self._add_package(seed, pkg, seed._seed_reason)
-            for pkg in self.get_seed_recommends_entries(structure, seedname):
-                self._add_package(seed, pkg, seed._seed_reason)
+            for pkg in self._get_seed_entries(structure, seedname):
+                if isinstance(pkg, SeedKernelVersions):
+                    self._di_kernel_versions = pkg
+                else:
+                    self._add_package(seed, pkg, seed._seed_reason)
+            for pkg in self._get_seed_recommends_entries(structure, seedname):
+                if isinstance(pkg, SeedKernelVersions):
+                    self._di_kernel_versions = pkg
+                else:
+                    self._add_package(seed, pkg, seed._seed_reason)
+
+            self._di_kernel_versions = None
 
             for rescue_seedname in output._seednames:
                 self._rescue_includes(structure, seed.name, rescue_seedname,
@@ -914,6 +943,8 @@ class Germinator(object):
         seed = GerminatedSeed(self, "extra", structure, None)
         self._seeds[self._make_seed_name(structure.branch, "extra")] = seed
         output._seednames.append("extra")
+
+        self._di_kernel_versions = None
 
         _progress("Identifying extras ...")
         found = True
@@ -952,7 +983,8 @@ class Germinator(object):
             _logger.warning("_allowed_dependency called with virtual package "
                             "%s", depend)
             return False
-        if seed is not None and self._is_pruned(seed, depend):
+        if (seed is not None and
+            self._is_pruned(self._di_kernel_versions, depend)):
             return False
         if build_depend:
             if self._packagetype[depend] == "deb":
@@ -961,6 +993,13 @@ class Germinator(object):
                 return False
         else:
             if self._packagetype[pkg] == self._packagetype[depend]:
+                # If both packages have a Kernel-Version field, they must
+                # match.
+                pkgkernver = self._packages[pkg]["Kernel-Version"]
+                depkernver = self._packages[depend]["Kernel-Version"]
+                if (pkgkernver != "" and depkernver != "" and
+                    pkgkernver != depkernver):
+                    return False
                 return True
             else:
                 return False
@@ -1227,12 +1266,14 @@ class Germinator(object):
                          if d in self._packages and self._allowed_dependency(pkg, d, seed, build_depend) ]
             if len(reallist):
                 depname = reallist[0]
-                # If this one was a d-i kernel module, pick all the modules
-                # for other allowed kernel versions too.
-                if self._packages[depname]["Kernel-Version"] != "":
+                # If the depending package isn't a d-i kernel module but the
+                # dependency is, then pick all the modules for other allowed
+                # kernel versions too.
+                if (self._packages[pkg]["Kernel-Version"] == "" and
+                    self._packages[depname]["Kernel-Version"] != ""):
                     dependlist = [ d for d in reallist
-                                   if not seed._di_kernel_versions or
-                                      self._packages[d]["Kernel-Version"] in seed._di_kernel_versions ]
+                                   if not self._di_kernel_versions or
+                                      self._packages[d]["Kernel-Version"] in self._di_kernel_versions ]
                 else:
                     dependlist = [depname]
                 _logger.info("Chose %s out of %s to satisfy %s",
@@ -1316,7 +1357,7 @@ class Germinator(object):
                      build_tree=False,
                      recommends=False):
         """Add a package and its dependency trees."""
-        if self._is_pruned(seed, pkg):
+        if self._is_pruned(self._di_kernel_versions, pkg):
             _logger.warning("Pruned %s from %s", pkg, seed)
             return
         if build_tree:
@@ -1486,8 +1527,12 @@ class Germinator(object):
         full_seedname = self._make_seed_name(structure.branch, seedname)
         return self._seeds[full_seedname]
 
-    def get_seed_entries(self, structure, seedname):
-        """Return the explicitly seeded entries for this seed."""
+    def _get_seed_entries(self, structure, seedname):
+        """Return the explicitly seeded entries for this seed.
+
+        This includes virtual SeedKernelVersions entries.
+
+        """
         seed = self._get_seed(structure, seedname)
         output = set(seed._entries)
         for innerseed in self._inner_seeds(seed):
@@ -1499,8 +1544,18 @@ class Germinator(object):
         ret = [e for e in seed._entries if e in output]
         return ret
 
-    def get_seed_recommends_entries(self, structure, seedname):
-        """Return the explicitly seeded Recommends entries for this seed."""
+    def get_seed_entries(self, structure, seedname):
+        """Return the explicitly seeded entries for this seed."""
+        return [
+            e for e in self._get_seed_entries(structure, seedname)
+            if not isinstance(e, SeedKernelVersions)]
+
+    def _get_seed_recommends_entries(self, structure, seedname):
+        """Return the explicitly seeded Recommends entries for this seed.
+
+        This includes virtual SeedKernelVersions entries.
+
+        """
         seed = self._get_seed(structure, seedname)
         output = set(seed._recommends_entries)
         for innerseed in self._inner_seeds(seed):
@@ -1511,6 +1566,12 @@ class Germinator(object):
         # Use a temporary variable to work around a pychecker bug.
         ret = [e for e in seed._recommends_entries if e in output]
         return ret
+
+    def get_seed_recommends_entries(self, structure, seedname):
+        """Return the explicitly seeded Recommends entries for this seed."""
+        return [
+            e for e in self._get_seed_recommends_entries(structure, seedname)
+            if not isinstance(e, SeedKernelVersions)]
 
     def get_depends(self, structure, seedname):
         """Return the dependencies of this seed."""
