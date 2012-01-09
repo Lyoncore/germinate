@@ -430,7 +430,7 @@ class Germinator(object):
 
         self._packages[pkg]["Essential"] = section.get("Essential", "")
 
-        for field in "Pre-Depends", "Depends", "Recommends", "Suggests":
+        for field in "Pre-Depends", "Depends", "Recommends":
             value = section.get(field, "")
             self._packages[pkg][field] = apt_pkg.parse_depends(value)
 
