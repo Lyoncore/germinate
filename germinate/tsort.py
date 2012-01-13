@@ -25,12 +25,12 @@
 __all__ = ["topo_sort", "TopoSorter"]
 
 
-class GraphCycleError(StandardError):
+class GraphCycleError(Exception):
 
     _fmt = "Cycle in graph %(graph)r"
 
     def __init__(self, graph):
-        StandardError.__init__(self)
+        Exception.__init__(self)
         self.graph = graph
 
     def __str__(self):
