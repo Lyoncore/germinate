@@ -33,17 +33,16 @@ import optparse
 import logging
 try:
     # >= 3.0
-    import configparser
+    from configparser import NoOptionError, NoSectionError
     try:
         # < 3.2
-        from configparser import SafeConfigParser as ConfigParser
+        from configparser import SafeConfigParser
     except ImportError:
         # >= 3.2
-        from configparser import ConfigParser
+        from configparser import ConfigParser as SafeConfigParser
 except ImportError:
     # < 3.0
-    import ConfigParser as configparser
-    from ConfigParser import SafeConfigParser as ConfigParser
+    from ConfigParser import NoOptionError, NoSectionError, SafeConfigParser
 import subprocess
 
 try:
@@ -110,7 +109,7 @@ def main():
 
     print("[info] Initialising %s-* package lists update..." % metapackage)
 
-    config = ConfigParser()
+    config = SafeConfigParser()
     with open('update.cfg') as config_file:
         config.readfp(config_file)
 
@@ -122,13 +121,13 @@ def main():
     seeds = config.get(dist, 'seeds').split()
     try:
         output_seeds = config.get(dist, 'output_seeds').split()
-    except configparser.NoOptionError:
+    except NoOptionError:
         output_seeds = list(seeds)
     architectures = config.get(dist, 'architectures').split()
     try:
         archive_base_default = config.get(dist, 'archive_base/default')
         archive_base_default = re.split(r'[, ]+', archive_base_default)
-    except (configparser.NoSectionError, configparser.NoOptionError):
+    except (NoSectionError, NoOptionError):
         archive_base_default = None
 
     archive_base = {}
@@ -136,7 +135,7 @@ def main():
         try:
             archive_base[arch] = config.get(dist, 'archive_base/%s' % arch)
             archive_base[arch] = re.split(r'[, ]+', archive_base[arch])
-        except (configparser.NoSectionError, configparser.NoOptionError):
+        except (NoSectionError, NoOptionError):
             if archive_base_default is not None:
                 archive_base[arch] = archive_base_default
             else:
