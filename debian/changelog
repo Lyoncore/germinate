@@ -4,6 +4,9 @@ germinate (2.5) UNRELEASED; urgency=low
   * Use "raise Exception(value)" syntax rather than the old-style "raise
     Exception, value".
   * Use Python 3-style print functions.
+  * Build a cache of seed entries when analysing reverse-dependencies, so
+    that we don't have to expensively call get_seed_entries once per package
+    per seed (LP: #915569).
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon, 09 Jan 2012 21:42:51 +0000
 

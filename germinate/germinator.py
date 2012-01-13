@@ -326,6 +326,8 @@ class GerminatedSeedStructure(object):
 
         self._blacklist = {}
 
+        self._rdepends_cache_entries = None
+
 
 class GerminatorOutput(collections.MutableMapping, object):
     def __init__(self):
@@ -1796,6 +1798,16 @@ class Germinator(object):
 
     def write_rdepend_list(self, structure, filename, pkg):
         """Write a detailed analysis of reverse-dependencies."""
+        # First, build a cache of entries for each seed.
+        output = self._output[structure]
+        if output._rdepends_cache_entries is None:
+            cache_entries = {}
+            for seedname in output._seednames:
+                cache_entries[seedname] = self.get_seed_entries(
+                    structure, seedname)
+            output._rdepends_cache_entries = cache_entries
+
+        # Then write out the list itself.
         with AtomicFile(filename) as f:
             print(pkg, file=f)
             self._write_rdepend_list(structure, f, pkg, "", done=set())
@@ -1818,8 +1830,10 @@ class Germinator(object):
             return
         done.add(pkg)
 
-        for seedname in self._output[structure]._seednames:
-            if pkg in self.get_seed_entries(structure, seedname):
+        output = self._output[structure]
+        cache_entries = output._rdepends_cache_entries
+        for seedname in output._seednames:
+            if pkg in cache_entries[seedname]:
                 print(prefix + "*", seedname.title(), "seed", file=f)
 
         if "Reverse-Depends" not in self._packages[pkg]:
