@@ -126,7 +126,7 @@ class Seed(object):
 
     def __init__(self, bases, branches, name, bzr=False):
         """Read a seed from a collection."""
-        if isinstance(branches, str) or isinstance(branches, unicode):
+        if isinstance(branches, basestring):
             branches = [branches]
 
         self._name = name

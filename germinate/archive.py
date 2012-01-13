@@ -67,14 +67,13 @@ class TagFile(Archive):
     def __init__(self, dists, components, arch, mirrors, source_mirrors=None,
                  installer_packages=True, cleanup=False):
         """Create a representation of a Debian-format apt archive."""
-        if isinstance(dists, str) or isinstance(dists, unicode):
+        if isinstance(dists, basestring):
             dists = [dists]
-        if isinstance(components, str) or isinstance(components, unicode):
+        if isinstance(components, basestring):
             components = [components]
-        if isinstance(mirrors, str) or isinstance(mirrors, unicode):
+        if isinstance(mirrors, basestring):
             mirrors = [mirrors]
-        if (isinstance(source_mirrors, str) or
-            isinstance(source_mirrors, unicode)):
+        if isinstance(source_mirrors, basestring):
             source_mirrors = [source_mirrors]
 
         self._dists = dists
