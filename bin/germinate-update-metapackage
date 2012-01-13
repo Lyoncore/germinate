@@ -31,7 +31,19 @@ import re
 import os
 import optparse
 import logging
-import ConfigParser
+try:
+    # >= 3.0
+    import configparser
+    try:
+        # < 3.2
+        from configparser import SafeConfigParser as ConfigParser
+    except ImportError:
+        # >= 3.2
+        from configparser import ConfigParser
+except ImportError:
+    # < 3.0
+    import ConfigParser as configparser
+    from ConfigParser import SafeConfigParser as ConfigParser
 import subprocess
 
 try:
@@ -98,7 +110,7 @@ def main():
 
     print("[info] Initialising %s-* package lists update..." % metapackage)
 
-    config = ConfigParser.SafeConfigParser()
+    config = ConfigParser()
     with open('update.cfg') as config_file:
         config.readfp(config_file)
 
@@ -110,13 +122,13 @@ def main():
     seeds = config.get(dist, 'seeds').split()
     try:
         output_seeds = config.get(dist, 'output_seeds').split()
-    except ConfigParser.NoOptionError:
+    except configparser.NoOptionError:
         output_seeds = list(seeds)
     architectures = config.get(dist, 'architectures').split()
     try:
         archive_base_default = config.get(dist, 'archive_base/default')
         archive_base_default = re.split(r'[, ]+', archive_base_default)
-    except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+    except (configparser.NoSectionError, configparser.NoOptionError):
         archive_base_default = None
 
     archive_base = {}
@@ -124,7 +136,7 @@ def main():
         try:
             archive_base[arch] = config.get(dist, 'archive_base/%s' % arch)
             archive_base[arch] = re.split(r'[, ]+', archive_base[arch])
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+        except (configparser.NoSectionError, configparser.NoOptionError):
             if archive_base_default is not None:
                 archive_base[arch] = archive_base_default
             else:

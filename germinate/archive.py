@@ -23,8 +23,12 @@
 from __future__ import print_function
 
 import os
-import urllib
-import urllib2
+try:
+    from urllib.parse import quote
+    from urllib.request import Request, urlopen
+except ImportError:
+    from urllib import quote
+    from urllib2 import Request, urlopen
 import tempfile
 import shutil
 import logging
@@ -95,11 +99,11 @@ class TagFile(Archive):
                 mirror += '/'
             url = (mirror + "dists/" + dist + "/" + component + "/" + ftppath +
                    suffix)
-            req = urllib2.Request(url)
+            req = Request(url)
             filename = None
 
             if req.get_type() != "file":
-                filename = "%s_%s_%s_%s" % (urllib.quote(mirror, safe=""), dist,
+                filename = "%s_%s_%s_%s" % (quote(mirror, safe=""), dist,
                                             component, tagfile_type)
             else:
                 # Make a more or less dummy filename for local URLs.
@@ -118,7 +122,7 @@ class TagFile(Archive):
 
                 compressed = os.path.join(dirname, filename + suffix)
                 try:
-                    url_f = urllib2.urlopen(req)
+                    url_f = urlopen(req)
                     try:
                         with open(compressed, "w") as compressed_f:
                             compressed_f.write(url_f.read())

@@ -24,8 +24,12 @@ import os
 import tempfile
 import atexit
 import logging
-import urlparse
-import urllib2
+try:
+    from urllib.parse import urljoin
+    from urllib.request import Request, URLError, urlopen
+except ImportError:
+    from urlparse import urljoin
+    from urllib2 import Request, URLError, urlopen
 import shutil
 import re
 import subprocess
@@ -117,12 +121,12 @@ class Seed(object):
                                     "  '%s'" % (status, ' '.join(command)))
             return open(os.path.join(checkout, name))
         else:
-            url = urlparse.urljoin(path, name)
+            url = urljoin(path, name)
             _logger.info("Downloading %s", url)
-            req = urllib2.Request(url)
+            req = Request(url)
             req.add_header('Cache-Control', 'no-cache')
             req.add_header('Pragma', 'no-cache')
-            return urllib2.urlopen(req)
+            return urlopen(req)
 
     def __init__(self, bases, branches, name, bzr=False):
         """Read a seed from a collection."""
@@ -148,7 +152,7 @@ class Seed(object):
                         r'bzr\+ssh://(?:[^/]*?@)?(.*?)(?:/|$)', base)
                     if ssh_match:
                         ssh_host = ssh_match.group(1)
-                except (OSError, IOError, urllib2.URLError):
+                except (OSError, IOError, URLError):
                     pass
             if fd is not None:
                 break
@@ -176,8 +180,7 @@ class Seed(object):
                         path = os.path.join(base, branch)
                         if not path.endswith('/'):
                             path += '/'
-                        _logger.warning(
-                            '  %s' % urlparse.urljoin(path, name))
+                        _logger.warning('  %s' % urljoin(path, name))
             raise SeedError("Could not open %s" % name)
 
         try:
