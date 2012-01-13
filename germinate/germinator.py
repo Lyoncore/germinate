@@ -18,6 +18,8 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
+from __future__ import print_function
+
 import sys
 import re
 import fnmatch
@@ -1627,31 +1629,31 @@ class Germinator(object):
         installed_size = 0
 
         with AtomicUTF8File(filename) as f:
-            print >>f, "%-*s | %-*s | %-*s | %-*s | %-15s | %-15s" % \
+            print("%-*s | %-*s | %-*s | %-*s | %-15s | %-15s" %
                   (pkg_len, "Package",
                    src_len, "Source",
                    why_len, "Why",
                    mnt_len, "Maintainer",
                    "Deb Size (B)",
-                   "Inst Size (KB)")
-            print >>f, ("-" * pkg_len) + "-+-" + ("-" * src_len) + "-+-" \
-                  + ("-" * why_len) + "-+-" + ("-" * mnt_len) + "-+-" \
-                  + ("-" * 15) + "-+-" + ("-" * 15) + "-"
+                   "Inst Size (KB)"), file=f)
+            print(("-" * pkg_len) + "-+-" + ("-" * src_len) + "-+-"
+                  + ("-" * why_len) + "-+-" + ("-" * mnt_len) + "-+-"
+                  + ("-" * 15) + "-+-" + ("-" * 15) + "-", file=f)
             for pkg in pkglist:
                 size += self._packages[pkg]["Size"]
                 installed_size += self._packages[pkg]["Installed-Size"]
-                print >>f, "%-*s | %-*s | %-*s | %-*s | %15d | %15d" % \
+                print("%-*s | %-*s | %-*s | %-*s | %15d | %15d" %
                       (pkg_len, pkg,
                        src_len, self._packages[pkg]["Source"],
                        why_len, reasons[pkg][0],
                        mnt_len, self._packages[pkg]["Maintainer"],
                        self._packages[pkg]["Size"],
-                       self._packages[pkg]["Installed-Size"])
-            print >>f, ("-" * (pkg_len + src_len + why_len + mnt_len + 9)) \
-                  + "-+-" + ("-" * 15) + "-+-" + ("-" * 15) + "-"
-            print >>f, "%*s | %15d | %15d" % \
+                       self._packages[pkg]["Installed-Size"]), file=f)
+            print(("-" * (pkg_len + src_len + why_len + mnt_len + 9))
+                  + "-+-" + ("-" * 15) + "-+-" + ("-" * 15) + "-", file=f)
+            print("%*s | %15d | %15d" %
                   ((pkg_len + src_len + why_len + mnt_len + 9), "",
-                   size, installed_size)
+                   size, installed_size), file=f)
 
     def _write_source_list(self, filename, srcset):
         srclist = sorted(srcset)
@@ -1669,11 +1671,11 @@ class Germinator(object):
         with AtomicUTF8File(filename) as f:
             fmt = "%-*s | %-*s"
 
-            print >>f, fmt % (src_len, "Source", mnt_len, "Maintainer")
-            print >>f, ("-" * src_len) + "-+-" + ("-" * mnt_len) + "-"
+            print(fmt % (src_len, "Source", mnt_len, "Maintainer"), file=f)
+            print(("-" * src_len) + "-+-" + ("-" * mnt_len) + "-", file=f)
             for src in srclist:
-                print >>f, fmt % (src_len, src, mnt_len,
-                                  self._sources[src]["Maintainer"])
+                print(fmt % (src_len, src, mnt_len,
+                             self._sources[src]["Maintainer"]), file=f)
 
     def write_full_list(self, structure, filename, seedname):
         """Write the full (run-time) dependency expansion of this seed."""
@@ -1795,7 +1797,7 @@ class Germinator(object):
     def write_rdepend_list(self, structure, filename, pkg):
         """Write a detailed analysis of reverse-dependencies."""
         with AtomicFile(filename) as f:
-            print >>f, pkg
+            print(pkg, file=f)
             self._write_rdepend_list(structure, f, pkg, "", done=set())
 
     def _write_rdepend_list(self, structure, f, pkg, prefix, stack=None,
@@ -1805,20 +1807,20 @@ class Germinator(object):
         else:
             stack = list(stack)
             if pkg in stack:
-                print >>f, prefix + "! loop"
+                print(prefix + "! loop", file=f)
                 return
         stack.append(pkg)
 
         if done is None:
             done = set()
         elif pkg in done:
-            print >>f, prefix + "! skipped"
+            print(prefix + "! skipped", file=f)
             return
         done.add(pkg)
 
         for seedname in self._output[structure]._seednames:
             if pkg in self.get_seed_entries(structure, seedname):
-                print >>f, prefix + "*", seedname.title(), "seed"
+                print(prefix + "*", seedname.title(), "seed", file=f)
 
         if "Reverse-Depends" not in self._packages[pkg]:
             return
@@ -1829,10 +1831,10 @@ class Germinator(object):
                 continue
 
             i = 0
-            print >>f, prefix + "*", "Reverse", field + ":"
+            print(prefix + "*", "Reverse", field + ":", file=f)
             for dep in self._packages[pkg]["Reverse-Depends"][field]:
                 i += 1
-                print >>f, prefix + " +- " + dep
+                print(prefix + " +- " + dep, file=f)
                 if field.startswith("Build-"):
                     continue
 
@@ -1857,10 +1859,10 @@ class Germinator(object):
                     all_pkgprovides[prov].update(provset)
 
             for prov in sorted(all_pkgprovides.keys()):
-                print >>f, prov
+                print(prov, file=f)
                 for pkg in sorted(all_pkgprovides[prov]):
-                    print >>f, "\t%s" % (pkg,)
-                print >>f
+                    print("\t%s" % (pkg,), file=f)
+                print(file=f)
 
     def write_blacklisted(self, structure, filename):
         """Write the list of blacklisted packages we encountered."""

@@ -18,6 +18,8 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
+from __future__ import print_function
+
 import os
 import tempfile
 import atexit
@@ -482,25 +484,26 @@ class SeedStructure(collections.Mapping, object):
         """Write the text of the seed STRUCTURE file."""
         with AtomicFile(filename) as f:
             for line in self._lines:
-                print >>f, line
+                print(line, file=f)
 
     def write_dot(self, filename):
         """Write a dot file representing this structure."""
         with AtomicUTF8File(filename) as dotfile:
-            print >>dotfile, "digraph structure {"
-            print >>dotfile, "    node [color=lightblue2, style=filled];"
+            print("digraph structure {", file=dotfile)
+            print("    node [color=lightblue2, style=filled];", file=dotfile)
 
             for seed in self._seed_order:
                 if seed not in self._original_inherit:
                     continue
                 for inherit in self._original_inherit[seed]:
-                    print >>dotfile, "    \"%s\" -> \"%s\";" % (inherit, seed)
+                    print("    \"%s\" -> \"%s\";" % (inherit, seed),
+                          file=dotfile)
 
-            print >>dotfile, "}"
+            print("}", file=dotfile)
 
     def write_seed_text(self, filename, seedname):
         """Write the text of a seed in this collection."""
         with AtomicFile(filename) as f:
             with self._seeds[seedname] as seed:
                 for line in seed:
-                    print >>f, line.rstrip('\n')
+                    print(line.rstrip('\n'), file=f)

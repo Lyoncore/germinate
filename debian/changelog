@@ -3,6 +3,7 @@ germinate (2.5) UNRELEASED; urgency=low
   * Stop fetching Suggests from Packages; we don't use it.
   * Use "raise Exception(value)" syntax rather than the old-style "raise
     Exception, value".
+  * Use Python 3-style print functions.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon, 09 Jan 2012 21:42:51 +0000
 

@@ -20,6 +20,8 @@
 # 02110-1301, USA.
 
 
+from __future__ import print_function
+
 import os
 import urllib
 import urllib2
@@ -143,7 +145,7 @@ class TagFile(Archive):
                         # context managers.
                         try:
                             with open(fullname, "w") as f:
-                                print >>f, compressed_f.read(),
+                                print(compressed_f.read(), end="", file=f)
                                 f.flush()
                         finally:
                             compressed_f.close()

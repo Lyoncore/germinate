@@ -112,7 +112,7 @@ class TopoSorter(object):
 ###            rev = sorted_names[index]
 ###            for left_index in range(index):
 ###                if rev in self.original_graph[sorted_names[left_index]]:
-###                    print "revision in parent list of earlier revision"
+###                    print("revision in parent list of earlier revision")
 ###                    import pdb;pdb.set_trace()
 
     def iter_topo_order(self):

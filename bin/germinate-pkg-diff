@@ -98,7 +98,7 @@ class Globals:
         logging.getLogger('germinate.archive').setLevel(logging.INFO)
 
         global MIRRORS, COMPONENTS
-        print "Germinating"
+        print("Germinating")
         g = Germinator(options.arch)
 
         archive = germinate.archive.TagFile(
@@ -166,7 +166,7 @@ class Globals:
         for k in sorted(self.package.keys()):
             l = self.package[k].output(self.outmode)
             if len(l):
-                print l
+                print(l)
 
 
 def parse_options():
