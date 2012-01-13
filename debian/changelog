@@ -18,6 +18,8 @@ germinate (2.5) UNRELEASED; urgency=low
     GerminatedSeed only needs __eq__ and __ne__.)
   * Use Python 3 replacements for urllib, urllib2, and ConfigParser if
     available.
+  * When decompressing tag files from the archive, explicitly treat
+    everything as binary data.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon, 09 Jan 2012 21:42:51 +0000
 

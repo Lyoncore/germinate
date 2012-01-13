@@ -124,7 +124,7 @@ class TagFile(Archive):
                 try:
                     url_f = urlopen(req)
                     try:
-                        with open(compressed, "w") as compressed_f:
+                        with open(compressed, "wb") as compressed_f:
                             compressed_f.write(url_f.read())
                     finally:
                         url_f.close()
@@ -147,8 +147,8 @@ class TagFile(Archive):
                         # 2.7, where gzip.GzipFile and bz2.BZ2File are
                         # context managers.
                         try:
-                            with open(fullname, "w") as f:
-                                print(compressed_f.read(), end="", file=f)
+                            with open(fullname, "wb") as f:
+                                f.write(compressed_f.read())
                                 f.flush()
                         finally:
                             compressed_f.close()
