@@ -91,6 +91,13 @@ class clean_extra(clean):
         clean.run(self)
 
         for path, dirs, files in os.walk('.'):
+            for i in reversed(range(len(dirs))):
+                if dirs[i].startswith('.'):
+                    del dirs[i]
+                elif dirs[i] == '__pycache__':
+                    self.spawn(['rm', '-r', os.path.join(path, dirs[i])])
+                    del dirs[i]
+
             for f in files:
                 f = os.path.join(path, f)
                 if f.endswith('.pyc'):

@@ -6,3 +6,4 @@ debian/python-germinate
 debian/tmp
 debian/*.debhelper*
 debian/*.substvars
+germinate/__pycache__
