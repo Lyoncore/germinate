@@ -309,6 +309,8 @@ class GerminatedSeed(object):
     def __ne__(self, other):
         return not self == other
 
+    __hash__ = None
+
 
 class GerminatedSeedStructure(object):
     def __init__(self, structure):

@@ -268,6 +268,8 @@ class Seed(object):
             return NotImplemented
         return self.text > other.text
 
+    __hash__ = None
+
 
 class CustomSeed(Seed):
     """A seed created from custom input data."""
