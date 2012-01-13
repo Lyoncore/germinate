@@ -202,7 +202,7 @@ def main():
             error_exit('Unable to retrieve package list from debootstrap; stdout: %s\nstderr: %s' % (debootstrap_stdout, debootstrap_stderr))
 
         # sometimes debootstrap gives empty packages / multiple separators
-        packages = filter(None, debootstrap_stdout.split())
+        packages = [pkg for pkg in debootstrap_stdout.split() if pkg]
 
         return sorted(packages)
 

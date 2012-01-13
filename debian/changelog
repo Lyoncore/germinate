@@ -7,6 +7,8 @@ germinate (2.5) UNRELEASED; urgency=low
   * Build a cache of seed entries when analysing reverse-dependencies, so
     that we don't have to expensively call get_seed_entries once per package
     per seed (LP: #915569).
+  * Use a list comprehension rather than filter (which behaves differently
+    in Python 3).
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon, 09 Jan 2012 21:42:51 +0000
 
