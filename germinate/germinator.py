@@ -231,26 +231,26 @@ class GerminatedSeed(object):
     def build_depends(self):
         return set(self._build_depends)
 
-    def __cmp__(self, other):
-        def cmp_blacklist_seen(left_name, right_name):
+    def __eq__(self, other):
+        def eq_blacklist_seen(left_name, right_name):
             # Ignore KeyError in the following; if seeds haven't been
             # planted yet, they can't have seen blacklist entries from outer
             # seeds.
             try:
                 left_seed = self._germinator._seeds[left_name]
                 if left_seed._blacklist_seen:
-                    return -1
+                    return False
             except KeyError:
                 pass
             try:
                 right_seed = other._germinator._seeds[right_name]
                 if right_seed._blacklist_seen:
-                    return -1
+                    return False
             except KeyError:
                 pass
-            return 0
+            return True
 
-        def cmp_inheritance(left_name, right_name):
+        def eq_inheritance(left_name, right_name):
             if left_name == "extra":
                 left_inherit = self.structure.names + ["extra"]
             else:
@@ -259,32 +259,27 @@ class GerminatedSeed(object):
                 right_inherit = other.structure.names + ["extra"]
             else:
                 right_inherit = other.structure.inner_seeds(right_name)
-            ret = cmp(len(left_inherit), len(right_inherit))
-            if ret != 0:
-                return ret
+            if len(left_inherit) != len(right_inherit):
+                return False
             left_branch = self.structure.branch
             right_branch = other.structure.branch
             for left, right in zip(left_inherit, right_inherit):
-                ret = cmp(left, right)
-                if ret != 0:
-                    return ret
+                if left != right:
+                    return False
                 left_seedname = self._germinator._make_seed_name(
                     left_branch, left)
                 right_seedname = other._germinator._make_seed_name(
                     right_branch, right)
-                ret = cmp_blacklist_seen(left_seedname, right_seedname)
-                if ret != 0:
-                    return ret
-            return 0
+                if not eq_blacklist_seen(left_seedname, right_seedname):
+                    return False
+            return True
 
         if isinstance(other, GerminatedSeed):
-            ret = cmp(self._raw_seed, other._raw_seed)
-            if ret != 0:
-                return ret
+            if self._raw_seed != other._raw_seed:
+                return False
 
-            ret = cmp_inheritance(self.name, other.name)
-            if ret != 0:
-                return ret
+            if not eq_inheritance(self.name, other.name):
+                return False
 
             try:
                 left_lesser = self._germinator._strictly_outer_seeds(self)
@@ -294,7 +289,7 @@ class GerminatedSeed(object):
                 right_close = [l for l in right_lesser
                                  if other.name in l._close_seeds]
                 if left_close != right_close:
-                    return -1
+                    return False
                 left_branch = self.structure.branch
                 right_branch = other.structure.branch
                 for close_seed in left_close:
@@ -302,15 +297,17 @@ class GerminatedSeed(object):
                         left_branch, close_seed)
                     right_seedname = self._germinator._make_seed_name(
                         right_branch, close_seed)
-                    ret = cmp_inheritance(left_seedname, right_seedname)
-                    if ret != 0:
-                        return ret
+                    if not eq_inheritance(left_seedname, right_seedname):
+                        return False
             except KeyError:
                 pass
 
-            return 0
+            return True
         else:
-            return cmp(self.name, other)
+            return NotImplemented
+
+    def __ne__(self, other):
+        return not self == other
 
 
 class GerminatedSeedStructure(object):

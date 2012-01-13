@@ -238,12 +238,35 @@ class Seed(object):
         """The text of this seed."""
         return self._text
 
-    def __cmp__(self, other):
-        """Compare two seeds."""
-        if isinstance(other, Seed):
-            return cmp(self.text, other.text)
-        else:
-            return cmp(self.text, other)
+    def __lt__(self, other):
+        if not isinstance(other, Seed):
+            return NotImplemented
+        return self.text < other.text
+
+    def __le__(self, other):
+        if not isinstance(other, Seed):
+            return NotImplemented
+        return self.text <= other.text
+
+    def __eq__(self, other):
+        if not isinstance(other, Seed):
+            return NotImplemented
+        return self.text == other.text
+
+    def __ne__(self, other):
+        if not isinstance(other, Seed):
+            return NotImplemented
+        return self.text != other.text
+
+    def __ge__(self, other):
+        if not isinstance(other, Seed):
+            return NotImplemented
+        return self.text >= other.text
+
+    def __gt__(self, other):
+        if not isinstance(other, Seed):
+            return NotImplemented
+        return self.text > other.text
 
 
 class CustomSeed(Seed):

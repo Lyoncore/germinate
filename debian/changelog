@@ -13,6 +13,9 @@ germinate (2.5) UNRELEASED; urgency=low
     StandardError.
   * Simplify stringiness tests in TagFile.__init__ and Seed.__init__ using
     basestring.
+  * Implement rich comparison methods instead of __cmp__ for Seed and
+    GerminatedSeed.  (Seed needs all of them for interface-compatibility;
+    GerminatedSeed only needs __eq__ and __ne__.)
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon, 09 Jan 2012 21:42:51 +0000
 
