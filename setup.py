@@ -3,9 +3,10 @@
 import os
 import re
 import subprocess
-from distutils.core import setup, Command
+from setuptools import setup, Command, find_packages
 from distutils.command.build import build
-from distutils.command.install import install
+from setuptools.command.test import test
+from setuptools.command.install import install
 from distutils.command.clean import clean
 
 
@@ -34,9 +35,7 @@ class build_extra(build):
 
     def finalize_options(self):
         def has_pod2man(command):
-            return (self.pod2man == 'True' or
-                    ("build_pod2man" in self.distribution.cmdclass and
-                     self.pod2man != 'False'))
+            return self.pod2man == 'True'
 
         build.finalize_options(self)
         self.sub_commands.append(('build_pod2man', has_pod2man))
@@ -63,19 +62,11 @@ class build_pod2man(Command):
                         pod_file, '%s.1' % pod_file])
 
 
-class test_pychecker(Command):
-    description = "run pychecker"
-
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
+class test_extra(test):
     def run(self):
         self.spawn(['./run-pychecker'])
+
+        test.run(self)
 
 
 class install_extra(install):
@@ -92,9 +83,9 @@ class clean_extra(clean):
 
         for path, dirs, files in os.walk('.'):
             for i in reversed(range(len(dirs))):
-                if dirs[i].startswith('.'):
+                if dirs[i].startswith('.') or dirs[i] == 'debian':
                     del dirs[i]
-                elif dirs[i] == '__pycache__':
+                elif dirs[i] == '__pycache__' or dirs[i].endswith('.egg-info'):
                     self.spawn(['rm', '-r', os.path.join(path, dirs[i])])
                     del dirs[i]
 
@@ -114,31 +105,41 @@ if not perl_vendorlib:
 perllibdir = '%s/Debian/Debhelper/Sequence' % perl_vendorlib
 
 
-setup(name='germinate',
-      version=germinate_version,
-      description='Expand dependencies in a list of seed packages',
-      author='Scott James Remnant',
-      author_email='scott@ubuntu.com',
-      maintainer='Colin Watson',
-      maintainer_email='cjwatson@ubuntu.com',
-      url='https://wiki.ubuntu.com/Germinate',
-      license='GNU GPL',
-      packages=['germinate'],
-      scripts=['bin/germinate',
-               'bin/germinate-pkg-diff',
-               'bin/germinate-update-metapackage',
-               'debhelper/dh_germinate_clean',
-               'debhelper/dh_germinate_metapackage'],
-      data_files=[(perllibdir, ['debhelper/germinate.pm']),
-                  ('/usr/share/man/man1',
-                   ['man/germinate.1',
-                    'man/germinate-pkg-diff.1',
-                    'man/germinate-update-metapackage.1',
-                    'debhelper/dh_germinate_clean.1',
-                    'debhelper/dh_germinate_metapackage.1'])],
-      cmdclass={'build': build_extra,
-                'build_pod2man': build_pod2man,
-                'test': test_pychecker,
-                'install': install_extra,
-                'clean': clean_extra},
-      requires=['apt (>=0.7.93)'])
+setup(
+    name='germinate',
+    version=germinate_version,
+    description='Expand dependencies in a list of seed packages',
+    author='Scott James Remnant',
+    author_email='scott@ubuntu.com',
+    maintainer='Colin Watson',
+    maintainer_email='cjwatson@ubuntu.com',
+    url='https://wiki.ubuntu.com/Germinate',
+    license='GNU GPL',
+    packages=find_packages(),
+    scripts=[
+        'bin/germinate',
+        'bin/germinate-pkg-diff',
+        'bin/germinate-update-metapackage',
+        'debhelper/dh_germinate_clean',
+        'debhelper/dh_germinate_metapackage',
+        ],
+    data_files=[
+        (perllibdir, ['debhelper/germinate.pm']),
+        ('/usr/share/man/man1', [
+            'man/germinate.1',
+            'man/germinate-pkg-diff.1',
+            'man/germinate-update-metapackage.1',
+            'debhelper/dh_germinate_clean.1',
+            'debhelper/dh_germinate_metapackage.1',
+            ])],
+    cmdclass={
+        'build': build_extra,
+        'build_pod2man': build_pod2man,
+        'test': test_extra,
+        'install': install_extra,
+        'clean': clean_extra,
+        },
+    # python-apt doesn't build an egg, so we can't use this.
+    #install_requires=['apt>=0.7.93'],
+    #tests_require=['apt>=0.7.93'],
+    )

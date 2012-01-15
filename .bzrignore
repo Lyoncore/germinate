@@ -6,4 +6,5 @@ debian/python-germinate
 debian/tmp
 debian/*.debhelper*
 debian/*.substvars
+germinate.egg-info
 germinate/__pycache__
