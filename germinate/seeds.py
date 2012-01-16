@@ -20,6 +20,7 @@
 
 from __future__ import print_function
 
+import sys
 import os
 import tempfile
 import atexit
@@ -185,12 +186,18 @@ class Seed(object):
 
         try:
             self._text = fd.read()
+            # In Python 3, we need to decode seed text read from URLs.
+            if sys.version_info[0] >= 3 and isinstance(self._text, bytes):
+                self._text = self._text.decode(errors="replace")
         finally:
             fd.close()
 
     def open(self):
         """Open a file object with the text of this seed."""
-        self._file = io.BytesIO(self._text)
+        if sys.version_info[0] < 3:
+            self._file = io.BytesIO(self._text)
+        else:
+            self._file = io.StringIO(self._text)
         return self._file
 
     def read(self, *args, **kwargs):
