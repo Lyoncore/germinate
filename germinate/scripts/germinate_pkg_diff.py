@@ -141,6 +141,8 @@ class Globals:
             try:
                 lines = dpkg_cmd.stdout.readlines()
             finally:
+                if dpkg_cmd.stdout:
+                    dpkg_cmd.stdout.close()
                 dpkg_cmd.wait()
         else:
             with open(fname) as f:

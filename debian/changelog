@@ -30,6 +30,7 @@ germinate (2.5) UNRELEASED; urgency=low
     - In Python 3, decode seed data read from URLs as UTF-8.
     - Pass universal_newlines=True to subprocess.Popen to get Unicode
       output.
+    - Make sure to close stdout of subprocess.Popen objects.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon, 09 Jan 2012 21:42:51 +0000
 

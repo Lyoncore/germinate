@@ -400,6 +400,8 @@ def main(argv):
         try:
             have_U = '-U' in dch_help.stdout.read()
         finally:
+            if dch_help.stdout:
+                dch_help.stdout.close()
             dch_help.wait()
         if have_U:
             subprocess.check_call(['dch', '-iU', 'Refreshed dependencies'])
