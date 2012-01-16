@@ -136,7 +136,8 @@ class Globals:
     def parse_dpkg(self, fname):
         if fname is None:
             dpkg_cmd = subprocess.Popen(['dpkg', '--get-selections'],
-                                        stdout=subprocess.PIPE)
+                                        stdout=subprocess.PIPE,
+                                        universal_newlines=True)
             try:
                 lines = dpkg_cmd.stdout.readlines()
             finally:

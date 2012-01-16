@@ -182,7 +182,7 @@ def main(argv):
     def get_debootstrap_version():
         version_cmd = subprocess.Popen(
             ['dpkg-query', '-W', '--showformat', '${Version}', 'debootstrap'],
-            stdout=subprocess.PIPE)
+            stdout=subprocess.PIPE, universal_newlines=True)
         version, _ = version_cmd.communicate()
         if not version:
             error_exit('debootstrap does not appear to be installed')
@@ -199,7 +199,8 @@ def main(argv):
             ['debootstrap', '--arch', arch,
              '--components', ','.join(components),
              '--print-debs', dist, 'debootstrap-dir', archive_base[arch][0]],
-            stdout=subprocess.PIPE, env=env, stderr=subprocess.PIPE)
+            stdout=subprocess.PIPE, env=env, stderr=subprocess.PIPE,
+            universal_newlines=True)
         (debootstrap_stdout, debootstrap_stderr) = debootstrap.communicate()
         if debootstrap.returncode != 0:
             error_exit('Unable to retrieve package list from debootstrap; stdout: %s\nstderr: %s' % (debootstrap_stdout, debootstrap_stderr))
@@ -394,7 +395,8 @@ def main(argv):
                   file=metapackage_map_file)
 
     if not options.nodch and (additions or removals or moves):
-        dch_help = subprocess.Popen(['dch', '--help'], stdout=subprocess.PIPE)
+        dch_help = subprocess.Popen(['dch', '--help'], stdout=subprocess.PIPE,
+                                    universal_newlines=True)
         try:
             have_U = '-U' in dch_help.stdout.read()
         finally:
