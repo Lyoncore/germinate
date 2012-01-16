@@ -2,7 +2,9 @@
 
 import os
 import re
+import sys
 import subprocess
+
 from setuptools import setup, Command, find_packages
 from distutils.command.build import build
 from setuptools.command.test import test
@@ -64,7 +66,9 @@ class build_pod2man(Command):
 
 class test_extra(test):
     def run(self):
-        self.spawn(['./run-pychecker'])
+        # Only useful for Python 2 right now.
+        if sys.version_info[0] < 3:
+            self.spawn(['./run-pychecker'])
 
         test.run(self)
 
@@ -99,7 +103,7 @@ class clean_extra(clean):
 
 perl_vendorlib = subprocess.Popen(
     ['perl', '-MConfig', '-e', 'print $Config{vendorlib}'],
-    stdout=subprocess.PIPE).communicate()[0]
+    stdout=subprocess.PIPE, universal_newlines=True).communicate()[0]
 if not perl_vendorlib:
     raise ValueError("Failed to get $Config{vendorlib} from perl")
 perllibdir = '%s/Debian/Debhelper/Sequence' % perl_vendorlib
@@ -115,7 +119,7 @@ setup(
     maintainer_email='cjwatson@ubuntu.com',
     url='https://wiki.ubuntu.com/Germinate',
     license='GNU GPL',
-    packages=find_packages(exclude=['*.tests']),
+    packages=find_packages(),
     scripts=[
         'bin/germinate',
         'bin/germinate-pkg-diff',
@@ -143,4 +147,10 @@ setup(
     # python-apt doesn't build an egg, so we can't use this.
     #install_requires=['apt>=0.7.93'],
     #tests_require=['apt>=0.7.93'],
+    use_2to3 = True,
+    use_2to3_exclude_fixers = [
+        "lib2to3.fixes.fix_future",
+        "lib2to3.fixes.fix_imports",
+        "lib2to3.fixes.fix_urllib",
+        ],
     )
