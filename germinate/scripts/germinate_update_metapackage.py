@@ -33,10 +33,11 @@ import logging
 try:
     # >= 3.0
     from configparser import NoOptionError, NoSectionError
-    try:
+    if (sys.version_info[0] < 3 or
+        (sys.version_info[0] == 3 and sys.version_info[1] < 2)):
         # < 3.2
         from configparser import SafeConfigParser
-    except ImportError:
+    else:
         # >= 3.2
         from configparser import ConfigParser as SafeConfigParser
 except ImportError:
@@ -103,7 +104,12 @@ def main(argv):
 
     config = SafeConfigParser()
     with open('update.cfg') as config_file:
-        config.readfp(config_file)
+        try:
+            # >= 3.2
+            config.read_file(config_file)
+        except AttributeError:
+            # < 3.2
+            config.readfp(config_file)
 
     if len(args) > 0:
         dist = args[0]
