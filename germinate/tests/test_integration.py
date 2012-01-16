@@ -19,10 +19,6 @@
 # 02110-1301, USA.
 
 import logging
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from germinate.scripts import germinate_main
 from germinate.tests.helpers import TestCase
@@ -88,7 +84,3 @@ class TestGerminate(TestCase):
         all_ = self.parseOutput("supported")
         self.assertTrue("hello" in all_)
         self.assertTrue("hello-dependency" in all_)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -20,10 +20,6 @@
 
 import os
 import textwrap
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from germinate.seeds import (
     AtomicFile,
@@ -264,7 +260,3 @@ class TestSeedStructure(TestCase):
         structure.write_seed_text("one.seedtext", "one")
         with open("one.seedtext") as seed_file:
             self.assertEqual(" * one-package\n", seed_file.read())
-
-
-if __name__ == "__main__":
-    unittest.main()

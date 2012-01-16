@@ -21,10 +21,6 @@
 import gzip
 import os
 import textwrap
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from germinate.archive import IndexType, TagFile
 from germinate.tests.helpers import TestCase
@@ -89,7 +85,3 @@ class TestTagFile(TestCase):
         self.assertEqual(IndexType.SOURCES, sections[1][0])
         self.assertEqual("test", sections[1][1]["Source"])
         self.assertEqual("1.0", sections[1][1]["Version"])
-
-
-if __name__ == "__main__":
-    unittest.main()
