@@ -29,6 +29,9 @@ try:
 except ImportError:
     import unittest
 
+from germinate.seeds import SeedStructure
+
+
 class TestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         unittest.TestCase.__init__(self, *args, **kwargs)
@@ -116,3 +119,6 @@ class TestCase(unittest.TestCase):
         self.ensureParentDir(seed_path)
         with open(seed_path, "a") as seed:
             print(" * %s" % pkg, file=seed)
+
+    def openSeedStructure(self, branch):
+        return SeedStructure(branch, seed_bases=["file://%s" % self.seeds_dir])

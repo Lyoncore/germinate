@@ -126,9 +126,6 @@ class TestSingleSeedStructure(TestCase):
 
 
 class TestSeedStructure(TestCase):
-    def openSeedStructure(self, branch):
-        return SeedStructure(branch, seed_bases=["file://%s" % self.seeds_dir])
-
     def test_basic(self):
         """A SeedStructure object has the correct basic properties."""
         branch = "collection.dist"

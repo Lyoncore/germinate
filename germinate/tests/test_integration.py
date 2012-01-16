@@ -72,7 +72,8 @@ class TestGerminate(TestCase):
                        ["hello", "hello-dependency"])
         self.addPackage("warty", "main", "i386", "hello", "1.0-1",
                         fields={"Depends": "hello-dependency"})
-        self.addPackage("warty", "main", "i386", "hello-dependency", "1.0-1")
+        self.addPackage("warty", "main", "i386", "hello-dependency", "1.0-1",
+                        fields={"Source": "hello"})
         self.addSeed("ubuntu.warty", "supported")
         self.addSeedPackage("ubuntu.warty", "supported", "hello")
         self.runGerminate("-s", "ubuntu.warty", "-d", "warty", "-c", "main")
