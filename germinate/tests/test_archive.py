@@ -20,19 +20,11 @@
 
 import gzip
 import os
-import sys
 import textwrap
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
-
-try:
-    import imp
-    imp.find_module('germinate.archive')
-except ImportError:
-    # Running from build tree?
-    sys.path.insert(0, os.path.join(sys.path[0], os.pardir))
 
 from germinate.archive import IndexType, TagFile
 from germinate.tests.helpers import TestCase

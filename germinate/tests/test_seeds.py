@@ -19,18 +19,10 @@
 # 02110-1301, USA.
 
 import os
-import sys
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
-
-try:
-    import imp
-    imp.find_module('germinate.seeds')
-except ImportError:
-    # Running from build tree?
-    sys.path.insert(0, os.path.join(sys.path[0], os.pardir))
 
 from germinate.seeds import AtomicFile, Seed, SingleSeedStructure
 from germinate.tests.helpers import TestCase
