@@ -29,10 +29,18 @@ from germinate.tests.helpers import TestCase
 
 
 class TestGerminate(TestCase):
-    def runGerminate(self, *args):
+    def setUp(self):
         top_dir = os.path.abspath(
             os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
-        command = [os.path.join(top_dir, "bin", "germinate")]
+        self.script = os.path.join(top_dir, "bin", "germinate")
+        # TODO: Reliably integration-testing this script in all the various
+        # different build layouts probably requires moving its contents into
+        # a module.
+        if not os.path.exists(self.script):
+            self.skipTest("%s does not exist" % self.script)
+
+    def runGerminate(self, *args):
+        command = [self.script]
         command.extend(["-S", "file://%s" % self.seeds_dir])
         command.extend(["-m", "file://%s" % self.archive_dir])
         command.extend(args)
