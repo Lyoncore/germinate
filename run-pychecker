@@ -13,7 +13,7 @@ done)
 
 cleanup () {
 	find bin -name \*.py -type l | xargs -r rm -f
-	find germinate -type f \( -name \*.pyc -o -name \*.pyo \) -print0 | xargs -0r rm -f
+	find germinate -name tests -prune -o -type f \( -name \*.pyc -o -name \*.pyo \) -print0 | xargs -0r rm -f
 }
 trap cleanup EXIT HUP INT QUIT TERM
 
