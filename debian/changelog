@@ -10,7 +10,7 @@ germinate (2.5) UNRELEASED; urgency=low
     more easily.
   * Remove private AtomicUTF8File class; just write all files as UTF-8.
 
-  * Start porting to Python 3 (note that this is not yet complete):
+  * Port to Python 3:
     - Use "raise Exception(value)" syntax rather than the old-style "raise
       Exception, value".
     - Use Python 3-style print functions.
