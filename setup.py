@@ -115,7 +115,7 @@ setup(
     maintainer_email='cjwatson@ubuntu.com',
     url='https://wiki.ubuntu.com/Germinate',
     license='GNU GPL',
-    packages=find_packages(),
+    packages=find_packages(exclude=['*.tests']),
     scripts=[
         'bin/germinate',
         'bin/germinate-pkg-diff',
@@ -139,6 +139,7 @@ setup(
         'install': install_extra,
         'clean': clean_extra,
         },
+    test_suite='germinate.tests',
     # python-apt doesn't build an egg, so we can't use this.
     #install_requires=['apt>=0.7.93'],
     #tests_require=['apt>=0.7.93'],

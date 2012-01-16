@@ -18,7 +18,7 @@ cleanup () {
 trap cleanup EXIT HUP INT QUIT TERM
 
 ret=0
-for x in $(find bin germinate -name \*.py -printf '%p\n' | sort); do
+for x in $(find bin germinate -name tests -prune -o -name \*.py -printf '%p\n' | sort); do
 	pychecker "$x" | grep "^$x:" && ret=1
 done
 

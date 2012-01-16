@@ -8,3 +8,4 @@ debian/*.debhelper*
 debian/*.substvars
 germinate.egg-info
 germinate/__pycache__
+germinate/tests/__pycache__
