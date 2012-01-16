@@ -35,7 +35,6 @@ class TestCase(unittest.TestCase):
         self.temp_dir = None
         self.archive_dir = None
         self.seeds_dir = None
-        self.out_dir = None
 
     def useTempDir(self):
         if self.temp_dir is not None:
@@ -57,8 +56,6 @@ class TestCase(unittest.TestCase):
         os.makedirs(self.archive_dir)
         self.seeds_dir = os.path.join(self.temp_dir, "seeds")
         os.makedirs(self.seeds_dir)
-        self.out_dir = os.path.join(self.temp_dir, "out")
-        os.makedirs(self.out_dir)
 
     def ensureDir(self, path):
         try:

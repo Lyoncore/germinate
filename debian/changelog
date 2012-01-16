@@ -6,6 +6,8 @@ germinate (2.5) UNRELEASED; urgency=low
     per seed (LP: #915569).
   * Convert to setuptools.
   * Add the beginnings of a test suite.
+  * Make the main bodies of scripts into modules so that they can be tested
+    more easily.
 
   * Start porting to Python 3 (note that this is not yet complete):
     - Use "raise Exception(value)" syntax rather than the old-style "raise

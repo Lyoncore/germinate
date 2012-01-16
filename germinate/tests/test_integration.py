@@ -18,39 +18,59 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
+import logging
 import os
-import subprocess
+import sys
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 
+try:
+    import imp
+    imp.find_module('germinate.scripts.germinate_main')
+except ImportError:
+    # Running from build tree?
+    sys.path.insert(0, os.path.join(sys.path[0], os.pardir))
+
+from germinate.scripts import germinate_main
 from germinate.tests.helpers import TestCase
 
 
+try:
+    NullHandler = logging.NullHandler
+except AttributeError:
+    # < 2.7
+    class NullHandler(logging.Handler):
+        def handle(self, record):
+            pass
+
+        def emit(self, record):
+            pass
+
+        def createLock(self):
+            self.lock = None
+
+
 class TestGerminate(TestCase):
-    def setUp(self):
-        top_dir = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
-        self.script = os.path.join(top_dir, "bin", "germinate")
-        # TODO: Reliably integration-testing this script in all the various
-        # different build layouts probably requires moving its contents into
-        # a module.
-        if not os.path.exists(self.script):
-            self.skipTest("%s does not exist" % self.script)
+    def addNullHandler(self):
+        handler = NullHandler()
+        logger = logging.getLogger("germinate")
+        logger.addHandler(handler)
+        logger.propagate = False
 
     def runGerminate(self, *args):
-        command = [self.script]
-        command.extend(["-S", "file://%s" % self.seeds_dir])
-        command.extend(["-m", "file://%s" % self.archive_dir])
-        command.extend(args)
-        with open("/dev/null", "w") as devnull:
-            self.assertTrue(subprocess.call(command, stdout=devnull,
-                                            cwd=self.out_dir) == 0)
+        self.useTempDir()
+        self.addNullHandler()
+        argv = ["germinate"]
+        argv.extend(["-S", "file://%s" % self.seeds_dir])
+        argv.extend(["-m", "file://%s" % self.archive_dir])
+        argv.extend(args)
+        self.assertEqual(0, germinate_main.main(argv))
 
     def parseOutput(self, output_name):
         output_dict = {}
-        with open(os.path.join(self.out_dir, output_name)) as output:
+        with open(output_name) as output:
             output.readline()
             output.readline()
             for line in output:
