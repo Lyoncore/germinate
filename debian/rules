@@ -2,7 +2,9 @@
 %:
 	dh $@ --with python2
 
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 override_dh_auto_test:
 	set -e; for python in $$(pyversions -r); do \
 		$$python setup.py test; \
 	done
+endif
