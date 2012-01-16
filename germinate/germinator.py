@@ -29,7 +29,7 @@ import collections
 import apt_pkg
 
 from germinate.archive import IndexType
-from germinate.seeds import AtomicFile, AtomicUTF8File, SeedStructure
+from germinate.seeds import AtomicFile, SeedStructure
 
 # TODO: would be much more elegant to reduce our recursion depth!
 sys.setrecursionlimit(2000)
@@ -1629,7 +1629,7 @@ class Germinator(object):
         size = 0
         installed_size = 0
 
-        with AtomicUTF8File(filename) as f:
+        with AtomicFile(filename) as f:
             print("%-*s | %-*s | %-*s | %-*s | %-15s | %-15s" %
                   (pkg_len, "Package",
                    src_len, "Source",
@@ -1669,7 +1669,7 @@ class Germinator(object):
             _mnt_len = len(self._sources[src]["Maintainer"])
             if _mnt_len > mnt_len: mnt_len = _mnt_len
 
-        with AtomicUTF8File(filename) as f:
+        with AtomicFile(filename) as f:
             fmt = "%-*s | %-*s"
 
             print(fmt % (src_len, "Source", mnt_len, "Maintainer"), file=f)

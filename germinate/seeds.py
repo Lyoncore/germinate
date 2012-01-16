@@ -56,11 +56,19 @@ _bzr_cache_dir = None
 
 
 class AtomicFile(object):
-    """Facilitate atomic writing of files."""
+    """Facilitate atomic writing of files.  Forces UTF-8 encoding."""
 
     def __init__(self, filename):
         self.filename = filename
-        self.fd = open('%s.new' % self.filename, 'w')
+        if sys.version_info[0] < 3:
+            self.fd = codecs.open(
+                '%s.new' % self.filename, 'w', 'UTF-8', 'replace')
+        else:
+            # io.open is available from Python 2.6, but we only use it with
+            # Python 3 because it raises exceptions when passed bytes.
+            self.fd = io.open(
+                '%s.new' % self.filename, mode='w',
+                encoding='UTF-8', errors='replace')
 
     def __enter__(self):
         return self.fd
@@ -73,14 +81,6 @@ class AtomicFile(object):
     # Not really necessary, but reduces pychecker confusion.
     def write(self, s):
         self.fd.write(s)
-
-
-class AtomicUTF8File(AtomicFile):
-    """As AtomicFile, but forces UTF-8 encoding."""
-
-    def __init__(self, filename):
-        self.filename = filename
-        self.fd = codecs.open('%s.new' % self.filename, 'w', 'utf8', 'replace')
 
 
 class SeedError(RuntimeError):
@@ -523,7 +523,7 @@ class SeedStructure(collections.Mapping, object):
 
     def write_dot(self, filename):
         """Write a dot file representing this structure."""
-        with AtomicUTF8File(filename) as dotfile:
+        with AtomicFile(filename) as dotfile:
             print("digraph structure {", file=dotfile)
             print("    node [color=lightblue2, style=filled];", file=dotfile)
 
