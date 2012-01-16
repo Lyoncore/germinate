@@ -18,8 +18,6 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-from __future__ import print_function
-
 import gzip
 import os
 import sys
@@ -71,19 +69,21 @@ class TestTagFile(TestCase):
         os.makedirs(source_dir)
         packages = gzip.GzipFile(os.path.join(binary_dir, "Packages.gz"), "w")
         try:
-            print(textwrap.dedent("""\
+            packages.write(textwrap.dedent("""\
                 Package: test
                 Version: 1.0
                 Architecture: i386
-                """), file=packages)
+
+                """).encode("UTF-8"))
         finally:
             packages.close()
         sources = gzip.GzipFile(os.path.join(source_dir, "Sources.gz"), "w")
         try:
-            print(textwrap.dedent("""\
+            sources.write(textwrap.dedent("""\
                 Source: test
                 Version: 1.0
-                """), file=sources)
+
+                """).encode("UTF-8"))
         finally:
             sources.close()
 
