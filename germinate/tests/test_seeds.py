@@ -19,12 +19,18 @@
 # 02110-1301, USA.
 
 import os
+import textwrap
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 
-from germinate.seeds import AtomicFile, Seed, SingleSeedStructure
+from germinate.seeds import (
+    AtomicFile,
+    Seed,
+    SeedStructure,
+    SingleSeedStructure,
+    )
 from germinate.tests.helpers import TestCase
 
 
@@ -121,6 +127,143 @@ class TestSingleSeedStructure(TestCase):
         with seed as seed_file:
             structure = SingleSeedStructure(branch, seed_file)
         self.assertEqual(set(["follow-recommends"]), structure.features)
+
+
+class TestSeedStructure(TestCase):
+    def openSeedStructure(self, branch):
+        return SeedStructure(branch, seed_bases=["file://%s" % self.seeds_dir])
+
+    def test_basic(self):
+        """A SeedStructure object has the correct basic properties."""
+        branch = "collection.dist"
+        self.addSeed(branch, "base")
+        self.addSeedPackage(branch, "base", "base-package")
+        self.addSeed(branch, "desktop", parents=["base"])
+        self.addSeedPackage(branch, "desktop", "desktop-package")
+        structure = self.openSeedStructure(branch)
+        self.assertEqual(branch, structure.branch)
+        self.assertEqual(set(), structure.features)
+        self.assertEqual("desktop", structure.supported)
+        self.assertEqual(["base", "desktop"], structure.names)
+        self.assertEqual({"base": [], "desktop": ["base"]}, structure._inherit)
+
+    def test_dict(self):
+        """A SeedStructure can be treated as a dictionary of seeds."""
+        branch = "collection.dist"
+        self.addSeed(branch, "base")
+        self.addSeedPackage(branch, "base", "base-package")
+        structure = self.openSeedStructure(branch)
+        self.assertEqual(1, len(structure))
+        self.assertEqual(["base"], list(structure))
+        self.assertEqual("base", structure["base"].name)
+        self.assertEqual(" * base-package\n", structure["base"].text)
+
+    def test_multiple(self):
+        """SeedStructure follows "include" links to other seed collections."""
+        one = "one.dist"
+        two = "two.dist"
+        self.addSeed(one, "base")
+        self.addSeedPackage(one, "base", "base-package")
+        self.addStructureLine(two, "include one.dist")
+        self.addSeed(two, "desktop")
+        self.addSeedPackage(two, "desktop", "desktop-package")
+        structure = self.openSeedStructure(two)
+        self.assertEqual(two, structure.branch)
+        self.assertEqual(one, structure["base"].branch)
+        self.assertEqual(" * base-package\n", structure["base"].text)
+        self.assertEqual(two, structure["desktop"].branch)
+        self.assertEqual(" * desktop-package\n", structure["desktop"].text)
+
+    def test_later_branches_override_earlier_branches(self):
+        """Seeds from later branches override seeds from earlier branches."""
+        one = "one.dist"
+        two = "two.dist"
+        self.addSeed(one, "base")
+        self.addSeedPackage(one, "base", "base-package")
+        self.addSeed(one, "desktop")
+        self.addSeedPackage(one, "desktop", "desktop-package-one")
+        self.addStructureLine(two, "include one.dist")
+        self.addSeed(two, "desktop")
+        self.addSeedPackage(two, "desktop", "desktop-package-two")
+        structure = self.openSeedStructure(two)
+        self.assertEqual(["base", "desktop"], sorted(structure))
+        self.assertEqual(" * desktop-package-two\n", structure["desktop"].text)
+
+    def test_limit(self):
+        """SeedStructure.limit restricts the set of seed names."""
+        branch = "collection.dist"
+        self.addSeed(branch, "one")
+        self.addSeedPackage(branch, "one", "one")
+        self.addSeed(branch, "two", parents=["one"])
+        self.addSeedPackage(branch, "two", "two")
+        self.addSeed(branch, "three")
+        self.addSeedPackage(branch, "three", "three")
+        self.addSeed(branch, "four")
+        self.addSeedPackage(branch, "four", "four")
+        structure = self.openSeedStructure(branch)
+        self.assertEqual(
+            sorted(["one", "two", "three", "four"]), sorted(structure.names))
+        structure.limit(["two", "three"])
+        self.assertEqual(
+            sorted(["one", "two", "three"]), sorted(structure.names))
+
+    def test_add(self):
+        """SeedStructure.add adds a custom seed."""
+        branch = "collection.dist"
+        self.addSeed(branch, "base")
+        self.addSeedPackage(branch, "base", "base")
+        structure = self.openSeedStructure(branch)
+        structure.add("custom", [" * custom-one", " * custom-two"], "base")
+        self.assertIn("custom", structure)
+        self.assertIn("custom", structure.names)
+        self.assertIn("custom", structure._inherit)
+        self.assertEqual(["base"], structure._inherit["custom"])
+        self.assertEqual("custom", structure["custom"].name)
+        self.assertIsNone(structure["custom"].base)
+        self.assertIsNone(structure["custom"].branch)
+        self.assertEqual(
+            " * custom-one\n * custom-two\n", structure["custom"].text)
+
+    def test_write(self):
+        """SeedStructure.write writes the text of STRUCTURE."""
+        branch = "collection.dist"
+        self.addSeed(branch, "one")
+        self.addSeedPackage(branch, "one", "one")
+        self.addSeed(branch, "two", parents=["one"])
+        self.addSeedPackage(branch, "two", "two")
+        structure = self.openSeedStructure(branch)
+        structure.write("structure")
+        with open("structure") as structure_file:
+            self.assertEqual("one:\ntwo: one\n", structure_file.read())
+
+    def test_write_dot(self):
+        """SeedStructure.write_dot writes an appropriate dot file."""
+        branch = "collection.dist"
+        self.addSeed(branch, "one")
+        self.addSeedPackage(branch, "one", "one")
+        self.addSeed(branch, "two", parents=["one"])
+        self.addSeedPackage(branch, "two", "two")
+        structure = self.openSeedStructure(branch)
+        structure.write_dot("structure.dot")
+        with open("structure.dot") as structure_dot_file:
+            self.assertEqual(textwrap.dedent("""\
+                digraph structure {
+                    node [color=lightblue2, style=filled];
+                    "one" -> "two";
+                }
+                """), structure_dot_file.read())
+
+    def test_write_seed_text(self):
+        """SeedStructure.write_seed_text writes the text of a seed."""
+        branch = "collection.dist"
+        self.addSeed(branch, "one")
+        self.addSeedPackage(branch, "one", "one-package")
+        self.addSeed(branch, "two")
+        self.addSeedPackage(branch, "two", "two-package")
+        structure = self.openSeedStructure(branch)
+        structure.write_seed_text("one.seedtext", "one")
+        with open("one.seedtext") as seed_file:
+            self.assertEqual(" * one-package\n", seed_file.read())
 
 
 if __name__ == "__main__":
