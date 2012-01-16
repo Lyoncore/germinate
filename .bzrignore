@@ -3,6 +3,7 @@ debhelper/*.1
 debian/files
 debian/germinate
 debian/python-germinate
+debian/python3-germinate
 debian/tmp
 debian/*.debhelper*
 debian/*.substvars

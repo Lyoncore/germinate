@@ -1,10 +1,33 @@
 #! /usr/bin/make -f
 %:
-	dh $@ --with python2
+	dh $@ --with python2,python3
+
+override_dh_auto_build:
+	dh_auto_build
+	set -e; for python in $$(py3versions -r); do \
+		$$python setup.py build; \
+	done
 
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 override_dh_auto_test:
-	set -e; for python in $$(pyversions -r); do \
+	set -e; for python in $$(pyversions -r) $$(py3versions -r); do \
 		$$python setup.py test; \
 	done
 endif
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -rf build
+
+override_dh_auto_install:
+	# setuptools likes to leave some debris around, which confuses things.
+	find build -name \*.pyc -print0 | xargs -0r rm -f
+	find build -name __pycache__ -print0 | xargs -0r rm -rf
+	find build -name \*.egg-info -print0 | xargs -0r rm -rf
+	# Install Python 3 files first, so that the Python 2 top-level
+	# scripts will take priority (for now).
+	set -e; for python in $$(py3versions -r); do \
+		$$python setup.py install --root=$(CURDIR)/debian/tmp \
+			--no-compile -O0 --install-layout=deb; \
+	done
+	dh_auto_install

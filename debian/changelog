@@ -32,6 +32,7 @@ germinate (2.5) UNRELEASED; urgency=low
       output.
     - Make sure to close stdout of subprocess.Popen objects.
     - Use 2to3 to handle the few remaining 2/3 differences at build time.
+    - Add a python3-germinate package.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon, 09 Jan 2012 21:42:51 +0000
 
