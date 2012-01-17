@@ -1,4 +1,4 @@
-germinate (2.5) UNRELEASED; urgency=low
+germinate (2.5) unstable; urgency=low
 
   * Stop fetching Suggests from Packages; we don't use it.
   * Build a cache of seed entries when analysing reverse-dependencies, so
@@ -34,7 +34,7 @@ germinate (2.5) UNRELEASED; urgency=low
     - Use 2to3 to handle the few remaining 2/3 differences at build time.
     - Add a python3-germinate package.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Mon, 09 Jan 2012 21:42:51 +0000
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 17 Jan 2012 00:51:28 +0000
 
 germinate (2.4) unstable; urgency=low
 
