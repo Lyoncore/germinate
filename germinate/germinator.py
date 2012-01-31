@@ -29,7 +29,7 @@ import collections
 import apt_pkg
 
 from germinate.archive import IndexType
-from germinate.seeds import AtomicFile, SeedStructure
+from germinate.seeds import AtomicFile, SeedStructure, _ensure_unicode
 
 # TODO: would be much more elegant to reduce our recursion depth!
 sys.setrecursionlimit(2000)
@@ -44,13 +44,6 @@ _logger = logging.getLogger(__name__)
 
 def _progress(msg, *args, **kwargs):
     _logger.info(msg, *args, extra={'progress': True}, **kwargs)
-
-
-def _ensure_unicode(s):
-    if isinstance(s, unicode):
-        return s
-    else:
-        return unicode(s, "utf8", "replace")
 
 
 class SeedReason(object):

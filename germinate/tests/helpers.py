@@ -21,6 +21,7 @@
 from __future__ import print_function
 
 import errno
+import io
 import os
 import shutil
 import tempfile
@@ -117,8 +118,8 @@ class TestCase(unittest.TestCase):
         self.setUpDirs()
         seed_path = os.path.join(self.seeds_dir, seed_dist, seed_name)
         self.ensureParentDir(seed_path)
-        with open(seed_path, "a") as seed:
-            print(" * %s" % pkg, file=seed)
+        with io.open(seed_path, "a") as seed:
+            print(u" * %s" % pkg, file=seed)
 
     def openSeedStructure(self, branch):
         return SeedStructure(branch, seed_bases=["file://%s" % self.seeds_dir])

@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+# -*- coding: UTF-8 -*-
 """Unit tests for germinate.seeds."""
 
 # Copyright (C) 2012 Canonical Ltd.
@@ -18,6 +19,7 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
+import io
 import os
 import textwrap
 
@@ -257,3 +259,13 @@ class TestSeedStructure(TestCase):
         structure.write_seed_text("one.seedtext", "one")
         with open("one.seedtext") as seed_file:
             self.assertEqual(" * one-package\n", seed_file.read())
+
+    def test_write_seed_text_utf8(self):
+        """SeedStructure.write_seed_text handles UTF-8 text in seeds."""
+        branch = "collection.dist"
+        self.addSeed(branch, "base")
+        self.addSeedPackage(branch, "base", u"base # äöü")
+        structure = self.openSeedStructure(branch)
+        structure.write_seed_text("base.seedtext", "base")
+        with io.open("base.seedtext") as seed_file:
+            self.assertEqual(u" * base # äöü\n", seed_file.read())

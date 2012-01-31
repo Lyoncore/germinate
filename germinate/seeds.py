@@ -93,6 +93,13 @@ def _cleanup_bzr_cache(directory):
     shutil.rmtree(directory, ignore_errors=True)
 
 
+def _ensure_unicode(s):
+    if isinstance(s, unicode):
+        return s
+    else:
+        return unicode(s, "utf8", "replace")
+
+
 class Seed(object):
     """A single seed from a collection."""
 
@@ -519,7 +526,7 @@ class SeedStructure(collections.Mapping, object):
         """Write the text of the seed STRUCTURE file."""
         with AtomicFile(filename) as f:
             for line in self._lines:
-                print(line, file=f)
+                print(_ensure_unicode(line), file=f)
 
     def write_dot(self, filename):
         """Write a dot file representing this structure."""
@@ -541,4 +548,4 @@ class SeedStructure(collections.Mapping, object):
         with AtomicFile(filename) as f:
             with self._seeds[seedname] as seed:
                 for line in seed:
-                    print(line.rstrip('\n'), file=f)
+                    print(_ensure_unicode(line.rstrip('\n')), file=f)
