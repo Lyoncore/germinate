@@ -1,9 +1,9 @@
-germinate (2.7) UNRELEASED; urgency=low
+germinate (2.7) unstable; urgency=low
 
   * Explicitly specify the encoding to io.open so that tests pass even in
     the C locale.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Tue, 31 Jan 2012 19:39:17 +0000
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 31 Jan 2012 19:40:47 +0000
 
 germinate (2.6) unstable; urgency=low
 
