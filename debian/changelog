@@ -1,11 +1,11 @@
-germinate (2.6) UNRELEASED; urgency=low
+germinate (2.6) unstable; urgency=low
 
   * Fix processing of multiple suites where there are different versions of
     a package with different Provides fields.
   * Fix SeedStructure.write_seed_text to handle UTF-8 text in seeds
     correctly.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Tue, 31 Jan 2012 01:22:28 +0000
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 31 Jan 2012 01:53:34 +0000
 
 germinate (2.5) unstable; urgency=low
 
