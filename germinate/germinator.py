@@ -447,14 +447,8 @@ class Germinator(object):
             src = src[:idx].strip()
         self._packages[pkg]["Source"] = src
 
-        provides = apt_pkg.parse_depends(section.get("Provides", ""))
-        for prov in provides:
-            if prov[0][0] not in self._provides:
-                self._provides[prov[0][0]] = []
-                if prov[0][0] in self._packages:
-                    self._provides[prov[0][0]].append(prov[0][0])
-            self._provides[prov[0][0]].append(pkg)
-        self._packages[pkg]["Provides"] = provides
+        self._packages[pkg]["Provides"] = apt_pkg.parse_depends(
+            section.get("Provides", ""))
 
         if pkg in self._provides:
             self._provides[pkg].append(pkg)
@@ -501,6 +495,15 @@ class Germinator(object):
                 self._parse_package(section, "udeb")
             else:
                 raise ValueError("Unknown index type %d" % indextype)
+
+        # Construct a more convenient representation of Provides fields.
+        for pkg in sorted(self._packages):
+            for prov in self._packages[pkg]["Provides"]:
+                if prov[0][0] not in self._provides:
+                    self._provides[prov[0][0]] = []
+                    if prov[0][0] in self._packages:
+                        self._provides[prov[0][0]].append(prov[0][0])
+                self._provides[prov[0][0]].append(pkg)
 
     def parse_blacklist(self, structure, f):
         """Parse a blacklist file, used to indicate unwanted packages."""

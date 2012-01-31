@@ -193,4 +193,22 @@ class TestGerminator(TestCase):
         self.assertEqual("deb", germinator._packagetype["hello-dependency"])
         self.assertEqual({}, germinator._provides)
 
+    def test_different_providers_between_suites(self):
+        """Provides from later versions override those from earlier ones."""
+        self.addSource("warty", "main", "hello", "1.0-1", ["hello"])
+        self.addPackage("warty", "main", "i386", "hello", "1.0-1",
+                        fields={"Provides": "goodbye"})
+        self.addSource("warty-updates", "main", "hello", "1.0-1.1", ["hello"])
+        self.addPackage("warty-updates", "main", "i386", "hello", "1.0-1.1",
+                        fields={"Provides": "hello-goodbye"})
+        germinator = Germinator("i386")
+        archive = TagFile(
+            ["warty", "warty-updates"], "main", "i386",
+            "file://%s" % self.archive_dir)
+        germinator.parse_archive(archive)
+
+        self.assertNotIn("goodbye", germinator._provides)
+        self.assertIn("hello-goodbye", germinator._provides)
+        self.assertEqual(["hello"], germinator._provides["hello-goodbye"])
+
     # TODO: Germinator needs many more unit tests.
