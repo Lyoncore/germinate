@@ -267,5 +267,5 @@ class TestSeedStructure(TestCase):
         self.addSeedPackage(branch, "base", u"base # äöü")
         structure = self.openSeedStructure(branch)
         structure.write_seed_text("base.seedtext", "base")
-        with io.open("base.seedtext") as seed_file:
+        with io.open("base.seedtext", encoding="UTF-8") as seed_file:
             self.assertEqual(u" * base # äöü\n", seed_file.read())

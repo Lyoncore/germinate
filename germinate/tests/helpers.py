@@ -118,7 +118,7 @@ class TestCase(unittest.TestCase):
         self.setUpDirs()
         seed_path = os.path.join(self.seeds_dir, seed_dist, seed_name)
         self.ensureParentDir(seed_path)
-        with io.open(seed_path, "a") as seed:
+        with io.open(seed_path, "a", encoding="UTF-8") as seed:
             print(u" * %s" % pkg, file=seed)
 
     def openSeedStructure(self, branch):
