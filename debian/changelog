@@ -1,3 +1,9 @@
+germinate (2.9) UNRELEASED; urgency=low
+
+  * Support both Python 2 and 3 directly rather than using 2to3.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 23 May 2012 11:42:30 +0100
+
 germinate (2.8) unstable; urgency=low
 
   * Build-depend on python-unittest2 so that the test suite works with

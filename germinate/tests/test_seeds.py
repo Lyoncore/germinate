@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: UTF-8 -*-
 """Unit tests for germinate.seeds."""
 
 # Copyright (C) 2012 Canonical Ltd.
@@ -29,7 +28,7 @@ from germinate.seeds import (
     SeedStructure,
     SingleSeedStructure,
     )
-from germinate.tests.helpers import TestCase
+from germinate.tests.helpers import TestCase, u
 
 
 class TestAtomicFile(TestCase):
@@ -264,8 +263,9 @@ class TestSeedStructure(TestCase):
         """SeedStructure.write_seed_text handles UTF-8 text in seeds."""
         branch = "collection.dist"
         self.addSeed(branch, "base")
-        self.addSeedPackage(branch, "base", u"base # äöü")
+        self.addSeedPackage(branch, "base", u("base # \u00e4\u00f6\u00fc"))
         structure = self.openSeedStructure(branch)
         structure.write_seed_text("base.seedtext", "base")
         with io.open("base.seedtext", encoding="UTF-8") as seed_file:
-            self.assertEqual(u" * base # äöü\n", seed_file.read())
+            self.assertEqual(
+                u(" * base # \u00e4\u00f6\u00fc\n"), seed_file.read())

@@ -42,6 +42,10 @@ import germinate.defaults
 from germinate.tsort import topo_sort
 
 
+# pychecker gets confused by __next__ for Python 3 support.
+__pychecker__ = 'no-special'
+
+
 __all__ = [
     'SeedError',
     'Seed',
@@ -53,6 +57,14 @@ _logger = logging.getLogger(__name__)
 
 
 _bzr_cache_dir = None
+
+
+if sys.version >= '3':
+    _string_types = str
+    _text_type = str
+else:
+    _string_types = basestring
+    _text_type = unicode
 
 
 class AtomicFile(object):
@@ -94,10 +106,10 @@ def _cleanup_bzr_cache(directory):
 
 
 def _ensure_unicode(s):
-    if isinstance(s, unicode):
+    if isinstance(s, _text_type):
         return s
     else:
-        return unicode(s, "utf8", "replace")
+        return _text_type(s, "utf8", "replace")
 
 
 class Seed(object):
@@ -138,7 +150,7 @@ class Seed(object):
 
     def __init__(self, bases, branches, name, bzr=False):
         """Read a seed from a collection."""
-        if isinstance(branches, basestring):
+        if isinstance(branches, _string_types):
             branches = [branches]
 
         self._name = name
@@ -219,9 +231,12 @@ class Seed(object):
         """Read a list of lines from this seed."""
         return self._file.readlines(*args, **kwargs)
 
-    def next(self):
+    def __next__(self):
         """Read the next line from this seed."""
-        return self._file.next()
+        return next(self._file)
+
+    if sys.version < '3':
+        next = __next__
 
     def close(self):
         """Close the file object for this seed."""

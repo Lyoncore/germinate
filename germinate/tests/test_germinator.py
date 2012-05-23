@@ -30,7 +30,7 @@ from germinate.germinator import (
     RescueReason,
     SeedReason,
     )
-from germinate.tests.helpers import TestCase
+from germinate.tests.helpers import TestCase, u
 
 
 class TestSeedReason(TestCase):
@@ -153,7 +153,7 @@ class TestGerminator(TestCase):
 
         self.assertIn("hello", germinator._sources)
         self.assertEqual({
-            "Maintainer": u"Test Person <test@example.com>",
+            "Maintainer": u("Test Person <test@example.com>"),
             "Version": "1.0-1",
             "Build-Depends": [],
             "Build-Depends-Indep": [],
@@ -163,7 +163,7 @@ class TestGerminator(TestCase):
         self.assertEqual({
             "Section": "",
             "Version": "1.0-1",
-            "Maintainer": u"Test Person <test@example.com>",
+            "Maintainer": u("Test Person <test@example.com>"),
             "Essential": "",
             "Pre-Depends": [],
             "Depends": [[("hello-dependency", "", "")]],
@@ -179,7 +179,7 @@ class TestGerminator(TestCase):
         self.assertEqual({
             "Section": "",
             "Version": "1.0-1",
-            "Maintainer": u"",
+            "Maintainer": u(""),
             "Essential": "",
             "Pre-Depends": [],
             "Depends": [],

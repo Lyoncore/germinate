@@ -24,6 +24,7 @@ import errno
 import io
 import os
 import shutil
+import sys
 import tempfile
 try:
     import unittest2 as unittest
@@ -31,6 +32,14 @@ except ImportError:
     import unittest
 
 from germinate.seeds import SeedStructure
+
+
+if sys.version >= "3":
+    def u(s):
+        return s
+else:
+    def u(s):
+        return unicode(s, "unicode_escape")
 
 
 class TestCase(unittest.TestCase):
@@ -81,7 +90,7 @@ class TestCase(unittest.TestCase):
             print("Package: %s" % src, file=sources)
             print("Version: %s" % ver, file=sources)
             print("Binary: %s" % ", ".join(bins), file=sources)
-            for key, value in fields.iteritems():
+            for key, value in fields.items():
                 print("%s: %s" % (key, value), file=sources)
             print(file=sources)
 
@@ -100,7 +109,7 @@ class TestCase(unittest.TestCase):
         with open(packages_path, "a") as packages:
             print("Package: %s" % pkg, file=packages)
             print("Version: %s" % ver, file=packages)
-            for key, value in fields.iteritems():
+            for key, value in fields.items():
                 print("%s: %s" % (key, value), file=packages)
             print(file=packages)
 
@@ -119,7 +128,7 @@ class TestCase(unittest.TestCase):
         seed_path = os.path.join(self.seeds_dir, seed_dist, seed_name)
         self.ensureParentDir(seed_path)
         with io.open(seed_path, "a", encoding="UTF-8") as seed:
-            print(u" * %s" % pkg, file=seed)
+            print(u(" * %s") % pkg, file=seed)
 
     def openSeedStructure(self, branch):
         return SeedStructure(branch, seed_bases=["file://%s" % self.seeds_dir])

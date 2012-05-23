@@ -637,7 +637,7 @@ class Germinator(object):
         """Add a seed."""
         seed = GerminatedSeed(self, seedname, structure, structure[seedname])
         full_seedname = self._make_seed_name(structure.branch, seedname)
-        for existing in self._seeds.itervalues():
+        for existing in self._seeds.values():
             if seed == existing:
                 _logger.info("Already planted seed %s" % seed)
                 self._seeds[full_seedname] = existing.copy_plant(structure)
@@ -877,7 +877,7 @@ class Germinator(object):
                 output._all.update(seed._build)
                 output._all_srcs.update(seed._build_srcs)
                 for pkg, (why, build_tree,
-                          recommends) in seed._reasons.iteritems():
+                          recommends) in seed._reasons.items():
                     if isinstance(why, SeedReason):
                         # Adjust this reason to refer to the correct branch.
                         why = seed._seed_reason
@@ -1862,7 +1862,7 @@ class Germinator(object):
             all_pkgprovides = {}
             for seedname in output._seednames:
                 seed = self._get_seed(structure, seedname)
-                for prov, provset in seed._pkgprovides.iteritems():
+                for prov, provset in seed._pkgprovides.items():
                     if prov not in all_pkgprovides:
                         all_pkgprovides[prov] = set()
                     all_pkgprovides[prov].update(provset)

@@ -22,6 +22,7 @@
 
 from __future__ import print_function
 
+import sys
 import os
 try:
     from urllib.parse import quote
@@ -40,6 +41,12 @@ _logger = logging.getLogger(__name__)
 
 def _progress(msg, *args, **kwargs):
     _logger.info(msg, *args, extra={'progress': True}, **kwargs)
+
+
+if sys.version >= '3':
+    _string_types = str
+else:
+    _string_types = basestring
 
 
 class IndexType:
@@ -71,13 +78,13 @@ class TagFile(Archive):
     def __init__(self, dists, components, arch, mirrors, source_mirrors=None,
                  installer_packages=True, cleanup=False):
         """Create a representation of a Debian-format apt archive."""
-        if isinstance(dists, basestring):
+        if isinstance(dists, _string_types):
             dists = [dists]
-        if isinstance(components, basestring):
+        if isinstance(components, _string_types):
             components = [components]
-        if isinstance(mirrors, basestring):
+        if isinstance(mirrors, _string_types):
             mirrors = [mirrors]
-        if isinstance(source_mirrors, basestring):
+        if isinstance(source_mirrors, _string_types):
             source_mirrors = [source_mirrors]
 
         self._dists = dists

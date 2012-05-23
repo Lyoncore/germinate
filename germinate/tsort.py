@@ -21,6 +21,8 @@
 
 """Topological sorting routines."""
 
+import sys
+
 
 __all__ = ["topo_sort", "TopoSorter"]
 
@@ -39,10 +41,11 @@ class GraphCycleError(Exception):
         # slot, so it isn't seen in __dict__
         d['message'] = getattr(self, 'message', 'no message')
         s = self._fmt % d
-        # __str__() should always return a 'str' object
-        # never a 'unicode' object.
-        if isinstance(s, unicode):
-            return s.encode('utf8')
+        if sys.version < '3':
+            # __str__() should always return a 'str' object
+            # never a 'unicode' object.
+            if isinstance(s, unicode):
+                return s.encode('utf8')
         return s
 
 

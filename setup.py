@@ -147,10 +147,4 @@ setup(
     # python-apt doesn't build an egg, so we can't use this.
     #install_requires=['apt>=0.7.93'],
     #tests_require=['apt>=0.7.93'],
-    use_2to3 = True,
-    use_2to3_exclude_fixers = [
-        "lib2to3.fixes.fix_future",
-        "lib2to3.fixes.fix_imports",
-        "lib2to3.fixes.fix_urllib",
-        ],
     )
