@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 """Representations of archives for use by Germinate."""
 
-# Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
+# Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
 #               Canonical Ltd.
 #
 # Germinate is free software; you can redistribute it and/or modify it

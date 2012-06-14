@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 """Fetch seeds from a URL collection or from bzr."""
 
-# Copyright (c) 2004, 2005, 2006, 2008, 2009, 2011 Canonical Ltd.
+# Copyright (c) 2004, 2005, 2006, 2008, 2009, 2011, 2012 Canonical Ltd.
 #
 # Germinate is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
