@@ -1,4 +1,4 @@
-germinate (2.9) UNRELEASED; urgency=low
+germinate (2.9) unstable; urgency=low
 
   * Support both Python 2 and 3 directly rather than using 2to3.
   * Make various cosmetic changes to conform to PEP-8.
@@ -8,7 +8,7 @@ germinate (2.9) UNRELEASED; urgency=low
   * Policy version 3.9.3:
     - Convert debian/copyright to copyright-format 1.0.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Wed, 23 May 2012 11:42:30 +0100
+ -- Colin Watson <cjwatson@ubuntu.com>  Thu, 14 Jun 2012 15:30:05 +0100
 
 germinate (2.8) unstable; urgency=low
 
