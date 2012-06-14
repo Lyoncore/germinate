@@ -2,6 +2,8 @@ germinate (2.9) UNRELEASED; urgency=low
 
   * Support both Python 2 and 3 directly rather than using 2to3.
   * Make various cosmetic changes to conform to PEP-8.
+  * Switch the top-level scripts to Python 3 by default.  (They can still be
+    run manually with /usr/bin/python if need be.)
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 23 May 2012 11:42:30 +0100
 

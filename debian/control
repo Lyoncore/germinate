@@ -11,7 +11,7 @@ X-Python3-Version: >= 3.0
 
 Package: germinate
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, ${perl:Depends}, python-germinate (= ${binary:Version})
+Depends: ${misc:Depends}, ${python3:Depends}, ${perl:Depends}, python3-germinate (= ${binary:Version})
 Description: expand dependencies in a list of seed packages
  Germinate takes lists of seed packages and expands their dependencies to
  produce a full list of packages. This can be used for purposes such as
@@ -22,13 +22,13 @@ Package: python-germinate
 Section: python
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, python-apt (>= 0.7.93.2~)
-Description: expand dependencies in seed packages (Python interface)
+Description: expand dependencies in seed packages (Python 2 interface)
  Germinate takes lists of seed packages and expands their dependencies to
  produce a full list of packages. This can be used for purposes such as
  managing the list of packages present in a derived distribution's archive
  or CD builds.
  .
- This package provides Python modules used by Germinate, which may also be
+ This package provides Python 2 modules used by Germinate, which may also be
  used directly.
 
 Package: python3-germinate
