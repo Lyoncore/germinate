@@ -5,6 +5,8 @@ germinate (2.9) UNRELEASED; urgency=low
   * Switch the top-level scripts to Python 3 by default.  (They can still be
     run manually with /usr/bin/python if need be.)
   * Update copyright dates.
+  * Policy version 3.9.3:
+    - Convert debian/copyright to copyright-format 1.0.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 23 May 2012 11:42:30 +0100
 
