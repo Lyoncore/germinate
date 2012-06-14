@@ -39,6 +39,7 @@ import apt_pkg
 
 _logger = logging.getLogger(__name__)
 
+
 def _progress(msg, *args, **kwargs):
     _logger.info(msg, *args, extra={'progress': True}, **kwargs)
 
@@ -114,7 +115,8 @@ class TagFile(Archive):
                                             component, tagfile_type)
             else:
                 # Make a more or less dummy filename for local URLs.
-                filename = os.path.split(req.get_selector())[0].replace(os.sep, "_")
+                filename = os.path.split(req.get_selector())[0].replace(
+                    os.sep, "_")
 
             fullname = os.path.join(dirname, filename)
             if req.get_type() == "file":
@@ -223,8 +225,10 @@ class TagFile(Archive):
                 if self._installer_packages:
                     try:
                         instpackages = self._open_tag_files(
-                            self._mirrors, dirname, "InstallerPackages", dist, component,
-                            "debian-installer/binary-" + self._arch + "/Packages")
+                            self._mirrors, dirname, "InstallerPackages", dist,
+                            component,
+                            "debian-installer/binary-" + self._arch +
+                            "/Packages")
                     except IOError:
                         # can live without these
                         _progress("Missing installer Packages file for %s "

@@ -42,6 +42,7 @@ __all__ = [
 
 _logger = logging.getLogger(__name__)
 
+
 def _progress(msg, *args, **kwargs):
     _logger.info(msg, *args, extra={'progress': True}, **kwargs)
 
@@ -392,7 +393,8 @@ class Germinator(object):
     def parse_hints(self, f):
         """Parse a hints file."""
         for line in f:
-            if line.startswith("#") or not len(line.rstrip()): continue
+            if line.startswith("#") or not len(line.rstrip()):
+                continue
 
             words = line.rstrip().split(None)
             if len(words) != 2:
@@ -446,7 +448,8 @@ class Germinator(object):
         if pkg in self._provides:
             self._provides[pkg].append(pkg)
 
-        self._packages[pkg]["Kernel-Version"] = section.get("Kernel-Version", "")
+        self._packages[pkg]["Kernel-Version"] = section.get(
+            "Kernel-Version", "")
 
     def _parse_source(self, section):
         """Parse a section from a Sources file."""
@@ -471,7 +474,7 @@ class Germinator(object):
             self._sources[src][field] = apt_pkg.parse_src_depends(value)
 
         binaries = apt_pkg.parse_depends(section.get("Binary", src))
-        self._sources[src]["Binaries"] = [ b[0][0] for b in binaries ]
+        self._sources[src]["Binaries"] = [b[0][0] for b in binaries]
 
     def parse_archive(self, archive):
         """Parse an archive.
@@ -737,9 +740,9 @@ class Germinator(object):
             # and not a depends
             if pkg.startswith('(') and pkg.endswith(')'):
                 pkg = pkg[1:-1]
-                pkgs =  self._filter_packages(self._packages, pkg)
+                pkgs = self._filter_packages(self._packages, pkg)
                 if not pkgs:
-                    pkgs = [pkg] # virtual or expanded; check again later
+                    pkgs = [pkg]  # virtual or expanded; check again later
                 for pkg in pkgs:
                     seedrecommends.extend(self._substitute_seed_vars(
                         substvars, pkg))
@@ -755,7 +758,7 @@ class Germinator(object):
             else:
                 pkgs = self._filter_packages(self._packages, pkg)
                 if not pkgs:
-                    pkgs = [pkg] # virtual or expanded; check again later
+                    pkgs = [pkg]  # virtual or expanded; check again later
 
             if is_blacklist:
                 for pkg in pkgs:
@@ -1109,15 +1112,18 @@ class Germinator(object):
 
                 self._packages[pkg]["Reverse-Depends"][field].sort()
 
-    def _already_satisfied(self, seed, pkg, depend, build_depend=False, with_build=False):
+    def _already_satisfied(self, seed, pkg, depend, build_depend=False,
+                           with_build=False):
         """Test whether a dependency has already been satisfied."""
         (depname, depver, deptype) = depend
-        if self._allowed_virtual_dependency(pkg, deptype) and depname in self._provides:
-            trylist = [ d for d in self._provides[depname]
-                        if d in self._packages and self._allowed_dependency(pkg, d, seed, build_depend) ]
+        if (self._allowed_virtual_dependency(pkg, deptype) and
+            depname in self._provides):
+            trylist = [d for d in self._provides[depname]
+                       if d in self._packages and
+                          self._allowed_dependency(pkg, d, seed, build_depend)]
         elif (self._check_versioned_dependency(depname, depver, deptype) and
               self._allowed_dependency(pkg, depname, seed, build_depend)):
-            trylist = [ depname ]
+            trylist = [depname]
         else:
             return False
 
@@ -1179,13 +1185,12 @@ class Germinator(object):
         (depname, depver, deptype) = depend
         if (self._check_versioned_dependency(depname, depver, deptype) and
             self._allowed_dependency(pkg, depname, seed, build_depend)):
-            trylist = [ depname ]
+            trylist = [depname]
         elif (self._allowed_virtual_dependency(pkg, deptype) and
               depname in self._provides):
-            trylist = [ d for d in self._provides[depname]
-                        if d in self._packages and
-                           self._allowed_dependency(pkg, d, seed,
-                                                    build_depend) ]
+            trylist = [d for d in self._provides[depname]
+                       if d in self._packages and
+                          self._allowed_dependency(pkg, d, seed, build_depend)]
         else:
             return False
 
@@ -1245,7 +1250,8 @@ class Germinator(object):
         if (self._check_versioned_dependency(depname, depver, deptype) and
             self._allowed_dependency(pkg, depname, seed, build_depend)):
             virtual = None
-        elif self._allowed_virtual_dependency(pkg, deptype) and depname in self._provides:
+        elif (self._allowed_virtual_dependency(pkg, deptype) and
+              depname in self._provides):
             virtual = depname
         else:
             if build_depend:
@@ -1261,8 +1267,10 @@ class Germinator(object):
 
         dependlist = [depname]
         if virtual is not None:
-            reallist = [ d for d in self._provides[virtual]
-                         if d in self._packages and self._allowed_dependency(pkg, d, seed, build_depend) ]
+            reallist = [d for d in self._provides[virtual]
+                        if d in self._packages and
+                           self._allowed_dependency(
+                               pkg, d, seed, build_depend)]
             if len(reallist):
                 depname = reallist[0]
                 # If the depending package isn't a d-i kernel module but the
@@ -1270,9 +1278,10 @@ class Germinator(object):
                 # kernel versions too.
                 if (self._packages[pkg]["Kernel-Version"] == "" and
                     self._packages[depname]["Kernel-Version"] != ""):
-                    dependlist = [ d for d in reallist
-                                   if not self._di_kernel_versions or
-                                      self._packages[d]["Kernel-Version"] in self._di_kernel_versions ]
+                    dependlist = [d for d in reallist
+                                  if not self._di_kernel_versions or
+                                     (self._packages[d]["Kernel-Version"] in
+                                      self._di_kernel_versions)]
                 else:
                     dependlist = [depname]
                 _logger.info("Chose %s out of %s to satisfy %s",
@@ -1291,8 +1300,10 @@ class Germinator(object):
                              build_tree=False,
                              recommends=False):
         """Add a package's dependency tree."""
-        if build_depend: build_tree = True
-        if build_tree: second_class = True
+        if build_depend:
+            build_tree = True
+        if build_tree:
+            second_class = True
         for deplist in depends:
             for dep in deplist:
                 # TODO cjwatson 2008-07-02: At the moment this check will
@@ -1300,7 +1311,8 @@ class Germinator(object):
                 # calling _remember_why with a dependency, so seed._reasons
                 # will be a bit inaccurate. We may need another pass for
                 # Recommends to fix this.
-                if self._already_satisfied(seed, pkg, dep, build_depend, second_class):
+                if self._already_satisfied(
+                    seed, pkg, dep, build_depend, second_class):
                     break
             else:
                 firstdep = True
@@ -1369,7 +1381,8 @@ class Germinator(object):
                               "(%s)", pkg, outerseed, seed, why)
                 seed._blacklist_seen = True
                 return
-        if build_tree: second_class=True
+        if build_tree:
+            second_class = True
 
         output = self._output[seed.structure]
 
@@ -1611,16 +1624,20 @@ class Germinator(object):
 
         for pkg in pkglist:
             _pkg_len = len(pkg)
-            if _pkg_len > pkg_len: pkg_len = _pkg_len
+            if _pkg_len > pkg_len:
+                pkg_len = _pkg_len
 
             _src_len = len(self._packages[pkg]["Source"])
-            if _src_len > src_len: src_len = _src_len
+            if _src_len > src_len:
+                src_len = _src_len
 
             _why_len = len(str(reasons[pkg][0]))
-            if _why_len > why_len: why_len = _why_len
+            if _why_len > why_len:
+                why_len = _why_len
 
             _mnt_len = len(self._packages[pkg]["Maintainer"])
-            if _mnt_len > mnt_len: mnt_len = _mnt_len
+            if _mnt_len > mnt_len:
+                mnt_len = _mnt_len
 
         size = 0
         installed_size = 0
@@ -1660,10 +1677,12 @@ class Germinator(object):
 
         for src in srclist:
             _src_len = len(src)
-            if _src_len > src_len: src_len = _src_len
+            if _src_len > src_len:
+                src_len = _src_len
 
             _mnt_len = len(self._sources[src]["Maintainer"])
-            if _mnt_len > mnt_len: mnt_len = _mnt_len
+            if _mnt_len > mnt_len:
+                mnt_len = _mnt_len
 
         with AtomicFile(filename) as f:
             fmt = "%-*s | %-*s"

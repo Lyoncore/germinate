@@ -75,8 +75,8 @@ class TopoSorter(object):
 
         node identifiers can be any hashable object, and are typically strings.
 
-        If you have a graph like [('a', ['b']), ('a', ['c'])] this will only use
-        one of the two values for 'a'.
+        If you have a graph like [('a', ['b']), ('a', ['c'])] this will only
+        use one of the two values for 'a'.
 
         The graph is sorted lazily: until you iterate or sort the input is
         not processed other than to create an internal representation.
@@ -125,8 +125,8 @@ class TopoSorter(object):
         iteration.
         """
         while self._graph:
-            # now pick a random node in the source graph, and transfer it to the
-            # top of the depth first search stack.
+            # now pick a random node in the source graph, and transfer it to
+            # the top of the depth first search stack.
             node_name, parents = self._graph.popitem()
             self._push_node(node_name, parents)
             while self._node_name_stack:
@@ -153,15 +153,15 @@ class TopoSorter(object):
                         try:
                             parents = self._graph.pop(next_node_name)
                         except KeyError:
-                            # if the next node is not in the source graph it has
-                            # already been popped from it and placed into the
-                            # current search stack (but not completed or we would
-                            # have hit the continue 4 lines up.
-                            # this indicates a cycle.
+                            # if the next node is not in the source graph it
+                            # has already been popped from it and placed
+                            # into the current search stack (but not
+                            # completed or we would have hit the continue 4
+                            # lines up. this indicates a cycle.
                             raise GraphCycleError(self._node_name_stack)
                         self._push_node(next_node_name, parents)
-                        # and do not continue processing parents until this 'call'
-                        # has recursed.
+                        # and do not continue processing parents until this
+                        # 'call' has recursed.
                         break
 
     def _push_node(self, node_name, parents):

@@ -425,7 +425,8 @@ class SeedStructure(collections.Mapping, object):
             for child_structure_line in child_structure:
                 child_structure_name = child_structure_line.split()[0][:-1]
                 for i in range(len(all_structure)):
-                    if all_structure[i].split()[0][:-1] == child_structure_name:
+                    if (all_structure[i].split()[0][:-1] ==
+                        child_structure_name):
                         del all_structure[i]
                         break
                 all_structure.append(child_structure_line)

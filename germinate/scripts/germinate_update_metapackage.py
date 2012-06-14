@@ -209,7 +209,9 @@ def main(argv):
             universal_newlines=True)
         (debootstrap_stdout, debootstrap_stderr) = debootstrap.communicate()
         if debootstrap.returncode != 0:
-            error_exit('Unable to retrieve package list from debootstrap; stdout: %s\nstderr: %s' % (debootstrap_stdout, debootstrap_stderr))
+            error_exit('Unable to retrieve package list from debootstrap; '
+                       'stdout: %s\nstderr: %s' %
+                       (debootstrap_stdout, debootstrap_stderr))
 
         # sometimes debootstrap gives empty packages / multiple separators
         packages = [pkg for pkg in debootstrap_stdout.split() if pkg]
@@ -225,10 +227,9 @@ def main(argv):
                 ['dpkg', '--compare-versions',
                  debootstrap_version, 'ge', old_debootstrap_version])
             if failed:
-                error_exit('Installed debootstrap is older than in the previous version! (%s < %s)' % (
-                    debootstrap_version,
-                    old_debootstrap_version
-                    ))
+                error_exit('Installed debootstrap is older than in the '
+                           'previous version! (%s < %s)' %
+                           (debootstrap_version, old_debootstrap_version))
 
     def update_debootstrap_version():
         with open(debootstrap_version_file, 'w') as debootstrap:
@@ -298,7 +299,8 @@ def main(argv):
                 if package == meta_name:
                     print("%s/%s: Skipping package %s (metapackage)" %
                           (seed_name, architecture, package))
-                elif seed_name == 'minimal' and package not in debootstrap_base:
+                elif (seed_name == 'minimal' and
+                      package not in debootstrap_base):
                     print("%s/%s: Skipping package %s (package not in "
                           "debootstrap)" % (seed_name, architecture, package))
                 elif germinator.is_essential(package):
@@ -335,14 +337,16 @@ def main(argv):
                 options.outdir, '%s-%s' % (seed_name_recommends, architecture))
             if os.path.exists(output_recommends_filename):
                 with open(output_recommends_filename) as output:
-                    old_recommends_list = set(map(str.strip, output.readlines()))
-                os.rename(output_recommends_filename, output_recommends_filename + '.old')
+                    old_recommends_list = set(
+                        map(str.strip, output.readlines()))
+                os.rename(
+                    output_recommends_filename,
+                    output_recommends_filename + '.old')
 
             with open(output_recommends_filename, 'w') as output:
                 for package in new_recommends_list:
                     output.write(package)
                     output.write('\n')
-
 
             # Calculate deltas
             merged = {}
@@ -367,31 +371,31 @@ def main(argv):
                 #print(package, value)
                 if value == 1:
                     if recommends_merged.get(package, 0) == -1:
-                        moves.setdefault(package,[])
+                        moves.setdefault(package, [])
                         moves[package].append([seed_name, architecture])
                         recommends_merged[package] += 1
                     else:
-                        additions.setdefault(package,[])
+                        additions.setdefault(package, [])
                         additions[package].append([seed_name, architecture])
                 elif value == -1:
                     if recommends_merged.get(package, 0) == 1:
-                        moves.setdefault(package,[])
+                        moves.setdefault(package, [])
                         moves[package].append([seed_name_recommends,
                                                architecture])
                         recommends_merged[package] -= 1
                     else:
-                        removals.setdefault(package,[])
+                        removals.setdefault(package, [])
                         removals[package].append([seed_name, architecture])
 
             mergedrecitems = sorted(recommends_merged.items())
             for package, value in mergedrecitems:
                 #print(package, value)
                 if value == 1:
-                    additions.setdefault(package,[])
+                    additions.setdefault(package, [])
                     additions[package].append([seed_name_recommends,
                                                architecture])
                 elif value == -1:
-                    removals.setdefault(package,[])
+                    removals.setdefault(package, [])
                     removals[package].append([seed_name_recommends,
                                               architecture])
 

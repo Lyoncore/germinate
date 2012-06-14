@@ -35,6 +35,7 @@ import germinate.version
 MIRRORS = [germinate.defaults.mirror]
 COMPONENTS = ["main"]
 
+
 class Package:
     def __init__(self, name):
         self.name = name
