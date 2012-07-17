@@ -1,3 +1,10 @@
+germinate (2.10) UNRELEASED; urgency=low
+
+  * Always open Packages files as UTF-8, regardless of the current locale.
+    LP: #1025818.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 17 Jul 2012 13:08:29 -0700
+
 germinate (2.9) unstable; urgency=low
 
   * Support both Python 2 and 3 directly rather than using 2to3.

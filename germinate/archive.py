@@ -33,6 +33,7 @@ except ImportError:
 import tempfile
 import shutil
 import logging
+import codecs
 
 import apt_pkg
 
@@ -168,7 +169,7 @@ class TagFile(Archive):
                         except OSError:
                             pass
 
-            return open(fullname, "r")
+            return codecs.open(fullname, "r", "UTF-8")
 
         tag_files = []
         for mirror in mirrors:
