@@ -169,7 +169,11 @@ class TagFile(Archive):
                         except OSError:
                             pass
 
-            return codecs.open(fullname, "r", "UTF-8")
+            if sys.version_info[0] < 3:
+                return codecs.open(fullname, 'r', 'UTF-8', 'replace')
+            else:
+                return open(fullname, mode='r', encoding='UTF-8',
+                            errors='replace')
 
         tag_files = []
         for mirror in mirrors:
