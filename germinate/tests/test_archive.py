@@ -62,8 +62,8 @@ class TestTagFile(TestCase):
                 Version: 1.0
                 Architecture: i386
                 Maintainer: \xc3\xba\xe1\xb8\x83\xc3\xba\xc3\xb1\xc5\xa7\xc5\xaf\x20\xc4\x91\xc9\x99\x76\xe1\xba\xbd\xc5\x82\xc3\xb5\xe1\xb9\x97\xc3\xa8\xc5\x97\xe1\xb9\xa1
-                """.decode("UTF-8")).encode("UTF-8"))
 
+                """.decode("UTF-8")).encode("UTF-8"))
         finally:
             packages.close()
         sources = gzip.GzipFile(os.path.join(source_dir, "Sources.gz"), "w")
