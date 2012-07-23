@@ -1,9 +1,9 @@
-germinate (2.10) UNRELEASED; urgency=low
+germinate (2.10) unstable; urgency=low
 
   * Always open Packages files as UTF-8, regardless of the current locale.
     LP: #1025818.
 
- -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 17 Jul 2012 13:08:29 -0700
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 23 Jul 2012 11:33:43 +0100
 
 germinate (2.9) unstable; urgency=low
 
