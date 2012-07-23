@@ -34,6 +34,7 @@ import tempfile
 import shutil
 import logging
 import codecs
+import io
 
 import apt_pkg
 
@@ -172,8 +173,8 @@ class TagFile(Archive):
             if sys.version_info[0] < 3:
                 return codecs.open(fullname, 'r', 'UTF-8', 'replace')
             else:
-                return open(fullname, mode='r', encoding='UTF-8',
-                            errors='replace')
+                return io.open(fullname, mode='r', encoding='UTF-8',
+                               errors='replace')
 
         tag_files = []
         for mirror in mirrors:
