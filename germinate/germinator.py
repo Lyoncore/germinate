@@ -1875,7 +1875,7 @@ class Germinator(object):
                 for prov, provset in seed._pkgprovides.items():
                     all_pkgprovides[prov].update(provset)
 
-            for prov in sorted(all_pkgprovides.keys()):
+            for prov in sorted(all_pkgprovides):
                 print(prov, file=f)
                 for pkg in sorted(all_pkgprovides[prov]):
                     print("\t%s" % (pkg,), file=f)

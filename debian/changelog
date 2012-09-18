@@ -1,6 +1,8 @@
 germinate (2.11) UNRELEASED; urgency=low
 
   * Use collections.defaultdict instead of manually initialising elements.
+  * Simplify some sorted() calls, relying on the default iterator for
+    mappings being .keys().
 
  -- Colin Watson <cjwatson@ubuntu.com>  Tue, 18 Sep 2012 02:13:56 +0100
 

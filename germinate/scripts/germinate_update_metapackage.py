@@ -408,13 +408,13 @@ def main(argv):
         else:
             subprocess.check_call(['dch', '-i', 'Refreshed dependencies'])
         changes = []
-        for package in sorted(additions.keys()):
+        for package in sorted(additions):
             changes.append('Added %s to %s' %
                            (package, format_changes(additions[package])))
-        for package in sorted(removals.keys()):
+        for package in sorted(removals):
             changes.append('Removed %s from %s' %
                            (package, format_changes(removals[package])))
-        for package in sorted(moves.keys()):
+        for package in sorted(moves):
             # TODO: We should really list where it moved from as well, but
             # that gets wordy very quickly, and at the moment this is only
             # implemented for depends->recommends or vice versa. In future,
