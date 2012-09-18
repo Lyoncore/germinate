@@ -7,6 +7,8 @@ germinate (2.11) UNRELEASED; urgency=low
     function.
   * Add support for reading seeds from relative filesystem paths (thanks,
     Sjoerd Simons; LP: #1010186).
+  * Only allow dh_python2 to operate on python-germinate, to avoid chaos
+    caused by shebang rewriting.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Tue, 18 Sep 2012 02:13:56 +0100
 
