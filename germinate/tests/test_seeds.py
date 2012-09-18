@@ -90,6 +90,14 @@ class TestSeed(TestCase):
             ["file://%s" % self.seeds_dir], ["collection.dist"], "test3")
         self.assertNotEqual(one, three)
 
+    def test_open_without_scheme(self):
+        """A Seed can be opened from a relative path on the filesystem."""
+        seed = Seed([self.seeds_dir], ["collection.dist"], "test")
+        with seed as seed_file:
+            lines = list(seed_file)
+            self.assertTrue(1, len(lines))
+            self.assertTrue(" * foo\n", lines[0])
+
 
 class TestSingleSeedStructure(TestCase):
     def test_basic(self):

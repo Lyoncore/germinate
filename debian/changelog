@@ -5,6 +5,8 @@ germinate (2.11) UNRELEASED; urgency=low
     mappings being .keys().
   * Simplify code to clean up bzr cache, removing an unnecessary helper
     function.
+  * Add support for reading seeds from relative filesystem paths (thanks,
+    Sjoerd Simons; LP: #1010186).
 
  -- Colin Watson <cjwatson@ubuntu.com>  Tue, 18 Sep 2012 02:13:56 +0100
 

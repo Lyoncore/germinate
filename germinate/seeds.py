@@ -26,10 +26,10 @@ import tempfile
 import atexit
 import logging
 try:
-    from urllib.parse import urljoin
+    from urllib.parse import urljoin, urlparse as _urlparse
     from urllib.request import Request, URLError, urlopen
 except ImportError:
-    from urlparse import urljoin
+    from urlparse import urljoin, urlparse as _urlparse
     from urllib2 import Request, URLError, urlopen
 import shutil
 import re
@@ -139,6 +139,10 @@ class Seed(object):
             return open(os.path.join(checkout, name))
         else:
             url = urljoin(path, name)
+            if not _urlparse(url).scheme:
+                fullpath = os.path.join(path, name)
+                _logger.info("Using %s", fullpath)
+                return open(fullpath)
             _logger.info("Downloading %s", url)
             req = Request(url)
             req.add_header('Cache-Control', 'no-cache')
