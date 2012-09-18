@@ -1,3 +1,9 @@
+germinate (2.11) UNRELEASED; urgency=low
+
+  * Use collections.defaultdict instead of manually initialising elements.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 18 Sep 2012 02:13:56 +0100
+
 germinate (2.10) unstable; urgency=low
 
   * Always open Packages files as UTF-8, regardless of the current locale.

@@ -44,6 +44,7 @@ except ImportError:
     # < 3.0
     from ConfigParser import NoOptionError, NoSectionError, SafeConfigParser
 import subprocess
+from collections import defaultdict
 
 from germinate.germinator import Germinator
 import germinate.archive
@@ -236,15 +237,14 @@ def main(argv):
             debootstrap.write(get_debootstrap_version() + '\n')
 
     def format_changes(items):
-        by_arch = {}
-        for (pkg, arch) in items:
-            by_arch.setdefault(pkg, [])
-            by_arch[pkg].append(arch)
-        all_pkgs = sorted(by_arch.keys())
+        by_arch = defaultdict(set)
+        for pkg, arch in items:
+            by_arch[pkg].add(arch)
+        all_pkgs = sorted(by_arch)
         chunks = []
         for pkg in all_pkgs:
             arches = by_arch[pkg]
-            if set(architectures) - set(arches):
+            if set(architectures) - arches:
                 # only some architectures
                 chunks.append('%s [%s]' % (pkg, ' '.join(sorted(arches))))
             else:
@@ -256,9 +256,9 @@ def main(argv):
 
     check_debootstrap_version()
 
-    additions = {}
-    removals = {}
-    moves = {}
+    additions = defaultdict(list)
+    removals = defaultdict(list)
+    moves = defaultdict(list)
     metapackage_map = {}
     for architecture in architectures:
         print("[%s] Downloading available package lists..." % architecture)
@@ -349,21 +349,17 @@ def main(argv):
                     output.write('\n')
 
             # Calculate deltas
-            merged = {}
-            recommends_merged = {}
+            merged = defaultdict(int)
+            recommends_merged = defaultdict(int)
             if old_list is not None:
                 for package in new_list:
-                    merged.setdefault(package, 0)
                     merged[package] += 1
                 for package in old_list:
-                    merged.setdefault(package, 0)
                     merged[package] -= 1
             if old_recommends_list is not None:
                 for package in new_recommends_list:
-                    recommends_merged.setdefault(package, 0)
                     recommends_merged[package] += 1
                 for package in old_recommends_list:
-                    recommends_merged.setdefault(package, 0)
                     recommends_merged[package] -= 1
 
             mergeditems = sorted(merged.items())
@@ -371,31 +367,25 @@ def main(argv):
                 #print(package, value)
                 if value == 1:
                     if recommends_merged.get(package, 0) == -1:
-                        moves.setdefault(package, [])
                         moves[package].append([seed_name, architecture])
                         recommends_merged[package] += 1
                     else:
-                        additions.setdefault(package, [])
                         additions[package].append([seed_name, architecture])
                 elif value == -1:
                     if recommends_merged.get(package, 0) == 1:
-                        moves.setdefault(package, [])
                         moves[package].append([seed_name_recommends,
                                                architecture])
                         recommends_merged[package] -= 1
                     else:
-                        removals.setdefault(package, [])
                         removals[package].append([seed_name, architecture])
 
             mergedrecitems = sorted(recommends_merged.items())
             for package, value in mergedrecitems:
                 #print(package, value)
                 if value == 1:
-                    additions.setdefault(package, [])
                     additions[package].append([seed_name_recommends,
                                                architecture])
                 elif value == -1:
-                    removals.setdefault(package, [])
                     removals[package].append([seed_name_recommends,
                                               architecture])
 

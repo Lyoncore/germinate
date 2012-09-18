@@ -24,7 +24,7 @@ import sys
 import re
 import fnmatch
 import logging
-import collections
+from collections import defaultdict, MutableMapping
 
 import apt_pkg
 
@@ -121,7 +121,7 @@ class GerminatedSeed(object):
         self._build_depends = set()
         self._sourcepkgs = set()
         self._build_sourcepkgs = set()
-        self._pkgprovides = {}
+        self._pkgprovides = defaultdict(set)
         self._build = set()
         self._not_build = set()
         self._build_srcs = set()
@@ -132,8 +132,8 @@ class GerminatedSeed(object):
         # Note that this relates to the vestigial global blacklist file, not
         # to the per-seed blacklist entries in _blacklist.
         self._blacklisted = set()
-        self._includes = {}
-        self._excludes = {}
+        self._includes = defaultdict(list)
+        self._excludes = defaultdict(list)
         self._seed_reason = SeedReason(structure.branch, name)
         self._grown = False
         self._cache_inner_seeds = None
@@ -322,7 +322,7 @@ class GerminatedSeedStructure(object):
         self._rdepends_cache_entries = None
 
 
-class GerminatorOutput(collections.MutableMapping, object):
+class GerminatorOutput(MutableMapping, object):
     def __init__(self):
         self._dict = {}
 
@@ -693,8 +693,6 @@ class Germinator(object):
                     else:
                         _logger.warning("Including packages from %s: %s",
                                         included_seed, values)
-                        if included_seed not in seed._includes:
-                            seed._includes[included_seed] = []
                         seed._includes[included_seed].extend(values)
                 elif name.endswith("-exclude"):
                     excluded_seed = name[:-8]
@@ -705,8 +703,6 @@ class Germinator(object):
                     else:
                         _logger.warning("Excluding packages from %s: %s",
                                         excluded_seed, values)
-                        if excluded_seed not in seed._excludes:
-                            seed._excludes[excluded_seed] = []
                         seed._excludes[excluded_seed].extend(values)
                 substvars[name] = values
                 continue
@@ -1067,10 +1063,7 @@ class Germinator(object):
     def _add_reverse(self, pkg, field, rdep):
         """Add a reverse dependency entry."""
         if "Reverse-Depends" not in self._packages[pkg]:
-            self._packages[pkg]["Reverse-Depends"] = {}
-        if field not in self._packages[pkg]["Reverse-Depends"]:
-            self._packages[pkg]["Reverse-Depends"][field] = []
-
+            self._packages[pkg]["Reverse-Depends"] = defaultdict(list)
         self._packages[pkg]["Reverse-Depends"][field].append(rdep)
 
     def reverse_depends(self, structure):
@@ -1410,8 +1403,6 @@ class Germinator(object):
                            recommends)
 
         for prov in self._packages[pkg]["Provides"]:
-            if prov[0][0] not in seed._pkgprovides:
-                seed._pkgprovides[prov[0][0]] = set()
             seed._pkgprovides[prov[0][0]].add(pkg)
 
         self._add_dependency_tree(seed, pkg,
@@ -1878,12 +1869,10 @@ class Germinator(object):
         output = self._output[structure]
 
         with AtomicFile(filename) as f:
-            all_pkgprovides = {}
+            all_pkgprovides = defaultdict(set)
             for seedname in output._seednames:
                 seed = self._get_seed(structure, seedname)
                 for prov, provset in seed._pkgprovides.items():
-                    if prov not in all_pkgprovides:
-                        all_pkgprovides[prov] = set()
                     all_pkgprovides[prov].update(provset)
 
             for prov in sorted(all_pkgprovides.keys()):
