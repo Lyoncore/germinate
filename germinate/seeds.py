@@ -101,10 +101,6 @@ class SeedError(RuntimeError):
     pass
 
 
-def _cleanup_bzr_cache(directory):
-    shutil.rmtree(directory, ignore_errors=True)
-
-
 def _ensure_unicode(s):
     if isinstance(s, _text_type):
         return s
@@ -123,7 +119,8 @@ class Seed(object):
             global _bzr_cache_dir
             if _bzr_cache_dir is None:
                 _bzr_cache_dir = tempfile.mkdtemp(prefix='germinate-')
-                atexit.register(_cleanup_bzr_cache, _bzr_cache_dir)
+                atexit.register(
+                    shutil.rmtree, _bzr_cache_dir, ignore_errors=True)
             checkout = os.path.join(_bzr_cache_dir, branch)
             if not os.path.isdir(checkout):
                 command = ['bzr']
