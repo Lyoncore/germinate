@@ -1,4 +1,4 @@
-germinate (2.11) UNRELEASED; urgency=low
+germinate (2.11) unstable; urgency=low
 
   * Use collections.defaultdict instead of manually initialising elements.
   * Simplify some sorted() calls, relying on the default iterator for
@@ -10,7 +10,7 @@ germinate (2.11) UNRELEASED; urgency=low
   * Only allow dh_python2 to operate on python-germinate, to avoid chaos
     caused by shebang rewriting.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Tue, 18 Sep 2012 02:13:56 +0100
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 18 Sep 2012 10:12:41 +0100
 
 germinate (2.10) unstable; urgency=low
 
