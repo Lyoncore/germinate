@@ -25,7 +25,6 @@ import textwrap
 from germinate.seeds import (
     AtomicFile,
     Seed,
-    SeedStructure,
     SingleSeedStructure,
     )
 from germinate.tests.helpers import TestCase, u
