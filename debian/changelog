@@ -1,10 +1,10 @@
-germinate (2.12) UNRELEASED; urgency=low
+germinate (2.12) unstable; urgency=low
 
   * Add dists option to distribution sections in
     germinate-update-metapackage configuration, making it more useful for
     released distributions.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Wed, 28 Nov 2012 16:11:34 +0000
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 28 Nov 2012 16:13:58 +0000
 
 germinate (2.11) unstable; urgency=low
 
