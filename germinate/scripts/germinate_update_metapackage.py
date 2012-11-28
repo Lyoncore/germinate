@@ -151,6 +151,10 @@ def main(argv):
         seed_dist = config.get(dist, 'seed_dist')
     else:
         seed_dist = dist
+    if config.has_option(dist, 'dists'):
+        dists = config.get(dist, 'dists').split()
+    else:
+        dists = [dist]
     components = config.get(dist, 'components').split()
 
     def seed_packages(germinator_method, structure, seed_name):
@@ -264,7 +268,7 @@ def main(argv):
         print("[%s] Downloading available package lists..." % architecture)
         germinator = Germinator(architecture)
         archive = germinate.archive.TagFile(
-            [dist], components, architecture,
+            dists, components, architecture,
             archive_base[architecture], source_mirrors=archive_base_default,
             cleanup=True)
         germinator.parse_archive(archive)
