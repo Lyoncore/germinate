@@ -28,7 +28,7 @@ dh_germinate_clean is usually called indirectly in a rules file via the dh
 command.
 
 	%:
-		dh --with germinate $@
+		dh $@ --with germinate
 
 You must build-depend on at least debhelper (>= 7.0.8) to use this form, and
 in any case you must build-depend on at least germinate (>= 1.18) to use
