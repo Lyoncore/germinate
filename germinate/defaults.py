@@ -21,10 +21,10 @@
 # Where do we get up-to-date seeds from?
 seeds = 'http://people.canonical.com/~ubuntu-archive/seeds/'
 seeds_bzr = 'http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/'
-release = 'ubuntu.precise'
+release = 'ubuntu.saucy'
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
 # them from?
 mirror = 'http://archive.ubuntu.com/ubuntu/'
-dist = 'precise'
+dist = 'saucy'
 arch = 'i386'

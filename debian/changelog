@@ -4,6 +4,7 @@ germinate (2.13) UNRELEASED; urgency=low
     syntax compatible with debhelper 8.
   * Policy version 3.9.4:
     - Add a Vcs-Browser field.
+  * Change default distribution to saucy.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Tue, 28 May 2013 15:12:39 +0100
 
