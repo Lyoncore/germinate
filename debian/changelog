@@ -1,4 +1,4 @@
-germinate (2.13) UNRELEASED; urgency=low
+germinate (2.13) unstable; urgency=low
 
   * Fix dh_germinate_clean(1) and dh_germinate_metapackage(1) to recommend
     syntax compatible with debhelper 8.
@@ -6,7 +6,7 @@ germinate (2.13) UNRELEASED; urgency=low
     - Add a Vcs-Browser field.
   * Change default distribution to saucy.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Tue, 28 May 2013 15:12:39 +0100
+ -- Colin Watson <cjwatson@ubuntu.com>  Thu, 13 Jun 2013 12:50:22 +0100
 
 germinate (2.12) unstable; urgency=low
 
