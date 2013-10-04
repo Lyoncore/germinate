@@ -1,3 +1,10 @@
+germinate (2.14) UNRELEASED; urgency=low
+
+  * Micro-optimise lesser seeds calculation in
+    Germinator._promote_dependency.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Fri, 04 Oct 2013 13:16:50 +0100
+
 germinate (2.13) unstable; urgency=low
 
   * Fix dh_germinate_clean(1) and dh_germinate_metapackage(1) to recommend

@@ -1187,11 +1187,11 @@ class Germinator(object):
         else:
             return False
 
+        lesserseeds = self._strictly_outer_seeds(seed)
+        if close:
+            lesserseeds = [l for l in lesserseeds
+                             if seed.name in l._close_seeds]
         for trydep in trylist:
-            lesserseeds = self._strictly_outer_seeds(seed)
-            if close:
-                lesserseeds = [l for l in lesserseeds
-                                 if seed.name in l._close_seeds]
             for lesserseed in lesserseeds:
                 if (trydep in lesserseed._entries or
                     trydep in lesserseed._recommends_entries):
