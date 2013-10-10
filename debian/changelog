@@ -2,6 +2,8 @@ germinate (2.14) UNRELEASED; urgency=low
 
   * Micro-optimise lesser seeds calculation in
     Germinator._promote_dependency.
+  * Amend dh_germinate_metapackage(1) to note that this program must be run
+    after dh_prep.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Fri, 04 Oct 2013 13:16:50 +0100
 

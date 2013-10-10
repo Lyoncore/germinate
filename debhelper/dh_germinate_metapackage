@@ -44,11 +44,18 @@ You must build-depend on at least debhelper (>= 7.0.8) to use this form, and
 in any case you must build-depend on at least germinate (>= 1.18) to use
 this program at all.
 
-It can also be called directly at any time before C<dh_installdeb>.
+It can also be called directly at any time between C<dh_prep> and
+C<dh_installdeb>.
 
-	build:
+	install: build
 		dh_testdir
+		dh_testroot
+		dh_prep
+		dh_installdirs
 		dh_germinate_metapackage
+
+	binary-arch: build install
+		...
 
 =cut
 
