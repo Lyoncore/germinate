@@ -4,6 +4,11 @@ germinate (2.14) UNRELEASED; urgency=low
     Germinator._promote_dependency.
   * Amend dh_germinate_metapackage(1) to note that this program must be run
     after dh_prep.
+  * Tolerate missing reasons when writing output.  This is possible when
+    germinate is being run over multiple flavours for the same architecture,
+    and packages are promoted differently between seeds depending on the
+    flavour.  We can't generate a correct reason without a heavy performance
+    cost in this case, but we can at least not crash.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Fri, 04 Oct 2013 13:16:50 +0100
 

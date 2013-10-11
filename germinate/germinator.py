@@ -1622,7 +1622,8 @@ class Germinator(object):
             if _src_len > src_len:
                 src_len = _src_len
 
-            _why_len = len(str(reasons[pkg][0]))
+            why = reasons[pkg][0] if pkg in reasons else ""
+            _why_len = len(str(why))
             if _why_len > why_len:
                 why_len = _why_len
 
@@ -1645,12 +1646,13 @@ class Germinator(object):
                   + ("-" * why_len) + "-+-" + ("-" * mnt_len) + "-+-"
                   + ("-" * 15) + "-+-" + ("-" * 15) + "-", file=f)
             for pkg in pkglist:
+                why = reasons[pkg][0] if pkg in reasons else ""
                 size += self._packages[pkg]["Size"]
                 installed_size += self._packages[pkg]["Installed-Size"]
                 print("%-*s | %-*s | %-*s | %-*s | %15d | %15d" %
                       (pkg_len, pkg,
                        src_len, self._packages[pkg]["Source"],
-                       why_len, reasons[pkg][0],
+                       why_len, why,
                        mnt_len, self._packages[pkg]["Maintainer"],
                        self._packages[pkg]["Size"],
                        self._packages[pkg]["Installed-Size"]), file=f)
