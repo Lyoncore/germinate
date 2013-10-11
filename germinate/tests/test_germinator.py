@@ -19,6 +19,8 @@
 # 02110-1301, USA.
 
 
+import shutil
+
 from germinate.archive import TagFile
 from germinate.germinator import (
     BuildDependsReason,
@@ -143,7 +145,7 @@ class TestGerminator(TestCase):
                             "Depends": "hello-dependency",
                             })
         self.addPackage("warty", "main", "i386", "hello-dependency", "1.0-1",
-                        fields={"Source": "hello"})
+                        fields={"Source": "hello", "Multi-Arch": "foreign"})
         self.addSeed("ubuntu.warty", "supported")
         self.addSeedPackage("ubuntu.warty", "supported", "hello")
         germinator = Germinator("i386")
@@ -173,6 +175,7 @@ class TestGerminator(TestCase):
             "Source": "hello",
             "Provides": [],
             "Kernel-Version": "",
+            "Multi-Arch": "none",
             }, germinator._packages["hello"])
         self.assertEqual("deb", germinator._packagetype["hello"])
         self.assertIn("hello-dependency", germinator._packages)
@@ -189,6 +192,7 @@ class TestGerminator(TestCase):
             "Source": "hello",
             "Provides": [],
             "Kernel-Version": "",
+            "Multi-Arch": "foreign",
             }, germinator._packages["hello-dependency"])
         self.assertEqual("deb", germinator._packagetype["hello-dependency"])
         self.assertEqual({}, germinator._provides)
@@ -210,5 +214,109 @@ class TestGerminator(TestCase):
         self.assertNotIn("goodbye", germinator._provides)
         self.assertIn("hello-goodbye", germinator._provides)
         self.assertEqual(["hello"], germinator._provides["hello-goodbye"])
+
+    def test_depends_multiarch(self):
+        """Compare Depends behaviour against the multiarch specification.
+
+        https://wiki.ubuntu.com/MultiarchSpec
+        """
+        for ma, qual, allowed in (
+            (None, "", True),
+            (None, ":any", False),
+            (None, ":native", False),
+            ("same", "", True),
+            ("same", ":any", False),
+            ("same", ":native", False),
+            ("foreign", "", True),
+            ("foreign", ":any", False),
+            ("foreign", ":native", False),
+            ("allowed", "", True),
+            ("allowed", ":any", True),
+            ("allowed", ":native", False),
+            ):
+            self.addSource("precise", "main", "hello", "1.0-1", ["hello"])
+            self.addPackage("precise", "main", "i386", "hello", "1.0-1",
+                            fields={"Depends": "gettext%s" % qual})
+            self.addSource("precise", "main", "gettext", "0.18.1.1-5ubuntu3",
+                           ["gettext"])
+            package_fields = {}
+            if ma is not None:
+                package_fields["Multi-Arch"] = ma
+            self.addPackage("precise", "main", "i386", "gettext",
+                            "0.18.1.1-5ubuntu3", fields=package_fields)
+            branch = "collection.precise"
+            self.addSeed(branch, "base")
+            self.addSeedPackage(branch, "base", "hello")
+            germinator = Germinator("i386")
+            archive = TagFile(
+                "precise", "main", "i386", "file://%s" % self.archive_dir)
+            germinator.parse_archive(archive)
+            structure = self.openSeedStructure(branch)
+            germinator.plant_seeds(structure)
+            germinator.grow(structure)
+
+            expected = set()
+            if allowed:
+                expected.add("gettext")
+            self.assertEqual(
+                expected, germinator.get_depends(structure, "base"),
+                "Depends: gettext%s on Multi-Arch: %s incorrectly %s" % (
+                    qual, ma if ma else "none",
+                    "disallowed" if allowed else "allowed"))
+
+            shutil.rmtree(self.archive_dir)
+            shutil.rmtree(self.seeds_dir)
+
+    def test_build_depends_multiarch(self):
+        """Compare Build-Depends behaviour against the multiarch specification.
+
+        https://wiki.ubuntu.com/MultiarchCross#Build_Dependencies
+        """
+        for ma, qual, allowed in (
+            (None, "", True),
+            (None, ":any", False),
+            (None, ":native", True),
+            ("same", "", True),
+            ("same", ":any", False),
+            ("same", ":native", True),
+            ("foreign", "", True),
+            ("foreign", ":any", False),
+            ("foreign", ":native", False),
+            ("allowed", "", True),
+            ("allowed", ":any", True),
+            ("allowed", ":native", True),
+            ):
+            self.addSource("precise", "main", "hello", "1.0-1", ["hello"],
+                           fields={"Build-Depends": "gettext%s" % qual})
+            self.addPackage("precise", "main", "i386", "hello", "1.0-1")
+            self.addSource("precise", "main", "gettext", "0.18.1.1-5ubuntu3",
+                           ["gettext"])
+            package_fields = {}
+            if ma is not None:
+                package_fields["Multi-Arch"] = ma
+            self.addPackage("precise", "main", "i386", "gettext",
+                            "0.18.1.1-5ubuntu3", fields=package_fields)
+            branch = "collection.precise"
+            self.addSeed(branch, "base")
+            self.addSeedPackage(branch, "base", "hello")
+            germinator = Germinator("i386")
+            archive = TagFile(
+                "precise", "main", "i386", "file://%s" % self.archive_dir)
+            germinator.parse_archive(archive)
+            structure = self.openSeedStructure(branch)
+            germinator.plant_seeds(structure)
+            germinator.grow(structure)
+
+            expected = set()
+            if allowed:
+                expected.add("gettext")
+            self.assertEqual(
+                expected, germinator.get_build_depends(structure, "base"),
+                "Build-Depends: gettext%s on Multi-Arch: %s incorrectly %s" % (
+                    qual, ma if ma else "none",
+                    "disallowed" if allowed else "allowed"))
+
+            shutil.rmtree(self.archive_dir)
+            shutil.rmtree(self.seeds_dir)
 
     # TODO: Germinator needs many more unit tests.

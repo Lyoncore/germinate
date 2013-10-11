@@ -43,6 +43,13 @@ __all__ = [
 _logger = logging.getLogger(__name__)
 
 
+try:
+    apt_pkg.parse_src_depends("dummy:any", False)
+    _apt_pkg_multiarch = True
+except TypeError:
+    _apt_pkg_multiarch = False
+
+
 def _progress(msg, *args, **kwargs):
     _logger.info(msg, *args, extra={'progress': True}, **kwargs)
 
@@ -403,6 +410,13 @@ class Germinator(object):
             self._hints[words[1]] = words[0]
         f.close()
 
+    def _parse_depends(self, value):
+        """Parse Depends from value, without stripping qualifiers."""
+        if _apt_pkg_multiarch:
+            return apt_pkg.parse_depends(value, False)
+        else:
+            return apt_pkg.parse_depends(value)
+
     def _parse_package(self, section, pkgtype):
         """Parse a section from a Packages file."""
         pkg = section["Package"]
@@ -430,7 +444,7 @@ class Germinator(object):
 
         for field in "Pre-Depends", "Depends", "Recommends":
             value = section.get(field, "")
-            self._packages[pkg][field] = apt_pkg.parse_depends(value)
+            self._packages[pkg][field] = self._parse_depends(value)
 
         for field in "Size", "Installed-Size":
             value = section.get(field, "0")
@@ -448,8 +462,17 @@ class Germinator(object):
         if pkg in self._provides:
             self._provides[pkg].append(pkg)
 
+        self._packages[pkg]["Multi-Arch"] = section.get("Multi-Arch", "none")
+
         self._packages[pkg]["Kernel-Version"] = section.get(
             "Kernel-Version", "")
+
+    def _parse_src_depends(self, value):
+        """Parse Build-Depends from value, without stripping qualifiers."""
+        if _apt_pkg_multiarch:
+            return apt_pkg.parse_src_depends(value, False)
+        else:
+            return apt_pkg.parse_src_depends(value)
 
     def _parse_source(self, section):
         """Parse a section from a Sources file."""
@@ -471,7 +494,7 @@ class Germinator(object):
 
         for field in "Build-Depends", "Build-Depends-Indep":
             value = section.get(field, "")
-            self._sources[src][field] = apt_pkg.parse_src_depends(value)
+            self._sources[src][field] = self._parse_src_depends(value)
 
         binaries = apt_pkg.parse_depends(section.get("Binary", src))
         self._sources[src]["Binaries"] = [b[0][0] for b in binaries]
@@ -975,24 +998,36 @@ class Germinator(object):
         within any seed.
 
         """
-        if depend not in self._packages:
+        if ":" in depend:
+            depname, depqual = depend.split(":", 1)
+        else:
+            depname = depend
+            depqual = None
+        if depname not in self._packages:
             _logger.warning("_allowed_dependency called with virtual package "
                             "%s", depend)
             return False
         if (seed is not None and
-            self._is_pruned(self._di_kernel_versions, depend)):
+            self._is_pruned(self._di_kernel_versions, depname)):
+            return False
+        depmultiarch = self._packages[depname]["Multi-Arch"]
+        if depqual == "any" and depmultiarch != "allowed":
             return False
         if build_depend:
-            if self._packagetype[depend] == "deb":
-                return True
-            else:
+            if depqual not in (None, "any", "native"):
                 return False
+            if (depqual == "native" and
+                depmultiarch not in ("none", "same", "allowed")):
+                return False
+            return self._packagetype[depname] == "deb"
         else:
-            if self._packagetype[pkg] == self._packagetype[depend]:
+            if depqual not in (None, "any"):
+                return False
+            if self._packagetype[pkg] == self._packagetype[depname]:
                 # If both packages have a Kernel-Version field, they must
                 # match.
                 pkgkernver = self._packages[pkg]["Kernel-Version"]
-                depkernver = self._packages[depend]["Kernel-Version"]
+                depkernver = self._packages[depname]["Kernel-Version"]
                 if (pkgkernver != "" and depkernver != "" and
                     pkgkernver != depkernver):
                     return False
@@ -1015,6 +1050,7 @@ class Germinator(object):
 
     def _check_versioned_dependency(self, depname, depver, deptype):
         """Test whether a versioned dependency can be satisfied."""
+        depname = depname.split(":", 1)[0]
         if depname not in self._packages:
             return False
         if deptype == "":
@@ -1072,17 +1108,19 @@ class Germinator(object):
             for field in fields:
                 for deplist in self._packages[pkg][field]:
                     for dep in deplist:
-                        if dep[0] in output._all and \
+                        depname = dep[0].split(":", 1)[0]
+                        if depname in output._all and \
                            self._allowed_dependency(pkg, dep[0], None, False):
-                            self._add_reverse(dep[0], field, pkg)
+                            self._add_reverse(depname, field, pkg)
 
         for src in output._all_srcs:
             for field in "Build-Depends", "Build-Depends-Indep":
                 for deplist in self._sources[src][field]:
                     for dep in deplist:
-                        if dep[0] in output._all and \
+                        depname = dep[0].split(":", 1)[0]
+                        if depname in output._all and \
                            self._allowed_dependency(src, dep[0], None, True):
-                            self._add_reverse(dep[0], field, src)
+                            self._add_reverse(depname, field, src)
 
         for pkg in output._all:
             if "Reverse-Depends" not in self._packages[pkg]:
@@ -1110,7 +1148,7 @@ class Germinator(object):
                           self._allowed_dependency(pkg, d, seed, build_depend)]
         elif (self._check_versioned_dependency(depname, depver, deptype) and
               self._allowed_dependency(pkg, depname, seed, build_depend)):
-            trylist = [depname]
+            trylist = [depname.split(":", 1)[0]]
         else:
             return False
 
@@ -1172,7 +1210,7 @@ class Germinator(object):
         (depname, depver, deptype) = depend
         if (self._check_versioned_dependency(depname, depver, deptype) and
             self._allowed_dependency(pkg, depname, seed, build_depend)):
-            trylist = [depname]
+            trylist = [depname.split(":", 1)[0]]
         elif (self._allowed_virtual_dependency(pkg, deptype) and
               depname in self._provides):
             trylist = [d for d in self._provides[depname]
@@ -1252,7 +1290,7 @@ class Germinator(object):
                           pkg)
             return False
 
-        dependlist = [depname]
+        dependlist = [depname.split(":", 1)[0]]
         if virtual is not None:
             reallist = [d for d in self._provides[virtual]
                         if d in self._packages and
