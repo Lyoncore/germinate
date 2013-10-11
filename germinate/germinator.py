@@ -836,9 +836,7 @@ class Germinator(object):
             return False
         kernvers = di_kernel_versions.kernel_versions
         kernver = self._packages[pkg]["Kernel-Version"]
-        if kernver != "" and kernver not in kernvers:
-            return True
-        return False
+        return kernver != "" and kernver not in kernvers
 
     def _weed_blacklist(self, pkgs, seed, build_tree, why):
         """Weed out blacklisted seed entries from a list."""
@@ -1012,10 +1010,8 @@ class Germinator(object):
         """
         if pkg in self._packagetype and self._packagetype[pkg] == "udeb":
             return True
-        elif deptype == "":
-            return True
         else:
-            return False
+            return deptype == ""
 
     def _check_versioned_dependency(self, depname, depver, deptype):
         """Test whether a versioned dependency can be satisfied."""
@@ -1056,9 +1052,7 @@ class Germinator(object):
                 return True
             if "no-follow-recommends" in seed._features:
                 return False
-        if "follow-recommends" in structure.features:
-            return True
-        return False
+        return "follow-recommends" in structure.features
 
     def _add_reverse(self, pkg, field, rdep):
         """Add a reverse dependency entry."""

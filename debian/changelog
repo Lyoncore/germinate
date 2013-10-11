@@ -9,6 +9,8 @@ germinate (2.14) UNRELEASED; urgency=low
     and packages are promoted differently between seeds depending on the
     flavour.  We can't generate a correct reason without a heavy performance
     cost in this case, but we can at least not crash.
+  * Remove a few unnecessary "if condition: return True; else: return False"
+    patterns.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Fri, 04 Oct 2013 13:16:50 +0100
 
