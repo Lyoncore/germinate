@@ -51,6 +51,19 @@ if sys.version >= '3':
 else:
     _string_types = basestring
 
+if sys.version >= '3.1':
+    def get_request_type(req):
+        return req.type
+
+    def get_request_selector(req):
+        return req.selector
+else:
+    def get_request_type(req):
+        return req.get_type()
+
+    def get_request_selector(req):
+        return req.get_selector()
+
 
 class IndexType:
     """Types of archive index files."""
@@ -112,16 +125,16 @@ class TagFile(Archive):
             req = Request(url)
             filename = None
 
-            if req.get_type() != "file":
+            if get_request_type(req) != "file":
                 filename = "%s_%s_%s_%s" % (quote(mirror, safe=""), dist,
                                             component, tagfile_type)
             else:
                 # Make a more or less dummy filename for local URLs.
-                filename = os.path.split(req.get_selector())[0].replace(
+                filename = os.path.split(get_request_selector(req))[0].replace(
                     os.sep, "_")
 
             fullname = os.path.join(dirname, filename)
-            if req.get_type() == "file":
+            if get_request_type(req) == "file":
                 # Always refresh.  TODO: we should use If-Modified-Since for
                 # remote HTTP tag files.
                 try:

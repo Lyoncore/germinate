@@ -1,3 +1,12 @@
+germinate (2.15) UNRELEASED; urgency=medium
+
+  * Use type and selector attributes of urllib.request.Request in Python >=
+    3.1 rather than the deprecated get_type and get_selector accessor
+    methods, fixing a build failure with Python 3.4 which removed these
+    methods entirely.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 15 Jan 2014 00:40:31 +0000
+
 germinate (2.14) unstable; urgency=low
 
   * Micro-optimise lesser seeds calculation in
