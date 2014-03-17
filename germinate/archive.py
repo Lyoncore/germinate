@@ -39,6 +39,9 @@ import io
 import apt_pkg
 
 
+__pychecker__ = 'no-reuseattr'
+
+
 _logger = logging.getLogger(__name__)
 
 
