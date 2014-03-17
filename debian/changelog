@@ -1,3 +1,10 @@
+germinate (2.16) UNRELEASED; urgency=medium
+
+  * Quote slashes in suite names when constructing local tag file names
+    (thanks, Eugene Paskevich).
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Mon, 17 Mar 2014 10:38:14 +0000
+
 germinate (2.15) unstable; urgency=medium
 
   * Use type and selector attributes of urllib.request.Request in Python >=

@@ -126,7 +126,8 @@ class TagFile(Archive):
             filename = None
 
             if get_request_type(req) != "file":
-                filename = "%s_%s_%s_%s" % (quote(mirror, safe=""), dist,
+                filename = "%s_%s_%s_%s" % (quote(mirror, safe=""),
+                                            quote(dist, safe=""),
                                             component, tagfile_type)
             else:
                 # Make a more or less dummy filename for local URLs.
