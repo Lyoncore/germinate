@@ -2,6 +2,7 @@ germinate (2.16) UNRELEASED; urgency=medium
 
   * Quote slashes in suite names when constructing local tag file names
     (thanks, Eugene Paskevich).
+  * Change default distribution to trusty.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon, 17 Mar 2014 10:38:14 +0000
 
