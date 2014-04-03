@@ -4,6 +4,7 @@ germinate (2.16) UNRELEASED; urgency=medium
     (thanks, Eugene Paskevich).
   * Change default distribution to trusty.
   * Update kubuntu-meta example in germinate-update-metapackage(1).
+  * Policy version 3.9.5: no changes required.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon, 17 Mar 2014 10:38:14 +0000
 
