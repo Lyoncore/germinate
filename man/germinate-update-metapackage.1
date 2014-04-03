@@ -165,15 +165,17 @@ source package in the Ubuntu archive:
 dist: trusty
 
 [trusty]
-seeds: desktop full
-architectures: i386 amd64 powerpc armel
+seeds: desktop full active
+architectures: i386 amd64 powerpc armhf arm64 ppc64el
 seed_base: http://people.canonical.com/~ubuntu-archive/seeds/
 seed_dist: kubuntu.%(dist)s
 archive_base/default: http://archive.ubuntu.com/ubuntu/
 archive_base/ports: http://ports.ubuntu.com/ubuntu-ports/
 archive_base/powerpc: %(archive_base/ports)s
-archive_base/armel: %(archive_base/ports)s
-components: main restricted
+archive_base/armhf: %(archive_base/ports)s
+archive_base/arm64: %(archive_base/ports)s
+archive_base/ppc64el: %(archive_base/ports)s
+components: main restricted universe
 
 [trusty/bzr]
 seed_base: bzr+ssh://bazaar.launchpad.net/~kubuntu-dev/ubuntu-seeds/ bzr+ssh://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/
