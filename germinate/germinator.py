@@ -32,7 +32,7 @@ from germinate.archive import IndexType
 from germinate.seeds import AtomicFile, SeedStructure, _ensure_unicode
 
 # TODO: would be much more elegant to reduce our recursion depth!
-sys.setrecursionlimit(2000)
+sys.setrecursionlimit(3000)
 
 
 __all__ = [
