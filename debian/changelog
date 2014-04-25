@@ -1,9 +1,9 @@
-germinate (2.17) UNRELEASED; urgency=medium
+germinate (2.17) unstable; urgency=medium
 
   * Bump recursion limit to 3000; apparently utopic trips over the existing
     limit (LP: #1312478).
 
- -- Colin Watson <cjwatson@ubuntu.com>  Fri, 25 Apr 2014 00:40:13 +0100
+ -- Colin Watson <cjwatson@ubuntu.com>  Fri, 25 Apr 2014 00:54:11 +0100
 
 germinate (2.16) unstable; urgency=medium
 
