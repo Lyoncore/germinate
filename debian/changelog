@@ -1,3 +1,10 @@
+germinate (2.18) UNRELEASED; urgency=medium
+
+  * Fix Vcs-Bzr field so that it actually works with bzr.  Adjust
+    Vcs-Browser field to match.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Sun, 06 Jul 2014 09:54:08 +0100
+
 germinate (2.17) unstable; urgency=medium
 
   * Bump recursion limit to 3000; apparently utopic trips over the existing
