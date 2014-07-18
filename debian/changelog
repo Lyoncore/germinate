@@ -2,6 +2,8 @@ germinate (2.18) UNRELEASED; urgency=medium
 
   * Fix Vcs-Bzr field so that it actually works with bzr.  Adjust
     Vcs-Browser field to match.
+  * Allow subclasses of SeedStructure to override a new make_seed method in
+    order to slot in a different Seed implementation.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Sun, 06 Jul 2014 09:54:08 +0100
 

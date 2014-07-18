@@ -398,7 +398,8 @@ class SeedStructure(collections.Mapping, object):
             self._parse(self._branch, set())
         self._seeds = {}
         for seed in self._seed_order:
-            self._seeds[seed] = Seed(seed_bases, branches, seed, bzr=bzr)
+            self._seeds[seed] = self.make_seed(
+                seed_bases, branches, seed, bzr=bzr)
         self._expand_inheritance()
 
     def _parse(self, branch, got_branches):
@@ -408,7 +409,8 @@ class SeedStructure(collections.Mapping, object):
         all_structure = []
 
         # Fetch this one
-        with Seed(self._seed_bases, branch, "STRUCTURE", self._bzr) as seed:
+        with self.make_seed(
+                self._seed_bases, branch, "STRUCTURE", self._bzr) as seed:
             structure = SingleSeedStructure(branch, seed)
         got_branches.add(branch)
 
@@ -452,6 +454,14 @@ class SeedStructure(collections.Mapping, object):
         all_branches.reverse()
 
         return all_seed_order, all_inherit, all_branches, all_structure
+
+    def make_seed(self, bases, branches, name, bzr=False):
+        """Read a seed from this collection.
+
+        This can be overridden by subclasses in order to read seeds in a
+        different way.
+        """
+        return Seed(bases, branches, name, bzr=bzr)
 
     def _expand_inheritance(self):
         """Expand out incomplete inheritance lists."""
