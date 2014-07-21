@@ -491,10 +491,13 @@ class SeedStructure(collections.Mapping, object):
             if name not in self._names:
                 self._names.append(name)
 
-    def add(self, name, entries, parent):
+    def add(self, name, entries, parent=None):
         """Add a custom seed."""
         self._names.append(name)
-        self._inherit[name] = self._inherit[parent] + [parent]
+        if parent is not None:
+            self._inherit[name] = self._inherit[parent] + [parent]
+        else:
+            self._inherit[name] = [parent]
         self._seeds[name] = CustomSeed(name, entries)
 
     def inner_seeds(self, seedname):

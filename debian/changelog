@@ -1,3 +1,9 @@
+germinate (2.19) UNRELEASED; urgency=medium
+
+  * Make it possible to add a custom seed with no parents.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Mon, 21 Jul 2014 21:34:41 +0100
+
 germinate (2.18) unstable; urgency=medium
 
   * Fix Vcs-Bzr field so that it actually works with bzr.  Adjust
