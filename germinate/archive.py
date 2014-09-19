@@ -222,48 +222,49 @@ class TagFile(Archive):
         else:
             dirname = '.'
 
-        for dist in self._dists:
-            for component in self._components:
-                packages = self._open_tag_files(
-                    self._mirrors, dirname, "Packages", dist, component,
-                    "binary-" + self._arch + "/Packages")
-                for tag_file in packages:
-                    try:
-                        for section in apt_pkg.TagFile(tag_file):
-                            yield (IndexType.PACKAGES, section)
-                    finally:
-                        tag_file.close()
+        try:
+            for dist in self._dists:
+                for component in self._components:
+                    packages = self._open_tag_files(
+                        self._mirrors, dirname, "Packages", dist, component,
+                        "binary-" + self._arch + "/Packages")
+                    for tag_file in packages:
+                        try:
+                            for section in apt_pkg.TagFile(tag_file):
+                                yield (IndexType.PACKAGES, section)
+                        finally:
+                            tag_file.close()
 
-                sources = self._open_tag_files(
-                    self._source_mirrors, dirname, "Sources", dist, component,
-                    "source/Sources")
-                for tag_file in sources:
-                    try:
-                        for section in apt_pkg.TagFile(tag_file):
-                            yield (IndexType.SOURCES, section)
-                    finally:
-                        tag_file.close()
+                    sources = self._open_tag_files(
+                        self._source_mirrors, dirname, "Sources", dist,
+                        component, "source/Sources")
+                    for tag_file in sources:
+                        try:
+                            for section in apt_pkg.TagFile(tag_file):
+                                yield (IndexType.SOURCES, section)
+                        finally:
+                            tag_file.close()
 
-                instpackages = ""
-                if self._installer_packages:
-                    try:
-                        instpackages = self._open_tag_files(
-                            self._mirrors, dirname, "InstallerPackages", dist,
-                            component,
-                            "debian-installer/binary-" + self._arch +
-                            "/Packages")
-                    except IOError:
-                        # can live without these
-                        _progress("Missing installer Packages file for %s "
-                                  "(ignoring)", component)
-                    else:
-                        for tag_file in instpackages:
-                            try:
-                                for section in apt_pkg.TagFile(tag_file):
-                                    yield (IndexType.INSTALLER_PACKAGES,
-                                           section)
-                            finally:
-                                tag_file.close()
-
-        if self._cleanup:
-            shutil.rmtree(dirname)
+                    instpackages = ""
+                    if self._installer_packages:
+                        try:
+                            instpackages = self._open_tag_files(
+                                self._mirrors, dirname, "InstallerPackages",
+                                dist, component,
+                                "debian-installer/binary-" + self._arch +
+                                "/Packages")
+                        except IOError:
+                            # can live without these
+                            _progress("Missing installer Packages file for %s "
+                                      "(ignoring)", component)
+                        else:
+                            for tag_file in instpackages:
+                                try:
+                                    for section in apt_pkg.TagFile(tag_file):
+                                        yield (IndexType.INSTALLER_PACKAGES,
+                                               section)
+                                finally:
+                                    tag_file.close()
+        finally:
+            if self._cleanup:
+                shutil.rmtree(dirname)

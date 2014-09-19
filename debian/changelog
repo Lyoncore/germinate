@@ -1,6 +1,8 @@
 germinate (2.19) UNRELEASED; urgency=medium
 
   * Make it possible to add a custom seed with no parents.
+  * Fix TagFile.sections to use try/finally so that the temporary directory
+    reliably gets cleaned up.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon, 21 Jul 2014 21:34:41 +0100
 
