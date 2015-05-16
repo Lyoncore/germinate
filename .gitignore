@@ -1,4 +1,4 @@
-build
+/build
 debhelper/*.1
 debian/files
 debian/germinate
@@ -8,5 +8,4 @@ debian/tmp
 debian/*.debhelper*
 debian/*.substvars
 germinate.egg-info
-germinate/__pycache__
-germinate/*/__pycache__
+germinate/**/__pycache__

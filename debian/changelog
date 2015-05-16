@@ -1,3 +1,9 @@
+germinate (2.20) UNRELEASED; urgency=medium
+
+  * Switch to git; adjust Vcs-* fields.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Sat, 16 May 2015 01:49:10 +0100
+
 germinate (2.19) unstable; urgency=medium
 
   * Make it possible to add a custom seed with no parents.
