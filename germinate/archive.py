@@ -22,19 +22,19 @@
 
 from __future__ import print_function
 
-import sys
+import codecs
+import io
+import logging
 import os
+import shutil
+import sys
+import tempfile
 try:
     from urllib.parse import quote
     from urllib.request import Request, urlopen
 except ImportError:
     from urllib import quote
     from urllib2 import Request, urlopen
-import tempfile
-import shutil
-import logging
-import codecs
-import io
 
 import apt_pkg
 

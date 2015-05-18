@@ -20,11 +20,11 @@
 
 from __future__ import print_function
 
-import sys
-import re
+from collections import defaultdict, MutableMapping
 import fnmatch
 import logging
-from collections import defaultdict, MutableMapping
+import re
+import sys
 
 import apt_pkg
 

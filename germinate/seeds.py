@@ -20,23 +20,23 @@
 
 from __future__ import print_function
 
-import sys
-import os
-import tempfile
 import atexit
+import codecs
+import collections
+import io
 import logging
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
 try:
     from urllib.parse import urljoin, urlparse as _urlparse
     from urllib.request import Request, URLError, urlopen
 except ImportError:
     from urlparse import urljoin, urlparse as _urlparse
     from urllib2 import Request, URLError, urlopen
-import shutil
-import re
-import subprocess
-import codecs
-import io
-import collections
 
 import germinate.defaults
 from germinate.tsort import topo_sort

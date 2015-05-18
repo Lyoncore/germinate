@@ -25,11 +25,7 @@
 
 from __future__ import print_function
 
-import sys
-import re
-import os
-import optparse
-import logging
+from collections import defaultdict
 try:
     # >= 3.0
     from configparser import NoOptionError, NoSectionError
@@ -43,14 +39,19 @@ try:
 except ImportError:
     # < 3.0
     from ConfigParser import NoOptionError, NoSectionError, SafeConfigParser
+import logging
+import optparse
+import os
+import re
 import subprocess
-from collections import defaultdict
+import sys
 
-from germinate.germinator import Germinator
 import germinate.archive
+from germinate.germinator import Germinator
 from germinate.log import germinate_logging
 from germinate.seeds import SeedError, SeedStructure, SeedVcs
 import germinate.version
+
 
 __pychecker__ = 'maxlocals=80'
 

@@ -19,16 +19,16 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
+import copy
+import logging
+import optparse
 import os
 import shutil
 import sys
-import optparse
-import logging
-import copy
 
-from germinate.germinator import Germinator
 import germinate.archive
 import germinate.defaults
+from germinate.germinator import Germinator
 from germinate.log import germinate_logging
 from germinate.seeds import Seed, SeedError, SeedStructure, SeedVcs
 import germinate.version
