@@ -56,8 +56,8 @@ class TestSeed(TestCase):
         self.addSeed("collection.dist", "test3")
         self.addSeedPackage("collection.dist", "test3", "bar")
 
-    def test_init_no_bzr(self):
-        """__init__ can open a seed from a collection without bzr."""
+    def test_init_no_vcs(self):
+        """__init__ can open a seed from a collection without a VCS."""
         seed = Seed(
             ["file://%s" % self.seeds_dir], ["collection.dist"], "test")
         self.assertEqual("test", seed.name)

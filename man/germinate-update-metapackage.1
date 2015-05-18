@@ -7,7 +7,7 @@
 .Nd update a set of metapackages generated from seeds
 .Sh SYNOPSIS
 .Nm
-.Op Fl Fl bzr
+.Op Fl Fl vcs
 .Op Fl Fl output-directory Ar dir
 .Op Ar dist
 .Sh DESCRIPTION
@@ -36,6 +36,29 @@ metapackages should be generated (e.g.\&
 .It Fl Fl nodch
 Don't modify
 .Pa debian/changelog .
+.It Fl Fl vcs
+Check out seeds from a version control system rather than fetching them
+directly from a URL.
+Requires
+.Ic bzr
+or
+.Ic git ,
+as appropriate, to be installed.
+The version control system to use is guessed from the
+.Li seed_base
+URL defined in the configuration file, trying
+.Ic git
+then
+.Ic bzr
+if the URL is ambiguous.
+For
+.Ic git ,
+the part after the rightmost
+.Sq \&.
+character of
+.Li seed_dist ,
+if any, is treated as the branch name to check out; this rather strange
+style is for backward compatibility.
 .It Fl Fl bzr
 Check out seeds from the
 .Ic bzr
@@ -44,6 +67,9 @@ from the URL defined there.
 Requires
 .Ic bzr
 to be installed.
+This option is deprecated and is retained for backward compatibility; use
+.Fl Fl vcs
+instead.
 .It Xo Fl o ,
 .Fl Fl output-directory Ar dir
 .Xc
@@ -61,6 +87,8 @@ key indicating the default distribution, and a
 .Ar dist
 section (corresponding to that distribution).
 It may also have a
+.Ar dist Ns Li /vcs
+or
 .Ar dist Ns Li /bzr
 section which can override the
 .Li seed_base
@@ -69,8 +97,16 @@ and
 values from the
 .Ar dist
 section if the
+.Fl Fl vcs
+or
 .Fl Fl bzr
-option is given.
+option respectively is given.
+For backward compatibility, if
+.Fl Fl vcs
+is given, then
+.Ar dist Ns Li /bzr
+will also be consulted.
+.Pp
 The following keys are recognised in distribution sections:
 .Bl -tag -width 4n
 .It Li seeds No (mandatory)

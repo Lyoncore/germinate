@@ -14,7 +14,7 @@
 .Op Fl d Ar dist Ns \&,...
 .Op Fl a Ar arch
 .Op Fl c Ar component Ns \&,...
-.Op Fl Fl bzr
+.Op Fl Fl vcs Ns = Ns Brq Li auto Ns | Ns Li bzr Ns | Ns Li git
 .Op Fl Fl no\-rdepends
 .Op Fl Fl no\-installer
 .Sh DESCRIPTION
@@ -199,7 +199,11 @@ The default is
 or
 .Pa http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/
 if the
-.Fl Fl bzr
+.Fl Fl vcs Ns = Ns bzr
+option is used, or
+.Pa git://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/
+if the
+.Fl Fl vcs Ns = Ns git
 option is used.
 You may use
 .Pa file://
@@ -216,6 +220,11 @@ Fetch seeds for distribution
 .Ar dist .
 The default is
 .Li ubuntu.trusty .
+.Pp
+When fetching seeds from git, the part after the rightmost
+.Sq \&.
+character, if any, is treated as the branch name to check out; this rather
+strange style is for backward compatibility.
 .It Xo Fl m ,
 .Fl Fl mirror Ar mirror
 .Xc
@@ -252,6 +261,31 @@ The default is
 Operate on the specified components.
 The default is
 .Li main .
+.It Fl Fl vcs Ns = Ns Brq Li auto Ns | Ns Li bzr Ns | Ns Li git
+Check out seeds from a version control system rather than fetching them
+directly from a URL.
+Requires
+.Ic bzr
+or
+.Ic git ,
+as appropriate, to be installed.
+For
+.Ic bzr ,
+use the branch found at
+.Ar seed\-source Ns / Ns Ar seed\-dist ;
+for
+.Ic git ,
+remove the part after the rightmost
+.Sq \&.
+character of
+.Ar seed\-dist
+and use it as the branch name to check out from
+.Ar seed\-source Ns / Ns Ar remainder\-of\-seed\-dist .
+For
+.Ic auto ,
+guess the version control system to use from
+.Ar seed\-source
+(trying both in ambiguous cases) and then proceed as above.
 .It Fl Fl bzr
 Check out seeds from the
 .Ic bzr
@@ -261,6 +295,9 @@ rather than fetching them directly from a URL.
 Requires
 .Ic bzr
 to be installed.
+This option is deprecated and is retained for backward compatibility; use
+.Fl Fl vcs Ns = Ns bzr
+instead.
 .It Fl Fl no\-rdepends
 Disable reverse-dependency calculations.
 These calculations cause a large number of small files to be written out in

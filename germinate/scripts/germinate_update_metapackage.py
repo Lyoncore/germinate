@@ -49,7 +49,7 @@ from collections import defaultdict
 from germinate.germinator import Germinator
 import germinate.archive
 from germinate.log import germinate_logging
-from germinate.seeds import SeedError, SeedStructure
+from germinate.seeds import SeedError, SeedStructure, SeedVcs
 import germinate.version
 
 __pychecker__ = 'maxlocals=80'
@@ -76,9 +76,12 @@ update.cfg.'''
     parser.add_option('--nodch', dest='nodch', action='store_true',
                       default=False,
                       help="don't modify debian/changelog")
-    parser.add_option('--bzr', dest='bzr', action='store_true', default=False,
+    parser.add_option('--vcs', dest='vcs',
+                      action='store_const', const=SeedVcs.AUTO,
+                      help='fetch seeds using a version control system')
+    parser.add_option('--bzr', dest='vcs', action='store_true',
                       help='fetch seeds using bzr (requires bzr to be '
-                           'installed)')
+                           'installed; use --vcs instead)')
     return parser.parse_args(argv[1:])
 
 
@@ -140,12 +143,18 @@ def main(argv):
             else:
                 error_exit('no archive_base configured for %s' % arch)
 
-    if options.bzr and config.has_option("%s/bzr" % dist, 'seed_base'):
+    if options.vcs and config.has_option("%s/vcs" % dist, 'seed_base'):
+        seed_base = config.get("%s/vcs" % dist, 'seed_base')
+    elif options.vcs and config.has_option("%s/bzr" % dist, 'seed_base'):
+        # Backward compatibility.
         seed_base = config.get("%s/bzr" % dist, 'seed_base')
     else:
         seed_base = config.get(dist, 'seed_base')
     seed_base = re.split(r'[, ]+', seed_base)
-    if options.bzr and config.has_option("%s/bzr" % dist, 'seed_dist'):
+    if options.vcs and config.has_option("%s/vcs" % dist, 'seed_dist'):
+        seed_dist = config.get("%s/vcs" % dist, 'seed_dist')
+    elif options.vcs and config.has_option("%s/bzr" % dist, 'seed_dist'):
+        # Backward compatibility.
         seed_dist = config.get("%s/bzr" % dist, 'seed_dist')
     elif config.has_option(dist, 'seed_dist'):
         seed_dist = config.get(dist, 'seed_dist')
@@ -276,7 +285,7 @@ def main(argv):
 
         print("[%s] Loading seed lists..." % architecture)
         try:
-            structure = SeedStructure(seed_dist, seed_base, options.bzr)
+            structure = SeedStructure(seed_dist, seed_base, options.vcs)
             germinator.plant_seeds(structure, seeds=seeds)
         except SeedError:
             sys.exit(1)

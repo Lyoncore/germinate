@@ -24,19 +24,43 @@ import shutil
 import sys
 import optparse
 import logging
+import copy
 
 from germinate.germinator import Germinator
 import germinate.archive
 import germinate.defaults
 from germinate.log import germinate_logging
-from germinate.seeds import Seed, SeedError, SeedStructure
+from germinate.seeds import Seed, SeedError, SeedStructure, SeedVcs
 import germinate.version
+
+
+def check_seed_vcs(option, opt, value):
+    if value == "none":  # or just omit the option
+        return None
+    elif value == "auto":
+        return SeedVcs.AUTO
+    elif value == "bzr":
+        return SeedVcs.BZR
+    elif value == "git":
+        return SeedVcs.GIT
+    else:
+        raise optparse.OptionValueError(
+            "option %s: unrecognised VCS value: %s" % (opt, value))
+
+
+class GerminateOption(optparse.Option):
+    """A custom option type for use with optparse."""
+
+    TYPES = optparse.Option.TYPES + ("vcs",)
+    TYPE_CHECKER = copy.copy(optparse.Option.TYPE_CHECKER)
+    TYPE_CHECKER["vcs"] = check_seed_vcs
 
 
 def parse_options(argv):
     parser = optparse.OptionParser(
         prog='germinate',
-        version='%prog ' + germinate.version.VERSION)
+        version='%prog ' + germinate.version.VERSION,
+        option_class=GerminateOption)
     parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
                       default=False,
                       help='be more verbose when processing seeds')
@@ -64,9 +88,13 @@ def parse_options(argv):
     parser.add_option('-c', '--components', dest='components',
                       default='main,restricted', metavar='COMPS',
                       help='operate on components COMPS (default: %default)')
-    parser.add_option('--bzr', dest='bzr', action='store_true', default=False,
+    parser.add_option('--vcs', dest='vcs', action='store', type='vcs',
+                      help='version control system to use '
+                           '(auto, bzr, git; defaults to none)')
+    parser.add_option('--bzr', dest='vcs',
+                      action='store_const', const=SeedVcs.BZR,
                       help='fetch seeds using bzr (requires bzr to be '
-                           'installed)')
+                           'installed; use --vcs=bzr instead)')
     parser.add_option('--cleanup', dest='cleanup', action='store_true',
                       default=False,
                       help="don't cache Packages or Sources files")
@@ -83,10 +111,12 @@ def parse_options(argv):
     options, _ = parser.parse_args(argv[1:])
 
     if options.seeds is None:
-        if options.bzr:
-            options.seeds = germinate.defaults.seeds_bzr
-        else:
+        if options.vcs is None:
             options.seeds = germinate.defaults.seeds
+        elif options.vcs == SeedVcs.GIT:
+            options.seeds = germinate.defaults.seeds_git
+        else:
+            options.seeds = germinate.defaults.seeds_bzr
     options.seeds = options.seeds.split(',')
 
     if options.mirrors is None:
@@ -123,7 +153,7 @@ def main(argv):
             g.parse_hints(hints)
 
     try:
-        structure = SeedStructure(options.release, options.seeds, options.bzr)
+        structure = SeedStructure(options.release, options.seeds, options.vcs)
         for seed_package in options.seed_packages:
             parent, pkg = seed_package.split('/')
             structure.add(pkg, [" * " + pkg], parent)
@@ -133,7 +163,7 @@ def main(argv):
 
     try:
         with Seed(options.seeds, options.release, "blacklist",
-                  options.bzr) as blacklist:
+                  options.vcs) as blacklist:
             g.parse_blacklist(structure, blacklist)
     except SeedError:
         pass

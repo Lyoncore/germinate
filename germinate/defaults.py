@@ -21,6 +21,7 @@
 # Where do we get up-to-date seeds from?
 seeds = 'http://people.canonical.com/~ubuntu-archive/seeds/'
 seeds_bzr = 'http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/'
+seeds_git = 'git://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/'
 release = 'ubuntu.trusty'
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get

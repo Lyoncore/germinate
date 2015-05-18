@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-"""Fetch seeds from a URL collection or from bzr."""
+"""Fetch seeds from a URL collection or from a VCS."""
 
 # Copyright (c) 2004, 2005, 2006, 2008, 2009, 2011, 2012 Canonical Ltd.
 #
@@ -47,16 +47,17 @@ __pychecker__ = 'no-special'
 
 
 __all__ = [
-    'SeedError',
     'Seed',
+    'SeedError',
     'SeedStructure',
+    'SeedVcs',
 ]
 
 
 _logger = logging.getLogger(__name__)
 
 
-_bzr_cache_dir = None
+_vcs_cache_dir = None
 
 
 if sys.version >= '3':
@@ -108,48 +109,119 @@ def _ensure_unicode(s):
         return _text_type(s, "utf8", "replace")
 
 
+class SeedVcs(object):
+    """Version control system to use for seeds."""
+
+    # Detect from URL.
+    AUTO = 1
+
+    # Use Bazaar.
+    BZR = 2
+
+    # Use Git.
+    GIT = 3
+
+
 class Seed(object):
     """A single seed from a collection."""
 
-    def _open_seed(self, base, branch, name, bzr=False):
+    def _open_seed_bzr(self, base, branch, name):
+        global _vcs_cache_dir
+        if _vcs_cache_dir is None:
+            _vcs_cache_dir = tempfile.mkdtemp(prefix='germinate-')
+            atexit.register(
+                shutil.rmtree, _vcs_cache_dir, ignore_errors=True)
+        checkout = os.path.join(_vcs_cache_dir, branch)
+        if not os.path.isdir(checkout):
+            path = os.path.join(base, branch)
+            if not path.endswith('/'):
+                path += '/'
+            command = ['bzr']
+            # https://bugs.launchpad.net/bzr/+bug/39542
+            if path.startswith('http:'):
+                command.append('branch')
+                _logger.info("Fetching branch of %s", path)
+            else:
+                command.extend(['checkout', '--lightweight'])
+                _logger.info("Checking out %s", path)
+            command.extend([path, checkout])
+            status = subprocess.call(command)
+            if status != 0:
+                raise SeedError("Command failed with exit status %d:\n"
+                                "  '%s'" % (status, ' '.join(command)))
+        return open(os.path.join(checkout, name))
+
+    def _open_seed_git(self, base, branch, name):
+        global _vcs_cache_dir
+        if _vcs_cache_dir is None:
+            _vcs_cache_dir = tempfile.mkdtemp(prefix='germinate-')
+            atexit.register(
+                shutil.rmtree, _vcs_cache_dir, ignore_errors=True)
+        checkout = os.path.join(_vcs_cache_dir, branch)
+        if not os.path.isdir(checkout):
+            # This is a very strange way to specify a git branch, but it's
+            # hard to do better here without breaking backward-compatibility
+            # in at least some of Germinate's own command-line arguments,
+            # the public Python API, or "include" lines in seed STRUCTURE
+            # files.
+            if '.' in branch:
+                repository, git_branch = branch.rsplit('.', 1)
+            else:
+                repository = branch
+                git_branch = None
+            path = os.path.join(base, repository)
+            if not path.endswith('/'):
+                path += '/'
+            command = ['git', 'clone']
+            if git_branch is not None:
+                command.extend(['-b', git_branch])
+                _logger.info("Cloning branch %s of %s", git_branch, path)
+            else:
+                _logger.info("Cloning %s", path)
+            command.extend([path, checkout])
+            status = subprocess.call(command)
+            if status != 0:
+                raise SeedError("Command failed with exit status %d:\n"
+                                "  '%s'" % (status, ' '.join(command)))
+        return open(os.path.join(checkout, name))
+
+    def _open_seed_url(self, base, branch, name):
         path = os.path.join(base, branch)
         if not path.endswith('/'):
             path += '/'
-        if bzr:
-            global _bzr_cache_dir
-            if _bzr_cache_dir is None:
-                _bzr_cache_dir = tempfile.mkdtemp(prefix='germinate-')
-                atexit.register(
-                    shutil.rmtree, _bzr_cache_dir, ignore_errors=True)
-            checkout = os.path.join(_bzr_cache_dir, branch)
-            if not os.path.isdir(checkout):
-                command = ['bzr']
-                # https://bugs.launchpad.net/bzr/+bug/39542
-                if path.startswith('http:'):
-                    command.append('branch')
-                    _logger.info("Fetching branch of %s", path)
-                else:
-                    command.extend(['checkout', '--lightweight'])
-                    _logger.info("Checking out %s", path)
-                command.extend([path, checkout])
-                status = subprocess.call(command)
-                if status != 0:
-                    raise SeedError("Command failed with exit status %d:\n"
-                                    "  '%s'" % (status, ' '.join(command)))
-            return open(os.path.join(checkout, name))
-        else:
-            url = urljoin(path, name)
-            if not _urlparse(url).scheme:
-                fullpath = os.path.join(path, name)
-                _logger.info("Using %s", fullpath)
-                return open(fullpath)
-            _logger.info("Downloading %s", url)
-            req = Request(url)
-            req.add_header('Cache-Control', 'no-cache')
-            req.add_header('Pragma', 'no-cache')
-            return urlopen(req)
+        url = urljoin(path, name)
+        if not _urlparse(url).scheme:
+            fullpath = os.path.join(path, name)
+            _logger.info("Using %s", fullpath)
+            return open(fullpath)
+        _logger.info("Downloading %s", url)
+        req = Request(url)
+        req.add_header('Cache-Control', 'no-cache')
+        req.add_header('Pragma', 'no-cache')
+        return urlopen(req)
 
-    def __init__(self, bases, branches, name, bzr=False):
+    def _open_seed(self, base, branch, name, vcs=None):
+        if vcs is not None:
+            if vcs == SeedVcs.AUTO:
+                # Slightly dodgy auto-sensing, but if we can't tell then
+                # we'll try both.
+                if base.startswith('git'):
+                    vcs = SeedVcs.GIT
+                elif base.startswith('bzr'):
+                    vcs = SeedVcs.BZR
+            if vcs == SeedVcs.AUTO:
+                try:
+                    return self._open_seed_git(base, branch, name)
+                except SeedError:
+                    return self._open_seed_bzr(base, branch, name)
+            elif vcs == SeedVcs.GIT:
+                return self._open_seed_git(base, branch, name)
+            else:
+                return self._open_seed_bzr(base, branch, name)
+        else:
+            return self._open_seed_url(base, branch, name)
+
+    def __init__(self, bases, branches, name, vcs=None):
         """Read a seed from a collection."""
         if isinstance(branches, _string_types):
             branches = [branches]
@@ -164,13 +236,13 @@ class Seed(object):
         for base in bases:
             for branch in branches:
                 try:
-                    fd = self._open_seed(base, branch, name, bzr)
+                    fd = self._open_seed(base, branch, name, vcs=vcs)
                     self._base = base
                     self._branch = branch
                     break
                 except SeedError:
                     ssh_match = re.match(
-                        r'bzr\+ssh://(?:[^/]*?@)?(.*?)(?:/|$)', base)
+                        r'(?:bzr|git)\+ssh://(?:[^/]*?@)?(.*?)(?:/|$)', base)
                     if ssh_match:
                         ssh_host = ssh_match.group(1)
                 except (OSError, IOError, URLError):
@@ -179,7 +251,7 @@ class Seed(object):
                 break
 
         if fd is None:
-            if bzr:
+            if vcs is not None:
                 _logger.warning("Could not open %s from checkout of (any of):",
                                 name)
                 for base in bases:
@@ -381,25 +453,27 @@ class SeedStructure(collections.Mapping, object):
 
     """
 
-    def __init__(self, branch, seed_bases=None, bzr=False):
+    def __init__(self, branch, seed_bases=None, vcs=None):
         """Open a seed collection and read all the seeds it contains."""
         if seed_bases is None:
-            if bzr:
-                seed_bases = germinate.defaults.seeds_bzr
-            else:
+            if vcs is None:
                 seed_bases = germinate.defaults.seeds
+            elif vcs == SeedVcs.GIT:
+                seed_bases = germinate.defaults.seeds_git
+            else:
+                seed_bases = germinate.defaults.seeds_bzr
             seed_bases = seed_bases.split(',')
 
         self._seed_bases = seed_bases
         self._branch = branch
-        self._bzr = bzr
+        self._vcs = vcs
         self._features = set()
         self._seed_order, self._inherit, branches, self._lines = \
             self._parse(self._branch, set())
         self._seeds = {}
         for seed in self._seed_order:
             self._seeds[seed] = self.make_seed(
-                seed_bases, branches, seed, bzr=bzr)
+                seed_bases, branches, seed, vcs=vcs)
         self._expand_inheritance()
 
     def _parse(self, branch, got_branches):
@@ -410,7 +484,7 @@ class SeedStructure(collections.Mapping, object):
 
         # Fetch this one
         with self.make_seed(
-                self._seed_bases, branch, "STRUCTURE", self._bzr) as seed:
+                self._seed_bases, branch, "STRUCTURE", self._vcs) as seed:
             structure = SingleSeedStructure(branch, seed)
         got_branches.add(branch)
 
@@ -455,13 +529,13 @@ class SeedStructure(collections.Mapping, object):
 
         return all_seed_order, all_inherit, all_branches, all_structure
 
-    def make_seed(self, bases, branches, name, bzr=False):
+    def make_seed(self, bases, branches, name, vcs=None):
         """Read a seed from this collection.
 
         This can be overridden by subclasses in order to read seeds in a
         different way.
         """
-        return Seed(bases, branches, name, bzr=bzr)
+        return Seed(bases, branches, name, vcs=vcs)
 
     def _expand_inheritance(self):
         """Expand out incomplete inheritance lists."""
