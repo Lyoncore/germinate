@@ -2,14 +2,14 @@
 
 import os
 import re
-import sys
 import subprocess
+import sys
 
-from setuptools import setup, Command, find_packages
 from distutils.command.build import build
-from setuptools.command.test import test
-from setuptools.command.install import install
 from distutils.command.clean import clean
+from setuptools import setup, Command, find_packages
+from setuptools.command.install import install
+from setuptools.command.test import test
 
 
 # We probably ought to use debian.changelog, but let's avoid that dependency
