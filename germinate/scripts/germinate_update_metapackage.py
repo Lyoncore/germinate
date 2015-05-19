@@ -26,6 +26,13 @@
 from __future__ import print_function
 
 from collections import defaultdict
+import logging
+import optparse
+import os
+import re
+import subprocess
+import sys
+
 try:
     # >= 3.0
     from configparser import NoOptionError, NoSectionError
@@ -39,12 +46,6 @@ try:
 except ImportError:
     # < 3.0
     from ConfigParser import NoOptionError, NoSectionError, SafeConfigParser
-import logging
-import optparse
-import os
-import re
-import subprocess
-import sys
 
 import germinate.archive
 from germinate.germinator import Germinator

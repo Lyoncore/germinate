@@ -1,3 +1,10 @@
+germinate (2.21) UNRELEASED; urgency=medium
+
+  * Fix broken germinate-update-metapackage caused by overenthusiastic
+    sorting of imports.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Tue, 19 May 2015 17:23:38 +0100
+
 germinate (2.20) unstable; urgency=medium
 
   * Switch to git; adjust Vcs-* fields.
