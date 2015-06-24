@@ -2,6 +2,8 @@ germinate (2.22) UNRELEASED; urgency=medium
 
   * Raise a slightly more useful exception if python-apt fails to parse a
     dependency.
+  * Work around lack of build profile support in older versions of
+    apt/python-apt.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Wed, 24 Jun 2015 10:55:09 +0100
 

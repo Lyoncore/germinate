@@ -319,4 +319,40 @@ class TestGerminator(TestCase):
             shutil.rmtree(self.archive_dir)
             shutil.rmtree(self.seeds_dir)
 
+    def test_build_depends_profiles(self):
+        """Test that https://wiki.debian.org/BuildProfileSpec restrictions
+        are parseable.
+        """
+        self.addSource("precise", "main", "hello", "1.0-1", ["hello"],
+                       fields={"Build-Depends":
+                               "gettext <!stage1> <!cross>, "
+                               "base-files <stage1>, "
+                               "gettext (<< 0.7) | debhelper (>= 9)"})
+        self.addPackage("precise", "main", "i386", "hello", "1.0-1")
+        self.addSource("precise", "main", "gettext", "0.8.1.1-5ubuntu3",
+                       ["gettext"])
+        self.addPackage("precise", "main", "i386", "gettext",
+                        "0.8.1.1-5ubuntu3")
+        self.addSource("precise", "main", "base-files", "6.5ubuntu6",
+                       ["base-files"])
+        self.addPackage("precise", "main", "i386", "base-files", "6.5ubuntu6")
+        self.addSource("precise", "main", "debhelper", "9.20120115ubuntu3",
+                       ["debhelper"])
+        self.addPackage("precise", "main", "i386", "debhelper",
+                        "9.20120115ubuntu3")
+        branch = "collection.precise"
+        self.addSeed(branch, "base")
+        self.addSeedPackage(branch, "base", "hello")
+        germinator = Germinator("i386")
+        archive = TagFile(
+            "precise", "main", "i386", "file://%s" % self.archive_dir)
+        germinator.parse_archive(archive)
+        structure = self.openSeedStructure(branch)
+        germinator.plant_seeds(structure)
+        germinator.grow(structure)
+
+        self.assertEqual(
+            set(["gettext", "debhelper"]),
+            germinator.get_build_depends(structure, "base"))
+
     # TODO: Germinator needs many more unit tests.

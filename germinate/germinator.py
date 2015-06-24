@@ -470,6 +470,70 @@ class Germinator(object):
         self._packages[pkg]["Kernel-Version"] = section.get(
             "Kernel-Version", "")
 
+    def _strip_restrictions(self, value):
+        # Work around lack of https://wiki.debian.org/BuildProfileSpec
+        # support in some older series (Ubuntu precise/trusty).  This can be
+        # removed once the necessary apt/python-apt changes have been
+        # backported everywhere.
+        # The manual parsing here is based closely on Dpkg::Deps:
+        # Copyright (c) 2007-2009 Raphaël Hertzog <hertzog@debian.org>
+        # Copyright (c) 2008-2009,2012-2014 Guillem Jover <guillem@debian.org>
+        dep_list = []
+        for dep_and in re.split(r"\s*,\s*", value):
+            or_list = []
+            for dep_or in re.split(r"\s\|\s*", dep_and):
+                match = re.match(r"""
+                    (
+                     \s*                            # skip leading whitespace
+                     [a-zA-Z0-9][a-zA-Z0-9+.-]*     # package name
+                     (?:
+                       :                            # colon for architecture
+                       [a-zA-Z0-9][a-zA-Z0-9-]*     # architecture name
+                     )?
+                     (?:
+                       \s* \(                       # start of version part
+                       \s* (?:<<|<=|=|>=|>>|[<>])   # relation part
+                       \s* .*?                      # don't parse version
+                       \s* \)                       # end of version part
+                     )?
+                     (?:
+                       \s* \[                       # start of architectures
+                       \s* .*?                      # don't parse architectures
+                       \s* \]                       # end of architectures
+                     )?
+                    )
+                    (?:
+                      \s* <                         # start of restrictions
+                      \s* (.*)                      # don't parse restrictions
+                      \s* >                         # end of restrictions
+                    )?
+                    \s*$                            # skip trailing whitespace
+                    """, dep_or, re.X)
+                if match is None:
+                    raise ValueError("can't parse '%s'" % dep_or)
+                restrictions = match.group(2)
+                if restrictions is not None:
+                    restrictions = [
+                        term.split()
+                        for term in re.split(r">\s+<", restrictions)]
+                    # Since we only care about the case where no build
+                    # profiles are enabled, a restriction formula is only
+                    # true if it contains at least one AND-list consisting
+                    # of only negated terms.
+                    # Restriction formulas are in disjunctive normal form:
+                    # (foo AND bar) OR (blub AND bla)
+                    enabled = False
+                    for restrlist in restrictions:
+                        if all(r.startswith("!") for r in restrlist):
+                            enabled = True
+                            break
+                    if not enabled:
+                        continue
+                or_list.append(match.group(1))
+            if or_list:
+                dep_list.append(" | ".join(or_list))
+        return ", ".join(dep_list)
+
     def _parse_src_depends(self, value):
         """Parse Build-Depends from value, without stripping qualifiers."""
         try:
@@ -477,8 +541,15 @@ class Germinator(object):
                 return apt_pkg.parse_src_depends(value, False)
             else:
                 return apt_pkg.parse_src_depends(value)
-        except ValueError as e:
-            raise ValueError("%s (%s)" % (e, value))
+        except ValueError:
+            value = self._strip_restrictions(value)
+            try:
+                if _apt_pkg_multiarch:
+                    return apt_pkg.parse_src_depends(value, False)
+                else:
+                    return apt_pkg.parse_src_depends(value)
+            except ValueError as e:
+                raise ValueError("%s (%s)" % (e, value))
 
     def _parse_source(self, section):
         """Parse a section from a Sources file."""
