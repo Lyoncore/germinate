@@ -1,3 +1,10 @@
+germinate (2.22) UNRELEASED; urgency=medium
+
+  * Raise a slightly more useful exception if python-apt fails to parse a
+    dependency.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 24 Jun 2015 10:55:09 +0100
+
 germinate (2.21) unstable; urgency=medium
 
   * Fix broken germinate-update-metapackage caused by overenthusiastic

@@ -412,10 +412,13 @@ class Germinator(object):
 
     def _parse_depends(self, value):
         """Parse Depends from value, without stripping qualifiers."""
-        if _apt_pkg_multiarch:
-            return apt_pkg.parse_depends(value, False)
-        else:
-            return apt_pkg.parse_depends(value)
+        try:
+            if _apt_pkg_multiarch:
+                return apt_pkg.parse_depends(value, False)
+            else:
+                return apt_pkg.parse_depends(value)
+        except ValueError as e:
+            raise ValueError("%s (%s)" % (e, value))
 
     def _parse_package(self, section, pkgtype):
         """Parse a section from a Packages file."""
@@ -469,10 +472,13 @@ class Germinator(object):
 
     def _parse_src_depends(self, value):
         """Parse Build-Depends from value, without stripping qualifiers."""
-        if _apt_pkg_multiarch:
-            return apt_pkg.parse_src_depends(value, False)
-        else:
-            return apt_pkg.parse_src_depends(value)
+        try:
+            if _apt_pkg_multiarch:
+                return apt_pkg.parse_src_depends(value, False)
+            else:
+                return apt_pkg.parse_src_depends(value)
+        except ValueError as e:
+            raise ValueError("%s (%s)" % (e, value))
 
     def _parse_source(self, section):
         """Parse a section from a Sources file."""
