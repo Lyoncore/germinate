@@ -569,7 +569,8 @@ class Germinator(object):
             _ensure_unicode(section.get("Maintainer", ""))
         self._sources[src]["Version"] = ver
 
-        for field in "Build-Depends", "Build-Depends-Indep":
+        for field in (
+                "Build-Depends", "Build-Depends-Indep", "Build-Depends-Arch"):
             value = section.get(field, "")
             self._sources[src][field] = self._parse_src_depends(value)
 
@@ -1191,7 +1192,9 @@ class Germinator(object):
                             self._add_reverse(depname, field, pkg)
 
         for src in output._all_srcs:
-            for field in "Build-Depends", "Build-Depends-Indep":
+            for field in (
+                    "Build-Depends", "Build-Depends-Indep",
+                    "Build-Depends-Arch"):
                 for deplist in self._sources[src][field]:
                     for dep in deplist:
                         depname = dep[0].split(":", 1)[0]
@@ -1207,7 +1210,8 @@ class Germinator(object):
             if (self._follow_recommends(structure) or
                 self._packages[pkg]["Section"] == "metapackages"):
                 fields.append("Recommends")
-            fields.extend(["Build-Depends", "Build-Depends-Indep"])
+            fields.extend([
+                "Build-Depends", "Build-Depends-Indep", "Build-Depends-Arch"])
             for field in fields:
                 if field not in self._packages[pkg]["Reverse-Depends"]:
                     continue
@@ -1563,6 +1567,9 @@ class Germinator(object):
                                   build_depend=True)
         self._add_dependency_tree(seed, pkg,
                                   self._sources[src]["Build-Depends-Indep"],
+                                  build_depend=True)
+        self._add_dependency_tree(seed, pkg,
+                                  self._sources[src]["Build-Depends-Arch"],
                                   build_depend=True)
 
     def _rescue_includes(self, structure, seedname, rescue_seedname,
@@ -1956,7 +1963,8 @@ class Germinator(object):
             return
 
         for field in ("Pre-Depends", "Depends", "Recommends",
-                      "Build-Depends", "Build-Depends-Indep"):
+                      "Build-Depends", "Build-Depends-Indep",
+                      "Build-Depends-Arch"):
             if field not in self._packages[pkg]["Reverse-Depends"]:
                 continue
 

@@ -159,6 +159,7 @@ class TestGerminator(TestCase):
             "Version": "1.0-1",
             "Build-Depends": [],
             "Build-Depends-Indep": [],
+            "Build-Depends-Arch": [],
             "Binaries": ["hello", "hello-dependency"],
             }, germinator._sources["hello"])
         self.assertIn("hello", germinator._packages)

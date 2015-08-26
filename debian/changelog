@@ -1,3 +1,9 @@
+germinate (2.23) UNRELEASED; urgency=medium
+
+  * Handle Build-Depends-Arch, introduced in dpkg 1.16.4.
+
+ -- Colin Watson <cjwatson@debian.org>  Wed, 26 Aug 2015 15:34:49 +0100
+
 germinate (2.22) unstable; urgency=medium
 
   * Raise a slightly more useful exception if python-apt fails to parse a
