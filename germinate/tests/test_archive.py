@@ -55,8 +55,8 @@ class TestTagFile(TestCase):
         source_dir = os.path.join(main_dir, "source")
         os.makedirs(binary_dir)
         os.makedirs(source_dir)
-        packages = gzip.GzipFile(os.path.join(binary_dir, "Packages.gz"), "w")
-        try:
+        with gzip.GzipFile(
+                os.path.join(binary_dir, "Packages.gz"), "w") as packages:
             packages.write(textwrap.dedent(b"""\
                 Package: test
                 Version: 1.0
@@ -64,17 +64,13 @@ class TestTagFile(TestCase):
                 Maintainer: \xc3\xba\xe1\xb8\x83\xc3\xba\xc3\xb1\xc5\xa7\xc5\xaf\x20\xc4\x91\xc9\x99\x76\xe1\xba\xbd\xc5\x82\xc3\xb5\xe1\xb9\x97\xc3\xa8\xc5\x97\xe1\xb9\xa1
 
                 """.decode("UTF-8")).encode("UTF-8"))
-        finally:
-            packages.close()
-        sources = gzip.GzipFile(os.path.join(source_dir, "Sources.gz"), "w")
-        try:
+        with gzip.GzipFile(
+                os.path.join(source_dir, "Sources.gz"), "w") as sources:
             sources.write(textwrap.dedent("""\
                 Source: test
                 Version: 1.0
 
                 """).encode("UTF-8"))
-        finally:
-            sources.close()
 
         tagfile = TagFile(
             "unstable", "main", "i386", "file://%s/mirror" % self.temp_dir)

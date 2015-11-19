@@ -24,24 +24,9 @@ from germinate.scripts import germinate_main
 from germinate.tests.helpers import TestCase
 
 
-try:
-    NullHandler = logging.NullHandler
-except AttributeError:
-    # < 2.7
-    class NullHandler(logging.Handler):
-        def handle(self, record):
-            pass
-
-        def emit(self, record):
-            pass
-
-        def createLock(self):
-            self.lock = None
-
-
 class TestGerminate(TestCase):
     def addNullHandler(self):
-        handler = NullHandler()
+        handler = logging.NullHandler()
         logger = logging.getLogger("germinate")
         logger.addHandler(handler)
         logger.propagate = False

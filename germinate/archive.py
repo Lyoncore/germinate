@@ -23,6 +23,7 @@
 from __future__ import print_function
 
 import codecs
+from contextlib import closing
 import io
 import logging
 import os
@@ -150,12 +151,9 @@ class TagFile(Archive):
 
                 compressed = os.path.join(dirname, filename + suffix)
                 try:
-                    url_f = urlopen(req)
-                    try:
-                        with open(compressed, "wb") as compressed_f:
-                            compressed_f.write(url_f.read())
-                    finally:
-                        url_f.close()
+                    with closing(urlopen(req)) as url_f, \
+                         open(compressed, "wb") as compressed_f:
+                        compressed_f.write(url_f.read())
 
                     # apt_pkg is weird and won't accept GzipFile
                     if suffix:
@@ -164,22 +162,17 @@ class TagFile(Archive):
 
                         if suffix == ".gz":
                             import gzip
-                            compressed_f = gzip.GzipFile(compressed)
+                            decompressor = gzip.GzipFile
                         elif suffix == ".bz2":
                             import bz2
-                            compressed_f = bz2.BZ2File(compressed)
+                            decompressor = bz2.BZ2File
                         else:
                             raise RuntimeError("Unknown suffix '%s'" % suffix)
 
-                        # This can be simplified once we can require Python
-                        # 2.7, where gzip.GzipFile and bz2.BZ2File are
-                        # context managers.
-                        try:
-                            with open(fullname, "wb") as f:
-                                f.write(compressed_f.read())
-                                f.flush()
-                        finally:
-                            compressed_f.close()
+                        with decompressor(compressed) as compressed_f, \
+                             open(fullname, "wb") as f:
+                            f.write(compressed_f.read())
+                            f.flush()
                 finally:
                     if suffix:
                         try:
