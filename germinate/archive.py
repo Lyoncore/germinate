@@ -23,11 +23,12 @@
 from __future__ import print_function
 
 import codecs
-from contextlib import closing
+from contextlib import closing, contextmanager
 import io
 import logging
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 try:
@@ -166,6 +167,19 @@ class TagFile(Archive):
                         elif suffix == ".bz2":
                             import bz2
                             decompressor = bz2.BZ2File
+                        elif suffix == ".xz":
+                            if sys.version >= "3.3":
+                                import lzma
+                                decompressor = lzma.LZMAFile
+                            else:
+                                @contextmanager
+                                def decompressor(name):
+                                    proc = subprocess.Popen(
+                                        ["xzcat", name],
+                                        stdout=subprocess.PIPE)
+                                    yield proc.stdout
+                                    proc.stdout.close()
+                                    proc.wait()
                         else:
                             raise RuntimeError("Unknown suffix '%s'" % suffix)
 
@@ -189,7 +203,7 @@ class TagFile(Archive):
         tag_files = []
         for mirror in mirrors:
             tag_file = None
-            for suffix in (".bz2", ".gz", ""):
+            for suffix in (".xz", ".bz2", ".gz", ""):
                 try:
                     tag_file = _open_tag_file(mirror, suffix)
                     tag_files.append(tag_file)
