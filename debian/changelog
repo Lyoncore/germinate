@@ -1,11 +1,11 @@
-germinate (2.23) UNRELEASED; urgency=medium
+germinate (2.23) unstable; urgency=medium
 
   * Handle Build-Depends-Arch, introduced in dpkg 1.16.4.
   * Require at least Python 2.7 and simplify some code accordingly.
   * Prefer Packages.xz and Sources.xz to other compression formats if
     possible.
 
- -- Colin Watson <cjwatson@debian.org>  Wed, 26 Aug 2015 15:34:49 +0100
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 09 Dec 2015 13:11:16 +0000
 
 germinate (2.22) unstable; urgency=medium
 
