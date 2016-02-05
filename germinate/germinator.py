@@ -1208,7 +1208,10 @@ class Germinator(object):
                             self._add_reverse(depname, field, pkg)
 
         for src in output._all_srcs:
-            for field in BUILD_DEPENDS:
+            fields = ()
+            if self._follow_build_depends(structure):
+                fields = BUILD_DEPENDS
+            for field in fields:
                 for deplist in self._sources[src][field]:
                     for dep in deplist:
                         depname = dep[0].split(":", 1)[0]
