@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 """Fetch seeds from a URL collection or from a VCS."""
 
 # Copyright (c) 2004, 2005, 2006, 2008, 2009, 2011, 2012 Canonical Ltd.

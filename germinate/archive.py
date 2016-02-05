@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 """Representations of archives for use by Germinate."""
 
 # Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012

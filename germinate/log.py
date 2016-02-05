@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 """Custom logging for Germinate."""
 
 # Copyright (c) 2011, 2012 Canonical Ltd.
