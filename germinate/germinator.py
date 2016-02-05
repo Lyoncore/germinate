@@ -39,6 +39,11 @@ __all__ = [
     'Germinator',
 ]
 
+BUILD_DEPENDS = (
+    "Build-Depends",
+    "Build-Depends-Indep",
+    "Build-Depends-Arch",
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -569,8 +574,7 @@ class Germinator(object):
             _ensure_unicode(section.get("Maintainer", ""))
         self._sources[src]["Version"] = ver
 
-        for field in (
-                "Build-Depends", "Build-Depends-Indep", "Build-Depends-Arch"):
+        for field in BUILD_DEPENDS:
             value = section.get(field, "")
             self._sources[src][field] = self._parse_src_depends(value)
 
@@ -1204,9 +1208,7 @@ class Germinator(object):
                             self._add_reverse(depname, field, pkg)
 
         for src in output._all_srcs:
-            for field in (
-                    "Build-Depends", "Build-Depends-Indep",
-                    "Build-Depends-Arch"):
+            for field in BUILD_DEPENDS:
                 for deplist in self._sources[src][field]:
                     for dep in deplist:
                         depname = dep[0].split(":", 1)[0]
@@ -1222,8 +1224,7 @@ class Germinator(object):
             if (self._follow_recommends(structure) or
                 self._packages[pkg]["Section"] == "metapackages"):
                 fields.append("Recommends")
-            fields.extend([
-                "Build-Depends", "Build-Depends-Indep", "Build-Depends-Arch"])
+            fields.extend(list(BUILD_DEPENDS))
             for field in fields:
                 if field not in self._packages[pkg]["Reverse-Depends"]:
                     continue
@@ -1575,15 +1576,10 @@ class Germinator(object):
         seed._build_srcs.add(src)
 
         if self._follow_build_depends(seed.structure, seed):
-            self._add_dependency_tree(seed, pkg,
-                                      self._sources[src]["Build-Depends"],
-                                      build_depend=True)
-            self._add_dependency_tree(seed, pkg,
-                                      self._sources[src]["Build-Depends-Indep"],
-                                      build_depend=True)
-            self._add_dependency_tree(seed, pkg,
-                                      self._sources[src]["Build-Depends-Arch"],
-                                      build_depend=True)
+            for build_depends in BUILD_DEPENDS:
+                self._add_dependency_tree(seed, pkg,
+                                          self._sources[src][build_depends],
+                                          build_depend=True)
 
     def _rescue_includes(self, structure, seedname, rescue_seedname,
                          build_tree):
@@ -1975,9 +1971,8 @@ class Germinator(object):
         if "Reverse-Depends" not in self._packages[pkg]:
             return
 
-        for field in ("Pre-Depends", "Depends", "Recommends",
-                      "Build-Depends", "Build-Depends-Indep",
-                      "Build-Depends-Arch"):
+        for field in BUILD_DEPENDS + ("Pre-Depends", "Depends",
+                                      "Recommends"):
             if field not in self._packages[pkg]["Reverse-Depends"]:
                 continue
 
