@@ -1168,6 +1168,18 @@ class Germinator(object):
                 return False
         return "follow-recommends" in structure.features
 
+    def _follow_build_depends(self, structure, seed=None):
+        """
+        Test whether we should follow Build-Depends for this seed.
+        Defaults to True, if not explicitly specified.
+        """
+        if seed is not None:
+            if "follow-build-depends" in seed._features:
+                return True
+            if "no-follow-build-depends" in seed._features:
+                return False
+        return "no-follow-build-depends" not in structure.features
+
     def _add_reverse(self, pkg, field, rdep):
         """Add a reverse dependency entry."""
         if "Reverse-Depends" not in self._packages[pkg]:
