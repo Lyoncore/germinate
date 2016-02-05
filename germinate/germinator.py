@@ -1574,15 +1574,16 @@ class Germinator(object):
         output._all_srcs.add(src)
         seed._build_srcs.add(src)
 
-        self._add_dependency_tree(seed, pkg,
-                                  self._sources[src]["Build-Depends"],
-                                  build_depend=True)
-        self._add_dependency_tree(seed, pkg,
-                                  self._sources[src]["Build-Depends-Indep"],
-                                  build_depend=True)
-        self._add_dependency_tree(seed, pkg,
-                                  self._sources[src]["Build-Depends-Arch"],
-                                  build_depend=True)
+        if self._follow_build_depends(seed.structure, seed):
+            self._add_dependency_tree(seed, pkg,
+                                      self._sources[src]["Build-Depends"],
+                                      build_depend=True)
+            self._add_dependency_tree(seed, pkg,
+                                      self._sources[src]["Build-Depends-Indep"],
+                                      build_depend=True)
+            self._add_dependency_tree(seed, pkg,
+                                      self._sources[src]["Build-Depends-Arch"],
+                                      build_depend=True)
 
     def _rescue_includes(self, structure, seedname, rescue_seedname,
                          build_tree):
