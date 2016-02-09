@@ -1553,36 +1553,43 @@ class Germinator(object):
                                       recommends=True)
 
         src = self._packages[pkg]["Source"]
-        if src not in self._sources:
-            _logger.error("Missing source package: %s (for %s)", src, pkg)
-            return
+        built_using = [i[0][0] for i in self._packages[pkg]["Built-Using"]]
+        pkg_srcs = set()
 
-        if second_class:
-            for innerseed in self._inner_seeds(seed):
-                if src in innerseed._build_srcs:
-                    return
-        else:
-            for innerseed in self._inner_seeds(seed):
-                if src in innerseed._not_build_srcs:
-                    return
+        # Create set of all sources needed for pkg: Source + Built-Using
+        for pkg_src in built_using + [src]:
+            if pkg_src in self._sources:
+                pkg_srcs.add(pkg_src)
+            else:
+                _logger.error("Missing source package: %s (for %s)", pkg_src, pkg)
 
-        if build_tree:
-            seed._build_sourcepkgs.add(src)
-            if src in output._blacklist:
-                seed._blacklisted.add(src)
+        # Filter/exclude sources already part of an inner seed
+        for innerseed in self._inner_seeds(seed):
+            if second_class:
+                pkg_srcs.difference_update(innerseed._build_srcs)
+            else:
+                pkg_srcs.difference_update(innerseed._not_build_srcs)
 
-        else:
-            seed._not_build_srcs.add(src)
-            seed._sourcepkgs.add(src)
+        # Use build_tree flag for src
+        # Treat all Built-Using, as if it's part of build_tree
+        for pkg_src in pkg_srcs:
+            if build_tree or pkg_src in built_using:
+                seed._build_sourcepkgs.add(pkg_src)
+                if pkg_src in output._blacklist:
+                    seed._blacklisted.add(pkg_src)
+            else:
+                seed._not_build_srcs.add(pkg_src)
+                seed._sourcepkgs.add(pkg_src)
 
-        output._all_srcs.add(src)
-        seed._build_srcs.add(src)
+            output._all_srcs.add(pkg_src)
+            seed._build_srcs.add(pkg_src)
 
-        if self._follow_build_depends(seed.structure, seed):
-            for build_depends in BUILD_DEPENDS:
-                self._add_dependency_tree(seed, pkg,
-                                          self._sources[src][build_depends],
-                                          build_depend=True)
+            if self._follow_build_depends(seed.structure, seed):
+                for build_depends in BUILD_DEPENDS:
+                    self._add_dependency_tree(seed, pkg,
+                                              self._sources[pkg_src][build_depends],
+                                              build_depend=True)
+
 
     def _rescue_includes(self, structure, seedname, rescue_seedname,
                          build_tree):
