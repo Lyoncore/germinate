@@ -1227,7 +1227,7 @@ class Germinator(object):
             if (self._follow_recommends(structure) or
                 self._packages[pkg]["Section"] == "metapackages"):
                 fields.append("Recommends")
-            fields.extend(list(BUILD_DEPENDS))
+            fields.extend(BUILD_DEPENDS)
             for field in fields:
                 if field not in self._packages[pkg]["Reverse-Depends"]:
                     continue
@@ -1553,6 +1553,12 @@ class Germinator(object):
                                       recommends=True)
 
         src = self._packages[pkg]["Source"]
+
+        # Built-Using field is in a form of apt_pkg.parse_depends For
+        # common-case "pkg (= 1)" it returns
+        #     [[('pkg', '1', '=')]]
+        # We thus unpack the first listed alternative pkg-name, for
+        # each built-using source.
         built_using = [i[0][0] for i in self._packages[pkg]["Built-Using"]]
         pkg_srcs = set()
 
