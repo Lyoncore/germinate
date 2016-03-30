@@ -1560,24 +1560,28 @@ class Germinator(object):
         # We thus unpack the first listed alternative pkg-name, for
         # each built-using source.
         built_using = [i[0][0] for i in self._packages[pkg]["Built-Using"]]
-        pkg_srcs = set()
+        pkg_srcs = []
 
         # Create set of all sources needed for pkg: Source + Built-Using
         for pkg_src in built_using + [src]:
-            if pkg_src in self._sources:
-                pkg_srcs.add(pkg_src)
+            if pkg_src in self._sources and pkg_src not in pkg_srcs:
+                pkg_srcs.append(pkg_src)
             else:
                 _logger.error("Missing source package: %s (for %s)", pkg_src, pkg)
 
         # Filter/exclude sources already part of an inner seed
+        if second_class:
+            excluded_srcs = "_build_srcs"
+        else:
+            excluded_srcs = "_not_build_srcs"
+
         for innerseed in self._inner_seeds(seed):
-            if second_class:
-                pkg_srcs.difference_update(innerseed._build_srcs)
-            else:
-                pkg_srcs.difference_update(innerseed._not_build_srcs)
+            for excluded_src in getattr(innerseed, excluded_srcs):
+                if excluded_src in pkg_srcs:
+                    pkg_srcs.remove(excluded_src)
 
         # Use build_tree flag for src
-        # Treat all Built-Using, as if it's part of build_tree
+        # Treat all Built-Using as if it's part of build_tree
         for pkg_src in pkg_srcs:
             if build_tree or pkg_src in built_using:
                 seed._build_sourcepkgs.add(pkg_src)
@@ -1987,8 +1991,7 @@ class Germinator(object):
         if "Reverse-Depends" not in self._packages[pkg]:
             return
 
-        for field in BUILD_DEPENDS + ("Pre-Depends", "Depends",
-                                      "Recommends"):
+        for field in ("Pre-Depends", "Depends", "Recommends") + BUILD_DEPENDS:
             if field not in self._packages[pkg]["Reverse-Depends"]:
                 continue
 
