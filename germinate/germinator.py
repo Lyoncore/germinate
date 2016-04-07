@@ -1562,23 +1562,23 @@ class Germinator(object):
         built_using = [i[0][0] for i in self._packages[pkg]["Built-Using"]]
         pkg_srcs = []
 
-        # Create set of all sources needed for pkg: Source + Built-Using
-        for pkg_src in built_using + [src]:
-            if pkg_src in self._sources and pkg_src not in pkg_srcs:
-                pkg_srcs.append(pkg_src)
-            else:
-                _logger.error("Missing source package: %s (for %s)", pkg_src, pkg)
-
-        # Filter/exclude sources already part of an inner seed
         if second_class:
             excluded_srcs = "_build_srcs"
         else:
             excluded_srcs = "_not_build_srcs"
 
-        for innerseed in self._inner_seeds(seed):
-            for excluded_src in getattr(innerseed, excluded_srcs):
-                if excluded_src in pkg_srcs:
-                    pkg_srcs.remove(excluded_src)
+        # Create set of all sources needed for pkg: Source + Built-Using
+        for pkg_src in built_using + [src]:
+            if pkg_src in self._sources and pkg_src not in pkg_srcs:
+                # Consider this source unless it is already part of an inner
+                # seed
+                for innerseed in self._inner_seeds(seed):
+                    if pkg_src in getattr(innerseed, excluded_srcs):
+                        break
+                else:
+                    pkg_srcs.append(pkg_src)
+            else:
+                _logger.error("Missing source package: %s (for %s)", pkg_src, pkg)
 
         # Use build_tree flag for src
         # Treat all Built-Using as if it's part of build_tree
