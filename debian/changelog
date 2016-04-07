@@ -5,6 +5,9 @@ germinate (2.24) UNRELEASED; urgency=medium
   * Expand source package by adding the Built-Using set.  Treat all
     Built-Using as if part of the build-dependency tree.
 
+  [ Colin Watson ]
+  * Change default distribution to xenial.
+
  -- Colin Watson <cjwatson@ubuntu.com>  Thu, 07 Apr 2016 14:29:31 +0100
 
 germinate (2.23) unstable; urgency=medium
