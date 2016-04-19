@@ -452,7 +452,14 @@ class Germinator(object):
 
         for field in "Pre-Depends", "Depends", "Recommends", "Built-Using":
             value = section.get(field, "")
-            self._packages[pkg][field] = self._parse_depends(value)
+            try:
+                self._packages[pkg][field] = self._parse_depends(value)
+            except ValueError:
+                if field == "Built-Using":
+                    _logger.error(
+                        "Package %s has invalid Built-Using: %s", pkg, value)
+                else:
+                    raise
 
         for field in "Size", "Installed-Size":
             value = section.get(field, "0")

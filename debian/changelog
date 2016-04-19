@@ -1,3 +1,10 @@
+germinate (2.25) UNRELEASED; urgency=medium
+
+  * Cope with malformed Built-Using fields, since we only started checking
+    these recently and so older series have some errors.
+
+ -- Colin Watson <cjwatson@debian.org>  Tue, 19 Apr 2016 10:10:59 +0100
+
 germinate (2.24) unstable; urgency=medium
 
   [ Dimitri John Ledkov ]
