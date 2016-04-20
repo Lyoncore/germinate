@@ -1,3 +1,10 @@
+germinate (2.26) UNRELEASED; urgency=medium
+
+  * Add an --always-follow-build-depends option to force germinate to follow
+    Build-Depends regardless of seed feature flags.
+
+ -- Colin Watson <cjwatson@debian.org>  Wed, 20 Apr 2016 22:41:49 +0100
+
 germinate (2.25) unstable; urgency=medium
 
   * Cope with malformed Built-Using fields, since we only started checking

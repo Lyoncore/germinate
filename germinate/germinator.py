@@ -399,6 +399,8 @@ class Germinator(object):
         # Results of germination for each seed structure.
         self._output = GerminatorOutput()
 
+        self._always_follow_build_depends = False
+
     # Parsing.
     # --------
 
@@ -1182,8 +1184,10 @@ class Germinator(object):
     def _follow_build_depends(self, structure, seed=None):
         """
         Test whether we should follow Build-Depends for this seed.
-        Defaults to True, if not explicitly specified.
+        Defaults to True if not explicitly specified.
         """
+        if self._always_follow_build_depends:
+            return True
         if seed is not None:
             if "follow-build-depends" in seed._features:
                 return True

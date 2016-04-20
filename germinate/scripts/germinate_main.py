@@ -108,6 +108,11 @@ def parse_options(argv):
                       metavar='PARENT/PKG,PARENT/PKG,...',
                       help='treat each PKG as a seed by itself, inheriting '
                            'from PARENT')
+    parser.add_option('--always-follow-build-depends',
+                      dest='always_follow_build_depends', action='store_true',
+                      default=False,
+                      help='always follow Build-Depends, regardless of seed '
+                           'feature flags')
     options, _ = parser.parse_args(argv[1:])
 
     if options.seeds is None:
@@ -141,6 +146,7 @@ def main(argv):
         germinate_logging(logging.INFO)
 
     g = Germinator(options.arch)
+    g._always_follow_build_depends = options.always_follow_build_depends
 
     archive = germinate.archive.TagFile(
         options.dist, options.components, options.arch,
