@@ -2,7 +2,7 @@ germinate (2.26) UNRELEASED; urgency=medium
 
   * Add an --always-follow-build-depends option to force germinate to follow
     Build-Depends regardless of seed feature flags.
-  * Change default distribution to yakkety.
+  * Change default distribution to zesty.
 
  -- Colin Watson <cjwatson@debian.org>  Wed, 20 Apr 2016 22:41:49 +0100
 

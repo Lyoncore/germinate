@@ -22,10 +22,10 @@
 seeds = 'http://people.canonical.com/~ubuntu-archive/seeds/'
 seeds_bzr = 'http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/'
 seeds_git = 'git://git.launchpad.net/~ubuntu-core-dev/ubuntu-seeds/+git/'
-release = 'ubuntu.yakkety'
+release = 'ubuntu.zesty'
 
 # If we need to download Packages.gz and/or Sources.gz, where do we get
 # them from?
 mirror = 'http://archive.ubuntu.com/ubuntu/'
-dist = 'yakkety'
+dist = 'zesty'
 arch = 'i386'
