@@ -108,6 +108,27 @@ It is not intended for the purpose of working around buggy package
 relationships, and attempts to do so will not work because
 .Ic apt
 has no way to know about blacklist entries in seeds.
+.It snap:name
+Seed entries beginning with
+.Sq \&snap:
+are
+.Em snap
+packages. These are different from
+.Em deb
+packages in that they do not have (build-)dependencies, can not be
+recommended, and do not end up in any resulting metapackages. (If you try to
+recommend a snap package, it will be ignored completely.) Snaps specified in
+seeds will be output in a
+.Em .snaps
+file named after the corresponding seed, as software processing the output of
+.Nm
+will typically need to treat snaps differently from debs.
+.Nm
+will not check remotely to see if a given snap is available, therefore seeds
+are expected to explicitly list all architectures a snap is to be seeded on.
+.Sq \&snap:
+entries can also be suffixed with "/classic" to indicate that the snaps need to
+be installed with classic confinement on end-user systems.
 .It key: value
 Some seeds also contain headers at the top of the file, in
 .Dq key: value

@@ -130,5 +130,12 @@ class TestCase(unittest.TestCase):
         with io.open(seed_path, "a", encoding="UTF-8") as seed:
             print(u(" * %s") % pkg, file=seed)
 
+    def addSeedSnap(self, seed_dist, seed_name, pkg):
+        self.setUpDirs()
+        seed_path = os.path.join(self.seeds_dir, seed_dist, seed_name)
+        self.ensureParentDir(seed_path)
+        with io.open(seed_path, "a", encoding="UTF-8") as seed:
+            print(u(" * snap:%s") % pkg, file=seed)
+
     def openSeedStructure(self, branch):
         return SeedStructure(branch, seed_bases=["file://%s" % self.seeds_dir])

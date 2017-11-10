@@ -358,4 +358,38 @@ class TestGerminator(TestCase):
             set(["gettext", "debhelper"]),
             germinator.get_build_depends(structure, "base"))
 
+    def test_snap(self):
+        import logging
+        from germinate.log import germinate_logging
+        germinate_logging(logging.INFO)
+        branch = "collection.precise"
+        self.addSeed(branch, "base")
+        self.addSeedSnap(branch, "base", "hello")
+        germinator = Germinator("i386")
+        structure = self.openSeedStructure(branch)
+        germinator.plant_seeds(structure)
+        germinator.grow(structure)
+
+        self.assertEqual(
+            set(["hello"]),
+            germinator.get_snaps(structure, "base"))
+
+    def test_snap_recommends(self):
+        import logging
+        from germinate.log import germinate_logging
+        logger = germinate_logging(logging.INFO)
+        branch = "collection.precise"
+        self.addSeed(branch, "base")
+        self.addSeedSnap(branch, "base", "(hello)")
+        with self.assertLogs(logger, level=logging.WARNING) as logs:
+            germinator = Germinator("i386")
+            structure = self.openSeedStructure(branch)
+            germinator.plant_seeds(structure)
+            germinator.grow(structure)
+        self.assertIn('ignoring hello', logs.output[0])
+
+        self.assertEqual(
+            set([]),
+            germinator.get_snaps(structure, "base"))
+
     # TODO: Germinator needs many more unit tests.

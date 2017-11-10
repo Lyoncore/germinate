@@ -57,3 +57,4 @@ def germinate_logging(level):
         handler.setFormatter(GerminateFormatter())
         logger.addHandler(handler)
         logger.propagate = False
+    return logger

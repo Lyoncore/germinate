@@ -55,6 +55,7 @@ class TestSeed(TestCase):
         self.addSeedPackage("collection.dist", "test2", "foo")
         self.addSeed("collection.dist", "test3")
         self.addSeedPackage("collection.dist", "test3", "bar")
+        self.addSeedSnap("collection.dist", "test3", "quux")
 
     def test_init_no_vcs(self):
         """__init__ can open a seed from a collection without a VCS."""
@@ -64,6 +65,15 @@ class TestSeed(TestCase):
         self.assertEqual("file://%s" % self.seeds_dir, seed.base)
         self.assertEqual("collection.dist", seed.branch)
         self.assertEqual(" * foo\n", seed.text)
+
+    def test_init_no_vcs_snap(self):
+        """__init__ can open a seed from a collection without a VCS."""
+        seed = Seed(
+            ["file://%s" % self.seeds_dir], ["collection.dist"], "test3")
+        self.assertEqual("test3", seed.name)
+        self.assertEqual("file://%s" % self.seeds_dir, seed.base)
+        self.assertEqual("collection.dist", seed.branch)
+        self.assertEqual(" * bar\n * snap:quux\n", seed.text)
 
     def test_behaves_as_file(self):
         """A Seed context can be read from as a file object."""

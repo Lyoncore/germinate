@@ -128,6 +128,7 @@ class GerminatedSeed(object):
         self._entries = []
         self._features = set()
         self._recommends_entries = []
+        self._snaps = set()
         self._close_seeds = set()
         self._depends = set()
         self._build_depends = set()
@@ -139,6 +140,7 @@ class GerminatedSeed(object):
         self._build_srcs = set()
         self._not_build_srcs = set()
         self._reasons = {}
+        self._snap_reasons = {}
         self._blacklist = set()
         self._blacklist_seen = False
         # Note that this relates to the vestigial global blacklist file, not
@@ -194,6 +196,7 @@ class GerminatedSeed(object):
         self._entries = copy._entries
         self._recommends_entries = copy._recommends_entries
         self._depends = copy._depends
+        self._snaps = copy._snaps
         self._build_depends = copy._build_depends
         self._sourcepkgs = copy._sourcepkgs
         self._build_sourcepkgs = copy._build_sourcepkgs
@@ -202,6 +205,7 @@ class GerminatedSeed(object):
         self._build_srcs = copy._build_srcs
         self._not_build_srcs = copy._not_build_srcs
         self._reasons = copy._reasons
+        self._snap_reasons = copy._snap_reasons
         self._blacklist_seen = False
         self._blacklisted = copy._blacklisted
         self._grown = True
@@ -232,6 +236,10 @@ class GerminatedSeed(object):
     @property
     def depends(self):
         return set(self._depends)
+
+    @property
+    def snaps(self):
+        return self._snaps
 
     @property
     def build_depends(self):
@@ -328,6 +336,7 @@ class GerminatedSeedStructure(object):
         self._all = set()
         self._all_srcs = set()
         self._all_reasons = {}
+        self._all_snap_reasons = {}
 
         self._blacklist = {}
 
@@ -765,6 +774,7 @@ class Germinator(object):
 
         seedpkgs = []
         seedrecommends = []
+        seedsnaps = []
         substvars = {}
 
         for line in raw_seed:
@@ -781,7 +791,7 @@ class Germinator(object):
                 pkg = pkg[:pkg.find("#")]
 
             colon = pkg.find(":")
-            if colon != -1:
+            if colon != -1 and not pkg.startswith("snap:"):
                 # Special header
                 name = pkg[:colon]
                 name = name.lower()
@@ -846,16 +856,32 @@ class Germinator(object):
             else:
                 is_blacklist = False
 
+            # this is a seeded snap
+            if pkg.startswith("snap:"):
+                is_snap = True
+                pkg = pkg[5:]
+                if pkg.endswith("/classic"):
+                    pkg = "%s (classic)" % pkg[:-8]
+            else:
+                is_snap = False
+
             # a (pkgname) indicates that this is a recommend
             # and not a depends
             if pkg.startswith('(') and pkg.endswith(')'):
                 pkg = pkg[1:-1]
+                if is_snap or pkg.startswith("snap:"):
+                    _logger.warning("Recommends entries cannot be used with snap packages, ignoring %s", pkg)
+                    continue
                 pkgs = self._filter_packages(self._packages, pkg)
                 if not pkgs:
                     pkgs = [pkg]  # virtual or expanded; check again later
                 for pkg in pkgs:
                     seedrecommends.extend(self._substitute_seed_vars(
                         substvars, pkg))
+
+            if is_snap and pkg.startswith('%'):
+                _logger.warning("%% entries cannot be used with snap packages, ignoring %s", pkg)
+                continue
 
             if pkg.startswith('%'):
                 pkg = pkg[1:]
@@ -865,6 +891,8 @@ class Germinator(object):
                 else:
                     _logger.warning("Unknown source package: %s", pkg)
                     pkgs = []
+            elif is_snap:
+                pkgs = [pkg]
             else:
                 pkgs = self._filter_packages(self._packages, pkg)
                 if not pkgs:
@@ -876,8 +904,12 @@ class Germinator(object):
                     seed._blacklist.update(self._substitute_seed_vars(
                         substvars, pkg))
             else:
-                for pkg in pkgs:
-                    seedpkgs.extend(self._substitute_seed_vars(substvars, pkg))
+                if is_snap:
+                    for pkg in pkgs:
+                        seedsnaps.extend(self._substitute_seed_vars(substvars, pkg))
+                else:
+                    for pkg in pkgs:
+                        seedpkgs.extend(self._substitute_seed_vars(substvars, pkg))
 
         di_kernel_versions = None
 
@@ -920,6 +952,9 @@ class Germinator(object):
             else:
                 # No idea
                 _logger.error("Unknown %s package: %s", seed, pkg)
+
+        for pkg in seedsnaps:
+            seed._snaps.add(pkg)
 
         for pkg in self._hints:
             if (self._hints[pkg] == seed.name and
@@ -1023,6 +1058,10 @@ class Germinator(object):
                     self._di_kernel_versions = pkg
                 else:
                     self._add_package(seed, pkg, seed._seed_reason)
+            for pkg in self.get_seed_snap_entries(structure, seedname):
+                # avoid collisions with deb packages with the same name
+                self._remember_why(seed._snap_reasons, pkg, seed._seed_reason, False, False)
+                self._remember_why(output._all_snap_reasons, pkg, seed._seed_reason, False, False)
 
             self._di_kernel_versions = None
 
@@ -1736,6 +1775,23 @@ class Germinator(object):
             if not isinstance(e, SeedKernelVersions)]
         return ret
 
+    def get_seed_snap_entries(self, structure, seedname):
+        """Return the explicitly seeded snap entries for this seed."""
+        seed = self._get_seed(structure, seedname)
+        output = set(seed._snaps)
+        for innerseed in self._inner_seeds(seed):
+            if innerseed.name == seed.name:
+                continue
+            output -= innerseed._depends
+        # Take care to preserve the original ordering.
+        # Use a temporary variable to work around a pychecker bug.
+        ret = [e for e in seed._snaps if e in output]
+        return ret
+
+    def get_snaps(self, structure, seedname):
+        """ Return the explicitly seeded snap entries for this seed."""
+        return self._get_seed(structure, seedname).snaps
+
     def get_depends(self, structure, seedname):
         """Return the dependencies of this seed."""
         return self._get_seed(structure, seedname).depends
@@ -1842,6 +1898,34 @@ class Germinator(object):
                 print(fmt % (src_len, src, mnt_len,
                              self._sources[src]["Maintainer"]), file=f)
 
+    def _write_snap_list(self, reasons, filename, snapset):
+        snaplist = sorted(snapset)
+
+        pkg_len = len("Package")
+        why_len = len("Why")
+
+        for pkg in snaplist:
+            _pkg_len = len(pkg)
+            if _pkg_len > pkg_len:
+                pkg_len = _pkg_len
+
+            why = reasons[pkg][0] if pkg in reasons else ""
+            _why_len = len(str(why))
+            if _why_len > why_len:
+                why_len = _why_len
+
+        with AtomicFile(filename) as f:
+            print("%-*s | %-*s" %
+                  (pkg_len, "Package",
+                   why_len, "Why"), file=f)
+            print(("-" * pkg_len) + "-+-" + ("-" * why_len), file=f)
+            for pkg in snaplist:
+                why = reasons[pkg][0] if pkg in reasons else ""
+                print("%-*s | %-*s" %
+                      (pkg_len, pkg,
+                       why_len, why), file=f)
+            print(("-" * (pkg_len + why_len + 3)), file=f)
+
     def write_full_list(self, structure, filename, seedname):
         """Write the full (run-time) dependency expansion of this seed."""
         seed = self._get_seed(structure, seedname)
@@ -1864,6 +1948,11 @@ class Germinator(object):
         """Write the dependencies of this seed."""
         seed = self._get_seed(structure, seedname)
         self._write_list(seed._reasons, filename, seed._depends)
+
+    def write_snap_list(self, structure, filename, seedname):
+        """Write the snaps seeded in this seed."""
+        seed = self._get_seed(structure, seedname)
+        self._write_snap_list(seed._snap_reasons, filename, seed._snaps)
 
     def write_build_depends_list(self, structure, filename, seedname):
         """Write the build-dependencies of this seed."""
@@ -1895,6 +1984,16 @@ class Germinator(object):
 
         self._write_list(self._output[structure]._all_reasons, filename,
                          all_bins)
+
+    def write_all_snap_list(self, structure, filename):
+        """Write all the snap packages in this structure."""
+        all_snaps = set()
+
+        for seedname in structure.names:
+            all_snaps |= self.get_snaps(structure, seedname)
+
+        self._write_snap_list(self._output[structure]._all_snap_reasons, filename,
+                              all_snaps)
 
     def write_all_source_list(self, structure, filename):
         """Write all the source packages for this structure."""
