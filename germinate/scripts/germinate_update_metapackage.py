@@ -34,17 +34,9 @@ import subprocess
 import sys
 
 try:
-    # >= 3.0
     from configparser import NoOptionError, NoSectionError
-    if (sys.version_info[0] < 3 or
-        (sys.version_info[0] == 3 and sys.version_info[1] < 2)):
-        # < 3.2
-        from configparser import SafeConfigParser
-    else:
-        # >= 3.2
-        from configparser import ConfigParser as SafeConfigParser
+    from configparser import ConfigParser as SafeConfigParser
 except ImportError:
-    # < 3.0
     from ConfigParser import NoOptionError, NoSectionError, SafeConfigParser
 
 import germinate.archive

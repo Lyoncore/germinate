@@ -8,7 +8,7 @@ Build-Depends-Indep: python (>= 2.7), python-all, python3 (>= 3.1.2-8~), python3
 Vcs-Git: git://git.launchpad.net/germinate
 Vcs-Browser: https://git.launchpad.net/germinate
 X-Python-Version: >= 2.7
-X-Python3-Version: >= 3.0
+X-Python3-Version: >= 3.2
 
 Package: germinate
 Architecture: all
