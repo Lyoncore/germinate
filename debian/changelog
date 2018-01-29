@@ -1,4 +1,4 @@
-germinate (2.27) UNRELEASED; urgency=medium
+germinate (2.27) unstable; urgency=medium
 
   [ Iain Lane ]
   * Initial support for specifying snaps in seeds.
@@ -7,7 +7,7 @@ germinate (2.27) UNRELEASED; urgency=medium
   * Drop support for Python 3.0 and 3.1.
   * Change default distribution to bionic.
 
- -- Colin Watson <cjwatson@ubuntu.com>  Mon, 29 Jan 2018 17:50:27 +0000
+ -- Colin Watson <cjwatson@ubuntu.com>  Mon, 29 Jan 2018 18:04:40 +0000
 
 germinate (2.26) unstable; urgency=medium
 
