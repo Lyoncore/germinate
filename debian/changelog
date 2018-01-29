@@ -1,3 +1,10 @@
+germinate (2.27) UNRELEASED; urgency=medium
+
+  [ Iain Lane ]
+  * Initial support for specifying snaps in seeds.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Mon, 29 Jan 2018 17:50:27 +0000
+
 germinate (2.26) unstable; urgency=medium
 
   * Add an --always-follow-build-depends option to force germinate to follow
