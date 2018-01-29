@@ -5,6 +5,7 @@ germinate (2.27) UNRELEASED; urgency=medium
 
   [ Colin Watson ]
   * Drop support for Python 3.0 and 3.1.
+  * Change default distribution to bionic.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Mon, 29 Jan 2018 17:50:27 +0000
 
