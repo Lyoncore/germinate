@@ -1,6 +1,7 @@
 germinate (2.28) UNRELEASED; urgency=medium
 
   * Support versioned Provides (LP: #1758004).
+  * Build-depend on dh-python.
 
  -- Colin Watson <cjwatson@ubuntu.com>  Fri, 23 Mar 2018 09:03:55 +0000
 
