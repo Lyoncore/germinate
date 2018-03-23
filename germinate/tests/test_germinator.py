@@ -216,7 +216,7 @@ class TestGerminator(TestCase):
 
         self.assertNotIn("goodbye", germinator._provides)
         self.assertIn("hello-goodbye", germinator._provides)
-        self.assertEqual(["hello"], germinator._provides["hello-goodbye"])
+        self.assertEqual({"hello": ""}, germinator._provides["hello-goodbye"])
 
     def test_depends_multiarch(self):
         """Compare Depends behaviour against the multiarch specification.
@@ -357,6 +357,48 @@ class TestGerminator(TestCase):
         self.assertEqual(
             set(["gettext", "debhelper"]),
             germinator.get_build_depends(structure, "base"))
+
+    def test_versioned_provides(self):
+        """Germinator.parse_archive resolves versioned provides."""
+        self.addSource("bionic", "main", "hello", "1.0-1",
+                       ["hello", "hello-dependency", "hello-bad"],
+                       fields={"Maintainer": "Test Person <test@example.com>"})
+        self.addPackage("bionic", "main", "i386", "hello", "1.0-1",
+                        fields={
+                            "Maintainer": "Test Person <test@example.com>",
+                            "Depends": "hello-virtual (>= 2.0)",
+                            })
+        self.addPackage("bionic", "main", "i386", "hello-bad", "2.0-1",
+                        fields={"Source": "hello (= 1.0-1)",
+                                "Provides": "hello-virtual (= 1.0)"})
+        self.addPackage("bionic", "main", "i386", "hello-dependency", "1.0-1",
+                        fields={"Source": "hello",
+                                "Provides": "hello-virtual (= 2.0)"})
+        branch = "ubuntu.bionic"
+        self.addSeed(branch, "supported")
+        self.addSeedPackage(branch, "supported", "hello")
+        germinator = Germinator("i386")
+        archive = TagFile(
+            "bionic", "main", "i386", "file://%s" % self.archive_dir)
+        germinator.parse_archive(archive)
+
+        self.assertIn("hello", germinator._sources)
+        self.assertIn("hello", germinator._packages)
+        self.assertEqual("deb", germinator._packagetype["hello"])
+        self.assertIn("hello-dependency", germinator._packages)
+        self.assertEqual("deb", germinator._packagetype["hello-dependency"])
+        self.assertIn("hello-bad", germinator._packages)
+        self.assertEqual("deb", germinator._packagetype["hello-bad"])
+        self.assertEqual(
+            {"hello-virtual": {"hello-bad": "1.0", "hello-dependency": "2.0"}},
+            germinator._provides)
+        structure = self.openSeedStructure(branch)
+        germinator.plant_seeds(structure)
+        germinator.grow(structure)
+
+        expected = set(["hello-dependency"])
+        self.assertEqual(
+            expected, germinator.get_depends(structure, "supported"))
 
     def test_snap(self):
         import logging

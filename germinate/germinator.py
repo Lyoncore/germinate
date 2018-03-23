@@ -20,7 +20,11 @@
 
 from __future__ import print_function
 
-from collections import defaultdict, MutableMapping
+from collections import (
+    defaultdict,
+    MutableMapping,
+    OrderedDict,
+    )
 import fnmatch
 import logging
 import re
@@ -394,7 +398,7 @@ class Germinator(object):
         # Parsed representation of the archive.
         self._packages = {}
         self._packagetype = {}
-        self._provides = {}
+        self._provides = defaultdict(OrderedDict)
         self._sources = {}
 
         # All the seeds we know about, regardless of seed structure.
@@ -484,9 +488,6 @@ class Germinator(object):
 
         self._packages[pkg]["Provides"] = apt_pkg.parse_depends(
             section.get("Provides", ""))
-
-        if pkg in self._provides:
-            self._provides[pkg].append(pkg)
 
         self._packages[pkg]["Multi-Arch"] = section.get("Multi-Arch", "none")
 
@@ -618,11 +619,12 @@ class Germinator(object):
         # Construct a more convenient representation of Provides fields.
         for pkg in sorted(self._packages):
             for prov in self._packages[pkg]["Provides"]:
-                if prov[0][0] not in self._provides:
-                    self._provides[prov[0][0]] = []
-                    if prov[0][0] in self._packages:
-                        self._provides[prov[0][0]].append(prov[0][0])
-                self._provides[prov[0][0]].append(pkg)
+                if prov[0][2] not in ("", "="):
+                    _logger.warning(
+                        "Ignoring invalid Provides: %s by %s",
+                        self._unparse_dependency(*prov[0]), pkg)
+                    continue
+                self._provides[prov[0][0]][pkg] = prov[0][1]
 
     def parse_blacklist(self, structure, f):
         """Parse a blacklist file, used to indicate unwanted packages."""
@@ -1165,44 +1167,51 @@ class Germinator(object):
             else:
                 return False
 
-    def _allowed_virtual_dependency(self, pkg, deptype):
-        """Test whether a virtual dependency type is allowed.
+    def _get_dependency_candidates(self, pkg, depname, depver, deptype,
+                                   seed, build_depend,
+                                   always_include_virtual=False):
+        """Get the possible candidates for satisfying a dependency."""
+        plain_depname = depname.split(":", 1)[0]
+        candidates = []
+        if plain_depname in self._packages:
+            candidates.append(
+                (depname, self._packages[plain_depname]["Version"]))
+        if depname in self._provides:
+            candidates.extend(self._provides[plain_depname].items())
 
-        Return True if pkg's dependency relationship type deptype may be
-        satisfied by a virtual package.  (Versioned dependencies may not be
-        satisfied by virtual packages, unless pkg is a udeb.)
-
-        """
-        if pkg in self._packagetype and self._packagetype[pkg] == "udeb":
-            return True
-        else:
-            return deptype == ""
-
-    def _check_versioned_dependency(self, depname, depver, deptype):
-        """Test whether a versioned dependency can be satisfied."""
-        depname = depname.split(":", 1)[0]
-        if depname not in self._packages:
-            return False
-        if deptype == "":
-            return True
-
-        ver = self._packages[depname]["Version"]
-        compare = apt_pkg.version_compare(ver, depver)
-        if deptype == "<=":
-            return compare <= 0
-        elif deptype == ">=":
-            return compare >= 0
-        elif deptype == "<":
-            return compare < 0
-        elif deptype == ">":
-            return compare > 0
-        elif deptype == "=":
-            return compare == 0
-        elif deptype == "!=":
-            return compare != 0
-        else:
-            _logger.error("Unknown dependency comparator: %s" % deptype)
-            return False
+        for candpkg, candver in candidates:
+            plain_candpkg = candpkg.split(":", 1)[0]
+            if plain_candpkg not in self._packages:
+                continue
+            allowed = False
+            if deptype == "":
+                # Unversioned dependencies are satisfied by anything.
+                allowed = True
+            elif candver == "":
+                # Versioned dependencies on an unversioned virtual package
+                # are only satisfied if the depending package is a udeb.
+                allowed = self._packagetype.get(pkg) == "udeb"
+            else:
+                compare = apt_pkg.version_compare(candver, depver)
+                if deptype == "<=":
+                    allowed = compare <= 0
+                elif deptype == ">=":
+                    allowed = compare >= 0
+                elif deptype == "<":
+                    allowed = compare < 0
+                elif deptype == ">":
+                    allowed = compare > 0
+                elif deptype == "=":
+                    allowed = compare == 0
+                elif deptype == "!=":
+                    allowed = compare != 0
+                else:
+                    _logger.error("Unknown dependency comparator: %s", deptype)
+            if allowed:
+                if self._allowed_dependency(pkg, candpkg, seed, build_depend):
+                    yield plain_candpkg
+                    if candpkg == depname and not always_include_virtual:
+                        break
 
     def _unparse_dependency(self, depname, depver, deptype):
         """Return a string representation of a dependency."""
@@ -1288,15 +1297,10 @@ class Germinator(object):
                            with_build=False):
         """Test whether a dependency has already been satisfied."""
         (depname, depver, deptype) = depend
-        if (self._allowed_virtual_dependency(pkg, deptype) and
-            depname in self._provides):
-            trylist = [d for d in self._provides[depname]
-                       if d in self._packages and
-                          self._allowed_dependency(pkg, d, seed, build_depend)]
-        elif (self._check_versioned_dependency(depname, depver, deptype) and
-              self._allowed_dependency(pkg, depname, seed, build_depend)):
-            trylist = [depname.split(":", 1)[0]]
-        else:
+        trylist = list(self._get_dependency_candidates(
+            pkg, depname, depver, deptype, seed, build_depend,
+            always_include_virtual=True))
+        if not trylist:
             return False
 
         for trydep in trylist:
@@ -1355,15 +1359,9 @@ class Germinator(object):
 
         """
         (depname, depver, deptype) = depend
-        if (self._check_versioned_dependency(depname, depver, deptype) and
-            self._allowed_dependency(pkg, depname, seed, build_depend)):
-            trylist = [depname.split(":", 1)[0]]
-        elif (self._allowed_virtual_dependency(pkg, deptype) and
-              depname in self._provides):
-            trylist = [d for d in self._provides[depname]
-                       if d in self._packages and
-                          self._allowed_dependency(pkg, d, seed, build_depend)]
-        else:
+        trylist = list(self._get_dependency_candidates(
+            pkg, depname, depver, deptype, seed, build_depend))
+        if not trylist:
             return False
 
         lesserseeds = self._strictly_outer_seeds(seed)
@@ -1419,13 +1417,9 @@ class Germinator(object):
 
         """
         (depname, depver, deptype) = depend
-        if (self._check_versioned_dependency(depname, depver, deptype) and
-            self._allowed_dependency(pkg, depname, seed, build_depend)):
-            virtual = None
-        elif (self._allowed_virtual_dependency(pkg, deptype) and
-              depname in self._provides):
-            virtual = depname
-        else:
+        dependlist = list(self._get_dependency_candidates(
+            pkg, depname, depver, deptype, seed, build_depend))
+        if not dependlist:
             if build_depend:
                 desc = "build-dependency"
             elif recommends:
@@ -1437,31 +1431,25 @@ class Germinator(object):
                           pkg)
             return False
 
-        dependlist = [depname.split(":", 1)[0]]
-        if virtual is not None:
-            reallist = [d for d in self._provides[virtual]
-                        if d in self._packages and
-                           self._allowed_dependency(
-                               pkg, d, seed, build_depend)]
-            if len(reallist):
-                depname = reallist[0]
-                # If the depending package isn't a d-i kernel module but the
-                # dependency is, then pick all the modules for other allowed
-                # kernel versions too.
-                if (self._packages[pkg]["Kernel-Version"] == "" and
-                    self._packages[depname]["Kernel-Version"] != ""):
-                    dependlist = [d for d in reallist
-                                  if not self._di_kernel_versions or
-                                     (self._packages[d]["Kernel-Version"] in
-                                      self._di_kernel_versions)]
-                else:
-                    dependlist = [depname]
-                _logger.info("Chose %s out of %s to satisfy %s",
-                             ", ".join(dependlist), virtual, pkg)
+        if dependlist:
+            # If the depending package isn't a d-i kernel module but the
+            # dependency is, then pick all the modules for other allowed
+            # kernel versions too.
+            if (self._packages[pkg]["Kernel-Version"] == "" and
+                self._packages[dependlist[0]]["Kernel-Version"] != ""):
+                dependlist = [d for d in dependlist
+                              if not self._di_kernel_versions or
+                                 (self._packages[d]["Kernel-Version"] in
+                                  self._di_kernel_versions)]
             else:
-                _logger.error("Nothing to choose out of %s to satisfy %s",
-                              virtual, pkg)
-                return False
+                dependlist = [dependlist[0]]
+            if dependlist != [depname.split(":", 1)[0]]:
+                _logger.info("Chose %s out of %s to satisfy %s",
+                             ", ".join(dependlist), depname, pkg)
+        else:
+            _logger.error("Nothing to choose out of %s to satisfy %s",
+                          depname, pkg)
+            return False
 
         return self._add_dependency(seed, pkg, dependlist, build_depend,
                                     second_class, build_tree, recommends)
